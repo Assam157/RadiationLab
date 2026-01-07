@@ -1,0 +1,116 @@
+.dexter-root {
+  display: flex;
+  background: radial-gradient(#050505, #000);
+  height: 100vh;
+  color: #0f0;
+  font-family: monospace;
+}
+
+.control-panel {
+  width: 220px;
+  padding: 20px;
+  border-right: 3px solid #111;
+  background: linear-gradient(#020202, #080808);
+}
+
+.control-panel h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #7cff00;
+}
+
+button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background: #111;
+  color: white;
+}
+
+button.active {
+  box-shadow: 0 0 12px currentColor;
+  font-weight: bold;
+}
+
+.alpha { color: red; }
+.beta { color: cyan; }
+.gamma { color: violet; }
+
+.energy-box {
+  margin-top: 20px;
+  padding: 10px;
+  border: 2px dashed #0f0;
+  text-align: center;
+  color: #0f0;
+}
+
+canvas {
+  background: black;
+}
+
+.energy-box input {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Layout update */
+.dexter-root {
+  display: flex;
+  height: 100vh;
+  background: radial-gradient(#050505, #000);
+  color: #0f0;
+  font-family: monospace;
+}
+
+/* RIGHT ENERGY PANEL */
+.energy-panel {
+  width: 120px;
+  padding: 20px 10px;
+  border-left: 3px solid #111;
+  background: linear-gradient(#020202, #080808);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Energy text */
+.energy-label {
+  font-size: 18px;
+  color: #7cff00;
+}
+
+.energy-value {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* BIG vertical slider */
+.energy-slider {
+  writing-mode: bt-lr;          /* vertical */
+  -webkit-appearance: slider-vertical;
+  height: 300px;
+  width: 40px;
+  cursor: pointer;
+}
+.em {
+  border-color: #00eaff;
+}
+
+.em-scale {
+  margin-top: 20px;
+  font-size: 11px;
+  color: #aaa;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.em-step {
+  padding-left: 4px;
+  border-left: 2px solid #00eaff;
+}
