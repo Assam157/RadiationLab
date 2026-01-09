@@ -32,7 +32,7 @@ function DexterHome() {
         gap: 20
       }}
     >
-      <h1>PARTICLE PHYSICS LAB CONSOLE</h1>
+      <h1>PHYSICS VIRTUAL LAB CONSOLE</h1>
 
       <button className="lab-btn" onClick={() => navigate("/radiation")}>
         ☢ Radiation Physics Lab
