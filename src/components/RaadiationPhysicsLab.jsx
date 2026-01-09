@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./RadiationDexterLab.css";
 
 const W = 700;
@@ -20,19 +21,20 @@ const DEFLECT_FACTOR = {
 export default function RadiationDexterLab() {
   const canvasRef = useRef(null);
   const tRef = useRef(0);
+  const navigate = useNavigate(); // 👈 added
 
   /* SLIDERS */
   const [energy, setEnergy] = useState(1.0);
   const [emField, setEmField] = useState(1.0);
 
-  /* PARTICLE SWITCHES (styled as buttons) */
+  /* PARTICLE SWITCHES */
   const [particles, setParticles] = useState({
     alpha: true,
     beta: false,
     gamma: false
   });
 
-  /* EXPERIMENT TOGGLE BUTTONS */
+  /* EXPERIMENT TOGGLES */
   const [experiments, setExperiments] = useState({
     gold: true,
     shield: false,
@@ -40,10 +42,10 @@ export default function RadiationDexterLab() {
   });
 
   const toggleParticle = (k) =>
-    setParticles(p => ({ ...p, [k]: !p[k] }));
+    setParticles((p) => ({ ...p, [k]: !p[k] }));
 
   const toggleExperiment = (k) =>
-    setExperiments(e => ({ ...e, [k]: !e[k] }));
+    setExperiments((e) => ({ ...e, [k]: !e[k] }));
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
@@ -88,7 +90,7 @@ export default function RadiationDexterLab() {
     function drawRayDeflected(yBase, rgb, factor) {
       const startX = 140;
       const length = 520 * energy;
-      const deflect = factor * emField * 140 / Math.max(energy, 0.2);
+      const deflect = (factor * emField * 140) / Math.max(energy, 0.2);
 
       ctx.strokeStyle = `rgb(${rgb})`;
       ctx.lineWidth = 3;
@@ -182,22 +184,66 @@ export default function RadiationDexterLab() {
 
   return (
     <div className="dexter-root">
+      {/* LEFT PANEL */}
       <div className="control-panel">
         <h2>☢ RADIATION LAB</h2>
 
         {/* Experiment buttons */}
-        <button className={experiments.gold ? "active" : ""} onClick={() => toggleExperiment("gold")}>GOLD</button>
-        <button className={experiments.shield ? "active" : ""} onClick={() => toggleExperiment("shield")}>SHIELD</button>
-        <button className={experiments.emfield ? "active em" : ""} onClick={() => toggleExperiment("emfield")}>EM</button>
+        <button
+          className={experiments.gold ? "active" : ""}
+          onClick={() => toggleExperiment("gold")}
+        >
+          GOLD
+        </button>
 
-        {/* Particle switches styled as buttons */}
+        <button
+          className={experiments.shield ? "active" : ""}
+          onClick={() => toggleExperiment("shield")}
+        >
+          SHIELD
+        </button>
+
+        <button
+          className={experiments.emfield ? "active em" : ""}
+          onClick={() => toggleExperiment("emfield")}
+        >
+          EM
+        </button>
+
+        {/* Particle switches */}
         <div style={{ marginTop: 20 }}>
-          <button className={`alpha ${particles.alpha ? "active" : ""}`} onClick={() => toggleParticle("alpha")}>α ALPHA</button>
-          <button className={`beta ${particles.beta ? "active" : ""}`} onClick={() => toggleParticle("beta")}>β BETA</button>
-          <button className={`gamma ${particles.gamma ? "active" : ""}`} onClick={() => toggleParticle("gamma")}>γ GAMMA</button>
+          <button
+            className={`alpha ${particles.alpha ? "active" : ""}`}
+            onClick={() => toggleParticle("alpha")}
+          >
+            α ALPHA
+          </button>
+
+          <button
+            className={`beta ${particles.beta ? "active" : ""}`}
+            onClick={() => toggleParticle("beta")}
+          >
+            β BETA
+          </button>
+
+          <button
+            className={`gamma ${particles.gamma ? "active" : ""}`}
+            onClick={() => toggleParticle("gamma")}
+          >
+            γ GAMMA
+          </button>
         </div>
+
+        {/* BACK BUTTON */}
+        <button
+          style={{ marginTop: 20 }}
+          onClick={() => navigate("/")}
+        >
+          ⬅ BACK TO CONSOLE
+        </button>
       </div>
 
+      {/* CANVAS */}
       <canvas ref={canvasRef} width={W} height={H} />
 
       {/* RIGHT PANEL */}
