@@ -243,41 +243,47 @@ export default function RadiationDexterLab() {
         </button>
       </div>
 
-      {/* CANVAS */}
-      <canvas ref={canvasRef} width={W} height={H} />
+      
+   {/* CANVAS */}
+<div className="canvas-container-black">
+  <canvas ref={canvasRef} width={W} height={H} />
+</div>
 
-      {/* RIGHT PANEL */}
-      <div className="energy-panel">
-        <div className="energy-label">ENERGY</div>
-        <div className="energy-value">{energy.toFixed(2)}×</div>
+{/* RIGHT PANEL */}
+<div className="energy-panel">
+  <div className="energy-label">ENERGY</div>
+  <div className="energy-value">{energy.toFixed(2)}×</div>
 
-        <input
-          className="energy-slider"
-          type="range"
-          min="0.2"
-          max="1"
-          step="0.01"
-          value={energy}
-          onChange={(e) => setEnergy(+e.target.value)}
-        />
+  <input
+    className="energy-slider"
+    type="range"
+    min="0.2"
+    max="1"
+    step="0.01"
+    value={energy}
+    onChange={(e) => setEnergy(+e.target.value)}
+  />
 
-        {experiments.emfield && (
-          <>
-            <div className="energy-label">EM FIELD</div>
-            <div className="energy-value">{emField.toFixed(2)}×</div>
+  {experiments.emfield && (
+    <>
+      <div className="energy-label">EM FIELD</div>
+      <div className="energy-value">{emField.toFixed(2)}×</div>
 
-            <input
-              className="energy-slider em"
-              type="range"
-              min="0"
-              max="3"
-              step="0.01"
-              value={emField}
-              onChange={(e) => setEmField(+e.target.value)}
-            />
-          </>
-        )}
+      <input
+        className="energy-slider em"
+        type="range"
+        min="0"
+        max="3"
+        step="0.01"
+        value={emField}
+        onChange={(e) => setEmField(+e.target.value)}
+      />
+    </>
+  )}
+</div>
+
       </div>
-    </div>
+ 
   );
 }
+
