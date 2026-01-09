@@ -10,7 +10,8 @@ import RadiationPhysicsLab from "./components/RaadiationPhysicsLab";
 import OpticalDexterLab from "./components/OpticalLab";
 import SemiconductorDexterLab from "./components/SemiconducterLab";
 import EMLab from "./components/EMLab";
-import LensRayDiagram from "./components/LensExperiment";
+import ProjectileMotionLab from "./components/ProjectileMotionLab";
+
 /* ------------------------------
    MAIN MENU (DEXTER CONSOLE)
 -------------------------------- */
@@ -48,6 +49,10 @@ function DexterHome() {
       <button className="lab-btn" onClick={() => navigate("/em")}>
         🧲 Electromagnetism Lab
       </button>
+
+      <button className="lab-btn" onClick={() => navigate("/sid")}>
+        🚀 SID Physics Lab (Kinematics)
+      </button>
     </div>
   );
 }
@@ -64,6 +69,7 @@ export default function App() {
         <Route path="/optical" element={<OpticalDexterLab />} />
         <Route path="/semiconductor" element={<SemiconductorDexterLab />} />
         <Route path="/em" element={<EMLab />} />
+        <Route path="/sid" element={<ProjectileMotionLab />} />
       </Routes>
     </Router>
   );
