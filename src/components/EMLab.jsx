@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BandGapExperiment from "./ElectronEnergyBand";
 import "./EMLab.css";
 
 const W = 1100;
@@ -10,7 +11,7 @@ export default function EMLab() {
   const navigate = useNavigate();
 
   // experiment mode
-  const [mode, setMode] = useState("wire"); // "wire" | "atom"
+  const [mode, setMode] = useState("wire"); // "wire" | "atom" | "bandgap"
 
   // shared current control
   const [direction, setDirection] = useState("same");
@@ -22,6 +23,8 @@ export default function EMLab() {
   /* ================= KEYBOARD CONTROL (A / D) ================= */
   useEffect(() => {
     function onKey(e) {
+      if (mode === "bandgap") return;
+
       if (e.key === "a" || e.key === "A") {
         setIntensity(v => Math.max(0, +(v - 0.02).toFixed(2)));
       }
@@ -31,10 +34,12 @@ export default function EMLab() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [mode]);
 
   /* ================= CANVAS LOOP ================= */
   useEffect(() => {
+    if (mode === "bandgap") return;
+
     const ctx = canvasRef.current.getContext("2d");
     let t = 0;
     let raf;
@@ -112,12 +117,11 @@ export default function EMLab() {
       drawElasticWire(BASE_RIGHT, bendR);
     }
 
-    /* ---------- ATOM EXPERIMENT (CURRENT-DRIVEN) ---------- */
+    /* ---------- ATOM EXPERIMENT ---------- */
     function drawAtomExperiment() {
       const cx = W / 2;
       const cy = H / 2;
 
-      // shells
       [80, 140, 200].forEach(r => {
         ctx.strokeStyle = "rgba(150,200,255,0.3)";
         ctx.beginPath();
@@ -125,7 +129,6 @@ export default function EMLab() {
         ctx.stroke();
       });
 
-      // nucleus
       ctx.beginPath();
       ctx.arc(cx, cy, 14, 0, Math.PI * 2);
       ctx.fillStyle = "#ff6b6b";
@@ -134,7 +137,6 @@ export default function EMLab() {
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // excitation level controlled by current
       const level =
         intensity < 0.33 ? 80 :
         intensity < 0.66 ? 140 : 200;
@@ -151,7 +153,6 @@ export default function EMLab() {
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // photon emission when highly excited
       if (intensity > 0.5) {
         ctx.strokeStyle = "rgba(255,215,0,0.8)";
         ctx.lineWidth = 2;
@@ -181,57 +182,59 @@ export default function EMLab() {
       <div className="lab-panel">
         <div className="lab-panel-title">EXPERIMENTS</div>
 
-        <button
-          className={`panel-btn ${mode === "wire" ? "active" : ""}`}
-          onClick={() => setMode("wire")}
-        >
+        <button className={`panel-btn ${mode === "wire" ? "active" : ""}`}
+          onClick={() => setMode("wire")}>
           Current-Carrying Wires
         </button>
 
-        <button
-          className={`panel-btn ${mode === "atom" ? "active" : ""}`}
-          onClick={() => setMode("atom")}
-        >
+        <button className={`panel-btn ${mode === "atom" ? "active" : ""}`}
+          onClick={() => setMode("atom")}>
           Electron Excitation
+        </button>
+
+        <button className={`panel-btn ${mode === "bandgap" ? "active" : ""}`}
+          onClick={() => setMode("bandgap")}>
+          Band Gap Transitions
         </button>
 
         {mode === "wire" && (
           <>
             <div className="panel-section">CURRENT DIRECTION</div>
-            <button
-              className={`panel-btn ${direction === "same" ? "active" : ""}`}
-              onClick={() => setDirection("same")}
-            >
+            <button className={`panel-btn ${direction === "same" ? "active" : ""}`}
+              onClick={() => setDirection("same")}>
               Same Current
             </button>
-            <button
-              className={`panel-btn ${direction === "opposite" ? "active" : ""}`}
-              onClick={() => setDirection("opposite")}
-            >
+            <button className={`panel-btn ${direction === "opposite" ? "active" : ""}`}
+              onClick={() => setDirection("opposite")}>
               Opposite Current
             </button>
           </>
         )}
       </div>
 
-      {/* CANVAS */}
+      {/* MAIN VIEW */}
       <div className="lab-canvas-wrap">
-        <canvas ref={canvasRef} width={W} height={H} />
+        {mode === "bandgap" ? (
+          <BandGapExperiment />
+        ) : (
+          <canvas ref={canvasRef} width={W} height={H} />
+        )}
 
-        {/* RIGHT ENERGY SLIDER (UNCHANGED LOOK) */}
-        <div className="cinema-energy">
-          <div className="label">CURRENT INTENSITY</div>
-          <div className="value">{intensity.toFixed(2)}</div>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={intensity}
-            onChange={e => setIntensity(+e.target.value)}
-          />
-          <div className="panel-hint">Use A / D keys</div>
-        </div>
+        {mode !== "bandgap" && (
+          <div className="cinema-energy">
+            <div className="label">CURRENT INTENSITY</div>
+            <div className="value">{intensity.toFixed(2)}</div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={intensity}
+              onChange={e => setIntensity(+e.target.value)}
+            />
+            <div className="panel-hint">Use A / D keys</div>
+          </div>
+        )}
 
         <button className="lab-back" onClick={() => navigate("/")}>
           ← BACK
@@ -240,3 +243,4 @@ export default function EMLab() {
     </div>
   );
 }
+
