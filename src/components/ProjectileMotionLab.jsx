@@ -3,23 +3,23 @@ import "./ProjectileMotionGraph.css";
 
 const W = 760;
 const H = 460;
-const g = 9.8;
+const g = 9.8; // m/s^2
 
 const M = { left: 70, right: 40, top: 40, bottom: 60 };
-const MAX_RANGE = 160;
-const MAX_HEIGHT = 80;
+const MAX_RANGE = 160;   // meters
+const MAX_HEIGHT = 80;  // meters
 
-export default function ProjectileMotionGraph() {
+export default function ProjectileMotionLab() {
   const canvasRef = useRef(null);
 
-  const [angle, setAngle] = useState(45);
-  const [speed, setSpeed] = useState(30);
+  const [angle, setAngle] = useState(45);      // degrees
+  const [speed, setSpeed] = useState(30);      // m/s
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
 
   const proj = useRef({ t: 0, path: [], maxH: 0, range: 0 });
 
-  /* ---------- AUTO-SAFE SPEED (NO CAPPING) ---------- */
+  /* ---------- AUTO SAFE PHYSICS LIMIT ---------- */
   const maxAllowedSpeed = useMemo(() => {
     const rad = (angle * Math.PI) / 180;
     const byRange = Math.sqrt(
@@ -32,16 +32,20 @@ export default function ProjectileMotionGraph() {
   }, [angle]);
 
   useEffect(() => {
-    if (speed > maxAllowedSpeed) setSpeed(+maxAllowedSpeed.toFixed(1));
+    if (speed > maxAllowedSpeed) {
+      setSpeed(+maxAllowedSpeed.toFixed(1));
+    }
   }, [maxAllowedSpeed, speed]);
 
-  /* ---------- MAIN LOOP ---------- */
+  /* ---------- MAIN DRAW LOOP ---------- */
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
     let raf;
 
     const loop = () => {
-      ctx.clearRect(0, 0, W, H);
+      // white laboratory board
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
 
       drawAxes(ctx);
       drawLabels(ctx);
@@ -66,6 +70,12 @@ export default function ProjectileMotionGraph() {
     proj.current = { t: 0, path: [], maxH: 0, range: 0 };
     setFinished(false);
     setRunning(true);
+  };
+
+  const reset = () => {
+    proj.current = { t: 0, path: [], maxH: 0, range: 0 };
+    setRunning(false);
+    setFinished(false);
   };
 
   const updateProjectile = () => {
@@ -95,7 +105,7 @@ export default function ProjectileMotionGraph() {
   const scaleY = (y) =>
     H - M.bottom - (y / MAX_HEIGHT) * (H - M.top - M.bottom);
 
-  /* ---------- ARROW HELPER ---------- */
+  /* ---------- VECTOR ARROW ---------- */
   const drawArrow = (ctx, x1, y1, x2, y2, color, width = 3) => {
     const head = 9;
     const ang = Math.atan2(y2 - y1, x2 - x1);
@@ -139,12 +149,14 @@ export default function ProjectileMotionGraph() {
     ctx.stroke();
 
     ctx.font = "14px sans-serif";
-    ctx.fillText("Range (m)", W / 2 - 30, H - 20);
+    ctx.fillStyle = "#000";
+
+    ctx.fillText("Horizontal Range (m)", W / 2 - 60, H - 20);
 
     ctx.save();
-    ctx.translate(20, H / 2 + 30);
+    ctx.translate(22, H / 2 + 40);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Height (m)", 0, 0);
+    ctx.fillText("Vertical Height (m)", 0, 0);
     ctx.restore();
 
     drawTicks(ctx);
@@ -186,7 +198,7 @@ export default function ProjectileMotionGraph() {
     ctx.stroke();
   };
 
-  /* ---------- LIVE MINI ARROWS ---------- */
+  /* ---------- LIVE VELOCITY VECTORS ---------- */
   const drawLiveVelocity = (ctx) => {
     if (proj.current.path.length === 0) return;
 
@@ -199,8 +211,8 @@ export default function ProjectileMotionGraph() {
     const px = scaleX(p.x);
     const py = scaleY(p.y);
 
-    drawArrow(ctx, px, py, px + vx * 0.9, py, "#ff9800", 4);
-    drawArrow(ctx, px, py, px, py - vy * 0.9, "#00a65a", 4);
+    drawArrow(ctx, px, py, px + vx * 0.9, py, "#ff9800", 4); // vx
+    drawArrow(ctx, px, py, px, py - vy * 0.9, "#00a65a", 4); // vy
   };
 
   /* ---------- SIX SIGNIFICANT POINTS ---------- */
@@ -237,52 +249,56 @@ export default function ProjectileMotionGraph() {
     });
   };
 
-  /* ---------- LABELS ---------- */
+  /* ---------- LAB LABELS ---------- */
   const drawLabels = (ctx) => {
     ctx.font = "14px sans-serif";
     ctx.fillStyle = "#000";
 
-    ctx.fillText(`Angle: ${angle}°`, W - 160, 30);
+    ctx.fillText(`Launch Angle: ${angle}°`, W - 190, 28);
+    ctx.fillText(`Initial Speed: ${speed.toFixed(1)} m/s`, W - 190, 48);
 
     if (finished) {
-      ctx.fillText(`Max Height ≈ ${proj.current.maxH.toFixed(1)} m`, 90, 30);
-      ctx.fillText(`Range ≈ ${proj.current.range.toFixed(1)} m`, 90, 50);
+      ctx.fillText(`Maximum Height = ${proj.current.maxH.toFixed(1)} m`, 90, 28);
+      ctx.fillText(`Horizontal Range = ${proj.current.range.toFixed(1)} m`, 90, 48);
     }
   };
 
   /* ---------- UI ---------- */
   return (
     <div className="proj-graph-root">
-      <h2>Projectile Motion (Vector Decomposition)</h2>
+      <h2>Projectile Motion Laboratory (Vector Decomposition)</h2>
 
       <canvas ref={canvasRef} width={W} height={H} />
 
-      <div className="controls">
-        <label>
-          Angle: {angle}°
-          <input
-            type="range"
-            min="5"
-            max="85"
-            value={angle}
-            onChange={(e) => setAngle(+e.target.value)}
-          />
-        </label>
+       <label>
+  Launch Angle (degrees): <strong>{angle}°</strong>
+  <input
+    type="range"
+    min="5"
+    max="85"
+    value={angle}
+    onChange={(e) => setAngle(+e.target.value)}
+  />
+</label>
 
-        <label>
-          Force (Speed): {speed.toFixed(1)} m/s
-          <input
-            type="range"
-            min="5"
-            max={maxAllowedSpeed}
-            step="0.1"
-            value={speed}
-            onChange={(e) => setSpeed(+e.target.value)}
-          />
-        </label>
+<label>
+  Initial Speed (m/s): <strong>{speed.toFixed(1)}</strong>
+  <input
+    type="range"
+    min="5"
+    max={maxAllowedSpeed}
+    step="0.1"
+    value={speed}
+    onChange={(e) => setSpeed(+e.target.value)}
+  />
+</label>
+
+
+      <div className="lab-buttons">
+        <button onClick={launch}>Launch Projectile</button>
+        <button onClick={reset}>Reset Experiment</button>
       </div>
-
-      <button onClick={launch}>Throw Ball</button>
     </div>
   );
 }
+
