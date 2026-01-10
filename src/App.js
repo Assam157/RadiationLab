@@ -1,4 +1,4 @@
-import React from "react";
+  import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,7 +10,9 @@ import RadiationPhysicsLab from "./components/RaadiationPhysicsLab";
 import OpticalDexterLab from "./components/OpticalLab";
 import SemiconductorDexterLab from "./components/SemiconducterLab";
 import EMLab from "./components/EMLab";
-import ProjectileMotionLab from "./components/ProjectileMotionLab";
+import DigitalGateLab from "./components/DigitalGateLogic";
+import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
+import "./App.css"
 
 /* ------------------------------
    MAIN MENU (DEXTER CONSOLE)
@@ -32,7 +34,7 @@ function DexterHome() {
         gap: 20
       }}
     >
-      <h1>PHYSICS VIRTUAL LAB CONSOLE</h1>
+      <h1>PARTICLE PHYSICS LAB CONSOLE</h1>
 
       <button className="lab-btn" onClick={() => navigate("/radiation")}>
         ☢ Radiation Physics Lab
@@ -53,6 +55,10 @@ function DexterHome() {
       <button className="lab-btn" onClick={() => navigate("/sid")}>
         🚀 SID Physics Lab (Kinematics)
       </button>
+
+       <button className="lab-btn" onClick={() => navigate("/digital")}>
+        🧩 Digital Lab
+      </button>
     </div>
   );
 }
@@ -69,8 +75,10 @@ export default function App() {
         <Route path="/optical" element={<OpticalDexterLab />} />
         <Route path="/semiconductor" element={<SemiconductorDexterLab />} />
         <Route path="/em" element={<EMLab />} />
-        <Route path="/sid" element={<ProjectileMotionLab />} />
+        <Route path="/sid" element={<SidebarPhysicsLab />} />
+        <Route path="/digital" element={<DigitalGateLab/>} />
       </Routes>
     </Router>
   );
 }
+
