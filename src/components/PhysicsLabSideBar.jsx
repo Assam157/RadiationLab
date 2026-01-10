@@ -1,0 +1,46 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ProjectileMotionLab from "./ProjectileMotionLab";
+import InverseSquareLawLab from "./InverseSquareLaw";
+import "./SidebarPhysicsLab.css";
+
+export default function SidebarPhysicsLab() {
+  const [activeLab, setActiveLab] = useState("projectile");
+  const navigate = useNavigate();
+
+  return (
+    <div className="sidebar-lab-root">
+      {/* SIDEBAR */}
+      <div className="sidebar">
+        <h3>Physics Side Lab</h3>
+
+        {/* 🔙 BACK BUTTON */}
+        <button className="back-btn" onClick={() => navigate("/")}>
+          ⬅ Back to Console
+        </button>
+
+        <hr />
+
+        <button
+          className={activeLab === "projectile" ? "active" : ""}
+          onClick={() => setActiveLab("projectile")}
+        >
+          🚀 Projectile Motion
+        </button>
+
+        <button
+          className={activeLab === "inverse" ? "active" : ""}
+          onClick={() => setActiveLab("inverse")}
+        >
+          🌍 Inverse Square Law
+        </button>
+      </div>
+
+      {/* LAB VIEW */}
+      <div className="lab-view">
+        {activeLab === "projectile" && <ProjectileMotionLab />}
+        {activeLab === "inverse" && <InverseSquareLawLab />}
+      </div>
+    </div>
+  );
+}
