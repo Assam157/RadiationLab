@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RadiationDexterLab.css";
 
@@ -35,6 +35,10 @@ export default function OpticalDexterLab() {
   const [lensType, setLensType] = useState("convex");
   const [sourceY, setSourceY] = useState(-1);
 
+  const prismImg = new Image();
+prismImg.src = "/prism.png";
+
+
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
 
@@ -45,123 +49,160 @@ export default function OpticalDexterLab() {
     }
 
     /* ---------- REFRACTION (UNCHANGED) ---------- */
-    function drawRefraction() {
-      const cx = 320;
-      const cy = H / 2;
-      const i = (angle * Math.PI) / 180;
-      const r = Math.asin(Math.sin(i) / REF_INDEX[medium]);
+   function drawRefraction() {
+  const cx = 320;
+  const cy = H / 2;
 
-      ctx.strokeStyle = "#0ff";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, cy);
-      ctx.lineTo(W, cy);
-      ctx.stroke();
+  const i = (angle * Math.PI) / 180;
+  const r = Math.asin(Math.sin(i) / REF_INDEX[medium]);
 
-      ctx.setLineDash([6, 6]);
-      ctx.strokeStyle = "#aaa";
-      ctx.beginPath();
-      ctx.moveTo(cx, 0);
-      ctx.lineTo(cx, H);
-      ctx.stroke();
-      ctx.setLineDash([]);
+  const SPREAD = 0.6; // 🔽 reduced spread for better alignment
 
-      ctx.fillStyle = "#fff";
-      ctx.font = "13px monospace";
-      ctx.fillText("Incident Ray", 80, 80);
-      ctx.fillText("Refracted Ray", 420, 300);
+  /* -------- Interface (boundary) -------- */
+  ctx.strokeStyle = "#0ff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, cy);
+  ctx.lineTo(W, cy);
+  ctx.stroke();
 
-      if (!lightOn) return;
+  /* -------- Normal -------- */
+  ctx.setLineDash([6, 6]);
+  ctx.strokeStyle = "#aaa";
+  ctx.beginPath();
+  ctx.moveTo(cx, 0);
+  ctx.lineTo(cx, H);
+  ctx.stroke();
+  ctx.setLineDash([]);
 
-      ctx.strokeStyle = "#0f0";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(cx - 200 * Math.sin(i), cy - 200 * Math.cos(i));
-      ctx.lineTo(cx, cy);
-      ctx.stroke();
+  /* -------- Labels -------- */
+  ctx.fillStyle = "#fff";
+  ctx.font = "13px monospace";
+  ctx.fillText("Incident Ray", 80, 80);
+  ctx.fillText("Refracted Ray", 420, 300);
 
-      ctx.strokeStyle = "#ff0";
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + 200 * Math.sin(r), cy + 200 * Math.cos(r));
-      ctx.stroke();
+  if (!lightOn) return;
 
-      const p = (tRef.current % 100) / 100;
-      ctx.fillStyle = "#0f0";
-      ctx.beginPath();
-      ctx.arc(
-        cx - 200 * Math.sin(i) * (1 - p),
-        cy - 200 * Math.cos(i) * (1 - p),
-        5,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
+  /* -------- Incident Ray -------- */
+  ctx.strokeStyle = "#0f0";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(
+    cx - 200 * Math.sin(i) * SPREAD,
+    cy - 200 * Math.cos(i) * SPREAD
+  );
+  ctx.lineTo(cx, cy);
+  ctx.stroke();
+
+  /* -------- Refracted Ray -------- */
+  ctx.strokeStyle = "#ff0";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(
+    cx + 200 * Math.sin(r) * SPREAD,
+    cy + 200 * Math.cos(r) * SPREAD
+  );
+  ctx.stroke();
+
+  /* -------- Moving photon (aligned) -------- */
+  const p = (tRef.current % 100) / 100;
+  ctx.fillStyle = "#0f0";
+  ctx.beginPath();
+  ctx.arc(
+    cx - 200 * Math.sin(i) * SPREAD * (1 - p),
+    cy - 200 * Math.cos(i) * SPREAD * (1 - p),
+    5,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+}
 
     /* ---------- PRISM (UNCHANGED) ---------- */
-    function drawPrism() {
-      ctx.fillStyle = "rgba(120,200,255,0.15)";
-      ctx.strokeStyle = "#7fdfff";
-      ctx.lineWidth = 2;
+  function drawPrism() {
+  const prismW = 90;
+  const prismH = 260;
+  const centerY = H / 2;
 
-      ctx.beginPath();
-      ctx.moveTo(280, 80);
-      ctx.lineTo(340, 210);
-      ctx.lineTo(280, 340);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+  const leftX = 260;
+  const rightX = 460;
 
-      ctx.beginPath();
-      ctx.moveTo(500, 340);
-      ctx.lineTo(440, 210);
-      ctx.lineTo(500, 80);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+  /* ---------- LEFT PRISM (90° CCW) ---------- */
+  ctx.save();
+  ctx.translate(leftX + prismW / 2, centerY);
+  ctx.rotate(4*Math.PI / 2); // 90° counter-clockwise
+  ctx.drawImage(
+    prismImg,
+    -prismW / 2,
+    -prismH / 2,
+    prismW,
+    prismH
+  );
+  ctx.restore();
 
-      ctx.fillStyle = "#7fdfff";
-      ctx.font = "13px monospace";
-      ctx.fillText("Prism 1", 255, 60);
-      ctx.fillText("Prism 2", 475, 60);
+  /* ---------- RIGHT PRISM (90° CCW) ---------- */
+  ctx.save();
+  ctx.translate(rightX + prismW / 2, centerY);
+  ctx.rotate(2*Math.PI / 2); // SAME 90° counter-clockwise
+  ctx.drawImage(
+    prismImg,
+    -prismW / 2,
+    -prismH / 2,
+    prismW,
+    prismH
+  );
+  ctx.restore();
 
-      COLORS.forEach(col => {
-        ctx.fillStyle = col.c;
-        ctx.fillText(col.name, 450, 215 + col.o);
-      });
+  /* ---------- LABELS ---------- */
+  ctx.fillStyle = "#7fdfff";
+  ctx.font = "13px monospace";
+  ctx.fillText("Prism 1", leftX, 70);
+  ctx.fillText("Prism 2", rightX, 70);
 
-      if (!lightOn) return;
+  /* ================= ONLY SHOW WHEN LIGHT ON ================= */
+  if (!lightOn) return;
 
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(60, 210);
-      ctx.lineTo(280, 210);
-      ctx.stroke();
+  /* ---------- INCIDENT WHITE RAY ---------- */
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(10, centerY);
+  ctx.lineTo(leftX+20, centerY);
+  ctx.stroke();
 
-      const p = (tRef.current % 120) / 120;
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(60 + p * 220, 210, 5, 0, Math.PI * 2);
-      ctx.fill();
+  const p = (tRef.current % 120) / 120;
+  ctx.beginPath();
+  ctx.arc(60 + p * (leftX - 60), centerY, 5, 0, Math.PI * 2);
+  ctx.fill();
 
-      COLORS.forEach(col => {
-        ctx.strokeStyle = col.c;
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.moveTo(340, 210);
-        ctx.lineTo(440, 210 + col.o);
-        ctx.stroke();
-      });
+  /* ---------- VIBGYOR (TIGHT & CLEAN) ---------- */
+  const DISP = 0.95;
 
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(500, 210);
-      ctx.lineTo(660, 210);
-      ctx.stroke();
-    }
+  COLORS.forEach(col => {
+    ctx.strokeStyle = col.c;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(leftX + prismW - 28, centerY);
+    ctx.lineTo(rightX + 30, centerY + col.o * DISP);
+    ctx.stroke();
+
+    ctx.fillStyle = col.c;
+    ctx.fillText(
+      col.name,
+      rightX + prismW + 6,
+      centerY + col.o * DISP
+    );
+  });
+
+  /* ---------- EMERGENT WHITE RAY ---------- */
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(rightX + prismW-25, centerY);
+  ctx.lineTo(700, centerY);
+  ctx.stroke();
+}
+
 
     /* ---------- 🔹 NEW: LENS EXPERIMENT ---------- */
     function drawLens() {
