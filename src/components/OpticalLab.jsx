@@ -1,5 +1,3 @@
- 
-
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RadiationDexterLab.css";
@@ -53,13 +51,18 @@ prismImg.src = "/prism.png";
     }
 
     /* ---------- REFRACTION (UNCHANGED) ---------- */
-   function drawRefraction() {
+function drawRefraction() {
   const cx = 320;
   const cy = H / 2;
 
   const SPREAD = 0.6;
 
-  // --- Refractive indices ---
+  /* ===== CONSTANT SPEED SETTINGS ===== */
+  const PARTICLES = 5;
+  const PARTICLE_SPEED = 0.02;   // 🔽 smaller = slower (constant)
+  const PATH_LENGTH = 280;
+
+  /* --- Refractive indices --- */
   const n1 = incidentMedium === "air" ? 1.0 : REF_INDEX[incidentMedium];
   const n2 = REF_INDEX[medium];
 
@@ -92,47 +95,73 @@ prismImg.src = "/prism.png";
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "13px monospace";
+  /* -------- Medium Labels -------- */
+  ctx.fillStyle = "#9ef";
+  ctx.font = "14px monospace";
+
+  if (incidentMedium === "air") {
+    ctx.fillText("AIR (n ≈ 1.0)", 20, cy - 20);
+    ctx.fillText(`${medium.toUpperCase()} (n = ${n2})`, 20, cy + 30);
+  } else {
+    ctx.fillText(`${incidentMedium.toUpperCase()} (n = ${n1})`, 20, cy - 20);
+    ctx.fillText("AIR (n ≈ 1.0)", 20, cy + 30);
+  }
 
   if (!lightOn) return;
 
-  /* -------- Incident Ray -------- */
   const dir = incidentMedium === "air" ? -1 : 1;
 
-  ctx.strokeStyle = "#0f0";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(
-    cx - 200 * Math.sin(i) * SPREAD,
-    cy + dir * 200 * Math.cos(i) * SPREAD
-  );
-  ctx.lineTo(cx, cy);
-  ctx.stroke();
+  /* =====================================================
+     INCIDENT RAY → CONSTANT-SPEED PARTICLES ONLY
+     ===================================================== */
 
-  /* -------- Refracted / Reflected Ray -------- */
+  ctx.fillStyle = "#0f0";
+
+  for (let k = 0; k < PARTICLES; k++) {
+    // Each particle has a fixed offset along the path
+    const distance =
+      (tRef.current * PARTICLE_SPEED + k * (PATH_LENGTH / PARTICLES))
+      % PATH_LENGTH;
+
+    const ix =
+      cx - Math.sin(i) * SPREAD * (PATH_LENGTH - distance);
+    const iy =
+      cy + dir * Math.cos(i) * SPREAD * (PATH_LENGTH - distance);
+
+    ctx.beginPath();
+    ctx.arc(ix, iy, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  /* =====================================================
+     REFRACTED / REFLECTED RAY → LINE ONLY
+     ===================================================== */
+
   if (!isTIR) {
     ctx.strokeStyle = "#ff0";
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(
-      cx + 200 * Math.sin(r) * SPREAD,
-      cy + 200 * Math.cos(r) * SPREAD
+      cx + Math.sin(r) * SPREAD * PATH_LENGTH,
+      cy + Math.cos(r) * SPREAD * PATH_LENGTH
     );
     ctx.stroke();
   } else {
-    // Total internal reflection
     ctx.strokeStyle = "#ff4444";
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(
-      cx - 200 * Math.sin(i) * SPREAD,
-      cy - dir * 200 * Math.cos(i) * SPREAD
+      cx - Math.sin(i) * SPREAD * PATH_LENGTH,
+      cy - dir * Math.cos(i) * SPREAD * PATH_LENGTH
     );
     ctx.stroke();
   }
 
-  /* -------- Labels -------- */
+  /* -------- Angle Labels -------- */
+  ctx.font = "13px monospace";
+
   ctx.fillStyle = "#0f0";
   ctx.fillText(`i = ${angle}°`, cx - 160, cy - 40);
 
@@ -148,7 +177,7 @@ prismImg.src = "/prism.png";
     ctx.fillText("TOTAL INTERNAL REFLECTION", cx + 20, cy + 40);
   }
 
-  /* -------- Snell's Law Label -------- */
+  /* -------- Snell's Law -------- */
   ctx.fillStyle = "#aaa";
   ctx.fillText(
     `${n1.toFixed(2)} sin(${angle}°) = ${n2.toFixed(2)} sin(r)`,
@@ -156,6 +185,8 @@ prismImg.src = "/prism.png";
     H - 30
   );
 }
+
+
 
 
     /* ---------- PRISM (UNCHANGED) ---------- */
@@ -233,6 +264,7 @@ prismImg.src = "/prism.png";
       centerY + col.o * DISP
     );
   });
+  
 
   /* ---------- EMERGENT WHITE RAY ---------- */
   ctx.strokeStyle = "#fff";
@@ -390,7 +422,15 @@ ctx.bezierCurveTo(
 
     loop();
   }, [angle, medium, experiment, lightOn, lensType, sourceY]);
+function changeIncidentMedium(newIncident) {
+    setLightOn(false);
+    setIncidentMedium(newIncident);
+  }
 
+  function changeMedium(newMedium) {
+    setLightOn(false);
+    setMedium(newMedium);
+  }
   return (
     <div className="dexter-root">
       {/* LEFT PANEL */}
@@ -406,7 +446,7 @@ ctx.bezierCurveTo(
         
         <button
   onClick={() =>
-    setIncidentMedium(
+    changeIncidentMedium(
       incidentMedium === "air" ? medium : "air"
     )
   }
