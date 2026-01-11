@@ -26,6 +26,7 @@ export default function RadiationDexterLab() {
   /* SLIDERS */
   const [energy, setEnergy] = useState(1.0);
   const [emField, setEmField] = useState(1.0);
+  const [goldThickness, setGoldThickness] = useState(1.0); // 👈 ADD
 
   /* PARTICLE SWITCHES */
   const [particles, setParticles] = useState({
@@ -114,10 +115,26 @@ export default function RadiationDexterLab() {
       ctx.fill();
     }
 
-    function drawGoldFoil() {
-      ctx.fillStyle = "#d4af37";
-      ctx.fillRect(360, 120, 180, 180);
-    }
+     function drawGoldFoil() {
+  const baseX = 360;
+  const baseThickness = 150;               // thin real foil
+  const thicknessPx = baseThickness * goldThickness;
+
+  ctx.fillStyle = "#d4af37";
+  ctx.fillRect(baseX, 120, thicknessPx, 180);
+
+  ctx.strokeStyle = "#aa8c2e";
+  ctx.strokeRect(baseX, 120, thicknessPx, 180);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "12px monospace";
+  ctx.fillText("GOLD FOIL", baseX - 5, 110);
+  ctx.fillText(
+    `t = ${(baseThickness * goldThickness).toFixed(1)} μm`,
+    baseX - 20,
+    320
+  );
+}
 
     function drawShielding() {
       const mats = [
@@ -140,6 +157,24 @@ export default function RadiationDexterLab() {
         ctx.stroke();
       }
     }
+    function drawMediumLabels() {
+  ctx.fillStyle = "#aaa";
+  ctx.font = "12px monospace";
+
+  ctx.fillText("VACUUM / AIR", 140, 100);
+  ctx.fillText("TARGET REGION", 360, 100);
+  ctx.fillText("DETECTOR ZONE", 560, 100);
+
+  if (experiments.emfield) {
+    ctx.fillText("E ⟂ B FIELD REGION", 420, 80);
+  }
+
+  if (experiments.shield) {
+    ctx.fillText("SHIELDING MATERIALS", 400, 330);
+    ctx.fillText("WOOD → METAL → LEAD", 380, 350);
+  }
+}
+
 
     function drawRays() {
       const emOn = experiments.emfield;
@@ -161,6 +196,13 @@ export default function RadiationDexterLab() {
           ? drawRayDeflected(230, "180,0,255", DEFLECT_FACTOR.gamma)
           : drawRayStraight(230, "180,0,255", BASE_RANGE.gamma);
       }
+      ctx.fillStyle = "#fff";
+ctx.font = "12px monospace";
+
+if (particles.alpha) ctx.fillText("α (He²⁺)", 20, 190);
+if (particles.beta) ctx.fillText("β (e⁻)", 20, 210);
+if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
+
     }
 
     function loop() {
@@ -172,7 +214,12 @@ export default function RadiationDexterLab() {
       if (experiments.shield) drawShielding();
       if (experiments.emfield) drawEMField();
 
+      drawMediumLabels();
+
       drawRays();
+      
+     
+      
 
       tRef.current += 3;
       requestAnimationFrame(loop);
@@ -180,7 +227,8 @@ export default function RadiationDexterLab() {
 
     ctx.font = "14px monospace";
     loop();
-  }, [particles, experiments, energy, emField]);
+  }, [particles, experiments, energy, emField, goldThickness]);
+
 
   return (
     <div className="dexter-root">
@@ -250,7 +298,10 @@ export default function RadiationDexterLab() {
 </div>
 
 {/* RIGHT PANEL */}
+ {/* RIGHT PANEL */}
 <div className="energy-panel">
+
+  {/* ================= ENERGY ================= */}
   <div className="energy-label">ENERGY</div>
   <div className="energy-value">{energy.toFixed(2)}×</div>
 
@@ -264,9 +315,28 @@ export default function RadiationDexterLab() {
     onChange={(e) => setEnergy(+e.target.value)}
   />
 
+  {/* ================= GOLD FOIL THICKNESS ================= */}
+  {experiments.gold && (
+    <>
+      <div className="energy-label">GOLD FOIL THICKNESS</div>
+      <div className="energy-value">{goldThickness.toFixed(2)}×</div>
+
+      <input
+        className="energy-slider"
+        type="range"
+        min="1"
+        max="1.5"
+        step="0.05"
+        value={goldThickness}
+        onChange={(e) => setGoldThickness(+e.target.value)}
+      />
+    </>
+  )}
+
+  {/* ================= EM FIELD ================= */}
   {experiments.emfield && (
     <>
-      <div className="energy-label">EM FIELD</div>
+      <div className="energy-label">EM FIELD STRENGTH</div>
       <div className="energy-value">{emField.toFixed(2)}×</div>
 
       <input
@@ -280,10 +350,15 @@ export default function RadiationDexterLab() {
       />
     </>
   )}
+
+ 
+
 </div>
 
       </div>
  
   );
 }
+
+
 
