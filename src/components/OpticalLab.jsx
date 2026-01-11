@@ -35,6 +35,8 @@ export default function OpticalDexterLab() {
   const [lensType, setLensType] = useState("convex");
   const [sourceY, setSourceY] = useState(-1);
   const [incidentMedium, setIncidentMedium] = useState("air");
+  const [objectCase, setObjectCase] = useState("beyond2f");
+
 
 
   const prismImg = new Image();
@@ -51,34 +53,32 @@ prismImg.src = "/prism.png";
     }
 
     /* ---------- REFRACTION (UNCHANGED) ---------- */
-function drawRefraction() {
+   function drawRefraction() {
   const cx = 320;
   const cy = H / 2;
 
-  const SPREAD = 0.6;
+  const INCIDENT_LEN = 260;
+  const REFRACT_LEN = 260;
 
-  /* ===== CONSTANT SPEED SETTINGS ===== */
-  const PARTICLES = 5;
-  const PARTICLE_SPEED = 0.02;   // 🔽 smaller = slower (constant)
-  const PATH_LENGTH = 280;
-
-  /* --- Refractive indices --- */
+  /* ---------- MEDIA ---------- */
   const n1 = incidentMedium === "air" ? 1.0 : REF_INDEX[incidentMedium];
-  const n2 = REF_INDEX[medium];
+  const n2 = incidentMedium === "air" ? REF_INDEX[medium] : 1.0;
 
+  const goingDown = incidentMedium === "air";
+
+  /* ---------- ANGLES ---------- */
   const i = (angle * Math.PI) / 180;
   const sinR = (n1 / n2) * Math.sin(i);
 
   let r = null;
   let isTIR = false;
-
   if (Math.abs(sinR) > 1) {
     isTIR = true;
   } else {
     r = Math.asin(sinR);
   }
 
-  /* -------- Interface -------- */
+  /* ---------- INTERFACE ---------- */
   ctx.strokeStyle = "#0ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -86,7 +86,7 @@ function drawRefraction() {
   ctx.lineTo(W, cy);
   ctx.stroke();
 
-  /* -------- Normal -------- */
+  /* ---------- NORMAL ---------- */
   ctx.setLineDash([6, 6]);
   ctx.strokeStyle = "#aaa";
   ctx.beginPath();
@@ -95,81 +95,79 @@ function drawRefraction() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  /* -------- Medium Labels -------- */
+  /* ---------- MEDIUM LABELS ---------- */
   ctx.fillStyle = "#9ef";
   ctx.font = "14px monospace";
+  /* ---------- MEDIUM LABELS (STATIC — DO NOT SWITCH) ---------- */
+ctx.fillStyle = "#9ef";
+ctx.font = "14px monospace";
 
-  if (incidentMedium === "air") {
-    ctx.fillText("AIR (n ≈ 1.0)", 20, cy - 20);
-    ctx.fillText(`${medium.toUpperCase()} (n = ${n2})`, 20, cy + 30);
-  } else {
-    ctx.fillText(`${incidentMedium.toUpperCase()} (n = ${n1})`, 20, cy - 20);
-    ctx.fillText("AIR (n ≈ 1.0)", 20, cy + 30);
-  }
+ctx.fillText("AIR (n ≈ 1.0)", 20, cy - 20);
+ctx.fillText(`${medium.toUpperCase()} (n = ${REF_INDEX[medium]})`, 20, cy + 30);
 
   if (!lightOn) return;
 
-  const dir = incidentMedium === "air" ? -1 : 1;
+  /* ---------- ANIMATION FRACTION ---------- */
+  // ~0.75 sec for full incident ray
+  const anim = Math.min(tRef.current / 45, 1);
 
   /* =====================================================
-     INCIDENT RAY → CONSTANT-SPEED PARTICLES ONLY
+     INCIDENT RAY (GREEN — SMOOTHLY TRACED)
      ===================================================== */
 
-  ctx.fillStyle = "#0f0";
+  const dx_i = Math.sin(i);
+  const dy_i = goingDown ? Math.cos(i) : -Math.cos(i);
 
-  for (let k = 0; k < PARTICLES; k++) {
-    // Each particle has a fixed offset along the path
-    const distance =
-      (tRef.current * PARTICLE_SPEED + k * (PATH_LENGTH / PARTICLES))
-      % PATH_LENGTH;
+  ctx.strokeStyle = "#0f0";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
 
-    const ix =
-      cx - Math.sin(i) * SPREAD * (PATH_LENGTH - distance);
-    const iy =
-      cy + dir * Math.cos(i) * SPREAD * (PATH_LENGTH - distance);
-
-    ctx.beginPath();
-    ctx.arc(ix, iy, 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.moveTo(
+    cx - dx_i * INCIDENT_LEN * anim,
+    cy - dy_i * INCIDENT_LEN * anim
+  );
+  ctx.lineTo(cx, cy);
+  ctx.stroke();
 
   /* =====================================================
-     REFRACTED / REFLECTED RAY → LINE ONLY
+     REFRACTED / REFLECTED RAY
+     (APPEARS INSTANTLY AFTER INCIDENT COMPLETES)
      ===================================================== */
 
-  if (!isTIR) {
-    ctx.strokeStyle = "#ff0";
+  if (anim >= 1) {
+    ctx.strokeStyle = isTIR ? "#ff4444" : "#ff0";
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.lineTo(
-      cx + Math.sin(r) * SPREAD * PATH_LENGTH,
-      cy + Math.cos(r) * SPREAD * PATH_LENGTH
-    );
-    ctx.stroke();
-  } else {
-    ctx.strokeStyle = "#ff4444";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(
-      cx - Math.sin(i) * SPREAD * PATH_LENGTH,
-      cy - dir * Math.cos(i) * SPREAD * PATH_LENGTH
-    );
+
+    if (!isTIR) {
+      const dx_r = Math.sin(r);
+      const dy_r = goingDown ? Math.cos(r) : -Math.cos(r);
+      ctx.lineTo(
+        cx + dx_r * REFRACT_LEN,
+        cy + dy_r * REFRACT_LEN
+      );
+    } else {
+      // Total internal reflection
+      ctx.lineTo(
+        cx + dx_i * REFRACT_LEN,
+        cy - dy_i * REFRACT_LEN
+      );
+    }
+
     ctx.stroke();
   }
 
-  /* -------- Angle Labels -------- */
+  /* ---------- ANGLE LABELS ---------- */
   ctx.font = "13px monospace";
-
   ctx.fillStyle = "#0f0";
-  ctx.fillText(`i = ${angle}°`, cx - 160, cy - 40);
+  ctx.fillText(`i = ${angle}°`, cx - 140, cy - 40);
 
   if (!isTIR) {
     ctx.fillStyle = "#ff0";
     ctx.fillText(
       `r = ${(r * 180 / Math.PI).toFixed(1)}°`,
-      cx + 40,
+      cx + 30,
       cy + 40
     );
   } else {
@@ -177,7 +175,7 @@ function drawRefraction() {
     ctx.fillText("TOTAL INTERNAL REFLECTION", cx + 20, cy + 40);
   }
 
-  /* -------- Snell's Law -------- */
+  /* ---------- SNELL'S LAW ---------- */
   ctx.fillStyle = "#aaa";
   ctx.fillText(
     `${n1.toFixed(2)} sin(${angle}°) = ${n2.toFixed(2)} sin(r)`,
@@ -185,8 +183,6 @@ function drawRefraction() {
     H - 30
   );
 }
-
-
 
 
     /* ---------- PRISM (UNCHANGED) ---------- */
@@ -276,34 +272,30 @@ function drawRefraction() {
 }
 
 
-    /* ---------- 🔹 NEW: LENS EXPERIMENT ---------- */
-     function drawLens() {
+    function drawLens() {
   const cx = W / 2;
   const cy = H / 2;
-  const topY = 60;
-  const botY = H - 60;
+  const lensHalfWidth = 18;
 
-  const halfGap = 18;
-  const curveDepth = 60;
-  const concaveDepth = 80; // outward bulge
-
-  /* ================= PRINCIPAL AXIS ================= */
+  /* ================= AXIS ================= */
   ctx.strokeStyle = "#444";
-  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, cy);
   ctx.lineTo(W, cy);
   ctx.stroke();
 
-  /* ================= FOCAL POINTS ================= */
-  [-1, 1].forEach(m => {
+  /* ================= F & 2F ================= */
+  [-2, -1, 1, 2].forEach(m => {
     ctx.strokeStyle = "#aaa";
     ctx.beginPath();
     ctx.moveTo(cx + m * F, cy - 6);
     ctx.lineTo(cx + m * F, cy + 6);
     ctx.stroke();
-    ctx.fillStyle = "#aaa";
-    ctx.fillText("F", cx + m * F - 5, cy + 22);
+    ctx.fillText(
+      Math.abs(m) === 2 ? "2F" : "F",
+      cx + m * F - 8,
+      cy + 22
+    );
   });
 
   /* ================= LENS BODY ================= */
@@ -311,99 +303,185 @@ function drawRefraction() {
   ctx.lineWidth = 2;
   ctx.beginPath();
 
-  if (lensType === "concave") {
-    // 🔵 CONVEX → bulge INWARD
-    ctx.moveTo(cx - halfGap, topY);
-    ctx.lineTo(cx + halfGap, topY);
-    ctx.bezierCurveTo(
-      cx + halfGap + curveDepth, cy,
-      cx + halfGap + curveDepth, cy,
-      cx + halfGap, botY
-    );
-    ctx.lineTo(cx - halfGap, botY);
-    ctx.bezierCurveTo(
-      cx - halfGap - curveDepth, cy,
-      cx - halfGap - curveDepth, cy,
-      cx - halfGap, topY
-    );
+  if (lensType === "convex") {
+    ctx.moveTo(cx - lensHalfWidth, 60);
+    ctx.bezierCurveTo(cx - 60, cy, cx - 60, cy, cx - lensHalfWidth, H - 60);
+    ctx.lineTo(cx + lensHalfWidth, H - 60);
+    ctx.bezierCurveTo(cx + 60, cy, cx + 60, cy, cx + lensHalfWidth, 60);
   } else {
-    // ===== FINAL, CORRECT, SYMMETRIC CONCAVE LENS =====
-const baseWidth = 90;   // long top & bottom
-const depth     = 60;   // inward curvature
-
-ctx.moveTo(cx - baseWidth, topY);
-ctx.lineTo(cx + baseWidth, topY);
-
-/* ---------- RIGHT INWARD WALL ---------- */
-ctx.bezierCurveTo(
-  cx + baseWidth - depth, cy,   // control
-  cx + baseWidth - depth, cy,
-  cx + baseWidth, botY          // 🔥 END MATCHES BASE
-);
-
-/* ---------- BOTTOM BASE ---------- */
-ctx.lineTo(cx - baseWidth, botY);
-
-/* ---------- LEFT INWARD WALL ---------- */
-ctx.bezierCurveTo(
-  cx - baseWidth + depth, cy,   // control
-  cx - baseWidth + depth, cy,
-  cx - baseWidth, topY          // 🔥 END MATCHES BASE
-);
-
-
-
+    ctx.moveTo(cx - 60, 60);
+    ctx.bezierCurveTo(cx - lensHalfWidth, cy, cx - lensHalfWidth, cy, cx - 60, H - 60);
+    ctx.lineTo(cx + 60, H - 60);
+    ctx.bezierCurveTo(cx + lensHalfWidth, cy, cx + lensHalfWidth, cy, cx + 60, 60);
   }
 
   ctx.closePath();
   ctx.stroke();
 
-  /* ================= OBJECT ================= */
-  const objX = 100;
-  const objTopY = cy + sourceY * 60;
+  /* ================= OBJECT POSITION ================= */
+  let u;
+  switch (objectCase) {
+    case "beyond2f": u = 3 * F; break;
+    case "at2f":     u = 2 * F; break;
+    case "between":  u = 1.5 * F; break;
+    case "atf":      u = F; break;
+    case "near":     u = 0.6 * F; break;
+    default:         u = 3 * F;
+  }
 
-  ctx.strokeStyle = "#0f0";
+  const objX = cx - u;
+  const objH = 80 * sourceY;
+
+  /* ================= OBJECT ================= */
+  ctx.strokeStyle = "#ff3366";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(objX, cy);
-  ctx.lineTo(objX, objTopY);
+  ctx.lineTo(objX, cy - objH);
   ctx.stroke();
-
-  ctx.fillStyle = "#0f0";
-  ctx.fillText("Object", objX - 20, objTopY - 6);
+  ctx.fillText("Object", objX - 30, cy - objH - 6);
 
   if (!lightOn) return;
 
   /* ================= RAYS ================= */
-  ctx.strokeStyle = "#ff0";
+  ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 2;
 
-  // Ray 1: parallel ray
+  const A = { x: objX, y: cy - objH };
+  const O = { x: cx, y: cy };
+  const F1 = { x: cx - F, y: cy };
+  const F2 = { x: cx + F, y: cy };
+
+  /* ---------- RAY 1: PARALLEL ---------- */
+  const r1_lens = { x: cx, y: A.y };
+
   ctx.beginPath();
-  ctx.moveTo(objX, objTopY);
-  ctx.lineTo(cx, objTopY);
+  ctx.moveTo(A.x, A.y);
+  ctx.lineTo(r1_lens.x, r1_lens.y);
+  ctx.stroke();
+
+  let r1_far;
 
   if (lensType === "convex") {
-    ctx.lineTo(cx + F, cy);
+    r1_far = {
+      x: r1_lens.x + (F2.x - r1_lens.x) * 10,
+      y: r1_lens.y + (F2.y - r1_lens.y) * 10
+    };
   } else {
-    ctx.lineTo(cx + 160, objTopY + 50);
-
-    // dashed virtual focus
-    ctx.setLineDash([6, 6]);
-    ctx.beginPath();
-    ctx.moveTo(cx, objTopY);
-    ctx.lineTo(cx - F, cy);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    r1_far = {
+      x: r1_lens.x + (r1_lens.x - F1.x) * 10,
+      y: r1_lens.y + (r1_lens.y - F1.y) * 10
+    };
   }
+
+  ctx.beginPath();
+  ctx.moveTo(r1_lens.x, r1_lens.y);
+  ctx.lineTo(r1_far.x, r1_far.y);
   ctx.stroke();
 
-  // Ray 2: through optical center
+  /* ---------- RAY 2: THROUGH OPTICAL CENTRE ---------- */
+  const r2_far = {
+    x: A.x + (O.x - A.x) * 10,
+    y: A.y + (O.y - A.y) * 10
+  };
+
   ctx.beginPath();
-  ctx.moveTo(objX, objTopY);
-  ctx.lineTo(cx + 160, cy + (objTopY - cy));
+  ctx.moveTo(A.x, A.y);
+  ctx.lineTo(r2_far.x, r2_far.y);
   ctx.stroke();
+
+  /* ================= INTERSECTION ================= */
+  function intersect(p1, p2, p3, p4) {
+    const d =
+      (p1.x - p2.x) * (p3.y - p4.y) -
+      (p1.y - p2.y) * (p3.x - p4.x);
+    if (Math.abs(d) < 1e-6) return null;
+
+    const x =
+      ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) -
+       (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / d;
+    const y =
+      ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) -
+       (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / d;
+    return { x, y };
+  }
+
+  let imgPoint = null;
+
+  /* ================= IMAGE LOGIC ================= */
+  if (lensType === "convex" && u > F) {
+    imgPoint = intersect(r1_lens, r1_far, A, r2_far);
+  }
+
+  if (lensType === "convex" && u <= F) {
+    ctx.setLineDash([6, 6]);
+
+    const r1_back = F1;
+    const r2_back = {
+      x: cx - 300,
+      y: cy - (A.y - cy)
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(r1_lens.x, r1_lens.y);
+    ctx.lineTo(r1_back.x, r1_back.y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(r2_back.x, r2_back.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    imgPoint = intersect(r1_lens, r1_back, A, r2_back);
+  }
+
+  /* ---- CONCAVE: ALWAYS VIRTUAL (RED) ---- */
+  if (lensType === "concave") {
+    ctx.setLineDash([6, 6]);
+
+    const r1_back = F1;
+
+    ctx.beginPath();
+    ctx.moveTo(r1_lens.x, r1_lens.y);
+    ctx.lineTo(r1_back.x, r1_back.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    imgPoint = intersect(r1_lens, r1_back, A, r2_far);
+  }
+
+  /* ================= BLOCK IMAGE INSIDE LENS ================= */
+  if (
+    imgPoint &&
+    imgPoint.x > cx - lensHalfWidth &&
+    imgPoint.x < cx + lensHalfWidth
+  ) {
+    imgPoint = null;
+  }
+
+  /* ================= IMAGE DRAW ================= */
+  if (imgPoint) {
+    ctx.strokeStyle = lensType === "concave" ? "#ff4444" : "#8a2be2";
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(imgPoint.x, imgPoint.y);
+    ctx.lineTo(imgPoint.x, cy);
+    ctx.stroke();
+
+    ctx.fillStyle = lensType === "concave" ? "#ff4444" : "#8a2be2";
+    ctx.fillText(
+      lensType === "concave" ? "Virtual Image" : "Image",
+      imgPoint.x - 30,
+      imgPoint.y - 6
+    );
+  }
 }
+
+
 
     function loop() {
       clear();
@@ -432,126 +510,151 @@ function changeIncidentMedium(newIncident) {
     setMedium(newMedium);
   }
   return (
-    <div className="dexter-root">
-      {/* LEFT PANEL */}
-      <div className="control-panel">
-        <h2>🔍 OPTICAL LAB</h2>
+  <div className="dexter-root">
+    {/* LEFT PANEL */}
+    <div className="control-panel">
+      <h2>🔍 OPTICAL LAB</h2>
 
-        <button
-          className={experiment === "refraction" ? "active" : ""}
-          onClick={() => setExperiment("refraction")}
-        >
-          REFRACTION
-        </button>
-        
-        <button
-  onClick={() =>
-    changeIncidentMedium(
-      incidentMedium === "air" ? medium : "air"
-    )
-  }
->
-  INCIDENT: {incidentMedium.toUpperCase()}
-</button>
+      {/* ===== EXPERIMENT SELECT ===== */}
+      <button
+        className={experiment === "refraction" ? "active" : ""}
+        onClick={() => setExperiment("refraction")}
+      >
+        REFRACTION
+      </button>
 
+      <button
+        className={experiment === "prism" ? "active" : ""}
+        onClick={() => setExperiment("prism")}
+      >
+        VIBGYOR (PRISM)
+      </button>
 
-        <button
-          className={experiment === "prism" ? "active" : ""}
-          onClick={() => setExperiment("prism")}
-        >
-          VIBGYOR (PRISM)
-        </button>
+      <button
+        className={experiment === "lens" ? "active" : ""}
+        onClick={() => setExperiment("lens")}
+      >
+        LENS
+      </button>
 
-        {/* 🔹 NEW */}
-        <button
-          className={experiment === "lens" ? "active" : ""}
-          onClick={() => setExperiment("lens")}
-        >
-          LENS
-        </button>
+      {/* ===== REFRACTION CONTROLS ===== */}
+      {experiment === "refraction" && (
+        <>
+          <button
+            onClick={() =>
+              changeIncidentMedium(
+                incidentMedium === "air" ? medium : "air"
+              )
+            }
+          >
+            INCIDENT: {incidentMedium.toUpperCase()}
+          </button>
 
-        {experiment === "refraction" && (
-          <>
-            <button
-              className={medium === "water" ? "active" : ""}
-              onClick={() => setMedium("water")}
-            >
-              WATER
-            </button>
+          <button
+            className={medium === "water" ? "active" : ""}
+            onClick={() => setMedium("water")}
+          >
+            WATER
+          </button>
 
-            <button
-              className={medium === "glass" ? "active" : ""}
-              onClick={() => setMedium("glass")}
-            >
-              GLASS
-            </button>
-          </>
-        )}
+          <button
+            className={medium === "glass" ? "active" : ""}
+            onClick={() => setMedium("glass")}
+          >
+            GLASS
+          </button>
+        </>
+      )}
 
-        {experiment === "lens" && (
-          <>
-            <button onClick={() => setLensType(lensType === "convex" ? "concave" : "convex")}>
-              {lensType.toUpperCase()}
-            </button>
+      {/* ===== LENS CONTROLS ===== */}
+      {experiment === "lens" && (
+        <>
+          <button
+            onClick={() =>
+              setLensType(lensType === "convex" ? "concave" : "convex")
+            }
+          >
+            {lensType.toUpperCase()} LENS
+          </button>
 
-            <button onClick={() => setSourceY(sourceY * -1)}>
-              SOURCE {sourceY === -1 ? "+Y" : "-Y"}
-            </button>
-          </>
-        )}
+          <button onClick={() => setSourceY(sourceY * -1)}>
+            OBJECT {sourceY === -1 ? "UP" : "DOWN"}
+          </button>
 
-        <button style={{ marginTop: 20 }} onClick={() => navigate("/")}>
-          ⬅ BACK TO CONSOLE
-        </button>
-      </div>
+          <hr style={{ width: "100%", opacity: 0.3 }} />
 
-      {/* CANVAS */}
-      <canvas ref={canvasRef} width={W} height={H} />
+          {/* OBJECT POSITION OPTIONS */}
+          <button onClick={() => setObjectCase("beyond2f")}>
+            Beyond 2F
+          </button>
+          <button onClick={() => setObjectCase("at2f")}>
+            At 2F
+          </button>
+          <button onClick={() => setObjectCase("between")}>
+            Between F & 2F
+          </button>
+          <button onClick={() => setObjectCase("atf")}>
+            At F
+          </button>
+          <button onClick={() => setObjectCase("near")}>
+            Nearer than F
+          </button>
+        </>
+      )}
 
-      {/* RIGHT PANEL */}
-      <div className="energy-panel">
-        <button
-          onClick={() => setLightOn(!lightOn)}
-          style={{
-            marginBottom: 12,
-            background: lightOn ? "#ff4444" : "#44ff88",
-            border: "none",
-            padding: "8px",
-            fontFamily: "monospace",
-            cursor: "pointer"
-          }}
-        >
-          {lightOn ? "TURN LIGHT OFF" : "TURN LIGHT ON"}
-        </button>
-        
-
-        {experiment === "refraction" && (
-          <>
-            <div className="energy-label">INCIDENT ANGLE</div>
-            <div className="energy-value">{angle}°</div>
-            <input
-              className="energy-slider"
-              type="range"
-              min="5"
-              max="75"
-              value={angle}
-              onChange={(e) => setAngle(+e.target.value)}
-            />
-          </>
-        )}
-
-        {experiment === "prism" && (
-          <div className="energy-label">
-            Dispersion of white light into VIBGYOR
-          </div>
-        )}
-
-        {experiment === "lens" && (
-          <div className="energy-label">
-            Convex / Concave Lens Ray Diagram
-          </div>
-        )}
-      </div>
+      <button style={{ marginTop: 20 }} onClick={() => navigate("/")}>
+        ⬅ BACK TO CONSOLE
+      </button>
     </div>
-  );
+
+    {/* ===== CANVAS ===== */}
+    <canvas ref={canvasRef} width={W} height={H} />
+
+    {/* ===== RIGHT PANEL ===== */}
+    <div className="energy-panel">
+      <button
+        onClick={() => setLightOn(!lightOn)}
+        style={{
+          marginBottom: 12,
+          background: lightOn ? "#ff4444" : "#44ff88",
+          border: "none",
+          padding: "8px",
+          fontFamily: "monospace",
+          cursor: "pointer"
+        }}
+      >
+        {lightOn ? "TURN LIGHT OFF" : "TURN LIGHT ON"}
+      </button>
+
+      {experiment === "refraction" && (
+        <>
+          <div className="energy-label">INCIDENT ANGLE</div>
+          <div className="energy-value">{angle}°</div>
+          <input
+            className="energy-slider"
+            type="range"
+            min="5"
+            max="75"
+            value={angle}
+            onChange={(e) => setAngle(+e.target.value)}
+          />
+        </>
+      )}
+
+      {experiment === "prism" && (
+        <div className="energy-label">
+          Dispersion of white light into VIBGYOR
+        </div>
+      )}
+
+      {experiment === "lens" && (
+        <div className="energy-label">
+          Convex / Concave Lens Image Formation
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 }
+
