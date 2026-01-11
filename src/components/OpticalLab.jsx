@@ -205,108 +205,133 @@ prismImg.src = "/prism.png";
 
 
     /* ---------- 🔹 NEW: LENS EXPERIMENT ---------- */
-    function drawLens() {
-      const cx = W / 2;
-      const cy = H / 2;
-      const topY = 60;
-      const botY = H - 60;
-      const halfGap = 18;
-      const curveDepth = 60;
+     function drawLens() {
+  const cx = W / 2;
+  const cy = H / 2;
+  const topY = 60;
+  const botY = H - 60;
 
-      // Principal axis
-      ctx.strokeStyle = "#444";
-      ctx.beginPath();
-      ctx.moveTo(0, cy);
-      ctx.lineTo(W, cy);
-      ctx.stroke();
+  const halfGap = 18;
+  const curveDepth = 60;
+  const concaveDepth = 80; // outward bulge
 
-      // F points
-      [-1, 1].forEach(m => {
-        ctx.strokeStyle = "#aaa";
-        ctx.beginPath();
-        ctx.moveTo(cx + m * F, cy - 6);
-        ctx.lineTo(cx + m * F, cy + 6);
-        ctx.stroke();
-        ctx.fillStyle = "#aaa";
-        ctx.fillText("F", cx + m * F - 5, cy + 22);
-      });
+  /* ================= PRINCIPAL AXIS ================= */
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, cy);
+  ctx.lineTo(W, cy);
+  ctx.stroke();
 
-      // Lens body
-      ctx.strokeStyle = "#7fdfff";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+  /* ================= FOCAL POINTS ================= */
+  [-1, 1].forEach(m => {
+    ctx.strokeStyle = "#aaa";
+    ctx.beginPath();
+    ctx.moveTo(cx + m * F, cy - 6);
+    ctx.lineTo(cx + m * F, cy + 6);
+    ctx.stroke();
+    ctx.fillStyle = "#aaa";
+    ctx.fillText("F", cx + m * F - 5, cy + 22);
+  });
 
-      if (lensType === "convex") {
-        ctx.moveTo(cx - halfGap, topY);
-        ctx.lineTo(cx + halfGap, topY);
-        ctx.bezierCurveTo(
-          cx + halfGap + curveDepth, cy,
-          cx + halfGap + curveDepth, cy,
-          cx + halfGap, botY
-        );
-        ctx.lineTo(cx - halfGap, botY);
-        ctx.bezierCurveTo(
-          cx - halfGap - curveDepth, cy,
-          cx - halfGap - curveDepth, cy,
-          cx - halfGap, topY
-        );
-      } else {
-        ctx.moveTo(cx - halfGap, topY);
-        ctx.lineTo(cx + halfGap, topY);
-        ctx.bezierCurveTo(
-          cx + halfGap - curveDepth, cy,
-          cx + halfGap - curveDepth, cy,
-          cx + halfGap, botY
-        );
-        ctx.lineTo(cx - halfGap, botY);
-        ctx.bezierCurveTo(
-          cx - halfGap + curveDepth, cy,
-          cx - halfGap + curveDepth, cy,
-          cx - halfGap, topY
-        );
-      }
+  /* ================= LENS BODY ================= */
+  ctx.strokeStyle = "#7fdfff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
 
-      ctx.closePath();
-      ctx.stroke();
+  if (lensType === "concave") {
+    // 🔵 CONVEX → bulge INWARD
+    ctx.moveTo(cx - halfGap, topY);
+    ctx.lineTo(cx + halfGap, topY);
+    ctx.bezierCurveTo(
+      cx + halfGap + curveDepth, cy,
+      cx + halfGap + curveDepth, cy,
+      cx + halfGap, botY
+    );
+    ctx.lineTo(cx - halfGap, botY);
+    ctx.bezierCurveTo(
+      cx - halfGap - curveDepth, cy,
+      cx - halfGap - curveDepth, cy,
+      cx - halfGap, topY
+    );
+  } else {
+    // ===== FINAL, CORRECT, SYMMETRIC CONCAVE LENS =====
+const baseWidth = 90;   // long top & bottom
+const depth     = 60;   // inward curvature
 
-      const objX = 100;
-      const objTopY = cy + sourceY * 60;
+ctx.moveTo(cx - baseWidth, topY);
+ctx.lineTo(cx + baseWidth, topY);
 
-      ctx.strokeStyle = "#0f0";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(objX, cy);
-      ctx.lineTo(objX, objTopY);
-      ctx.stroke();
+/* ---------- RIGHT INWARD WALL ---------- */
+ctx.bezierCurveTo(
+  cx + baseWidth - depth, cy,   // control
+  cx + baseWidth - depth, cy,
+  cx + baseWidth, botY          // 🔥 END MATCHES BASE
+);
 
-      ctx.fillStyle = "#0f0";
-      ctx.fillText("Object", objX - 20, objTopY - 6);
+/* ---------- BOTTOM BASE ---------- */
+ctx.lineTo(cx - baseWidth, botY);
 
-      if (!lightOn) return;
+/* ---------- LEFT INWARD WALL ---------- */
+ctx.bezierCurveTo(
+  cx - baseWidth + depth, cy,   // control
+  cx - baseWidth + depth, cy,
+  cx - baseWidth, topY          // 🔥 END MATCHES BASE
+);
 
-      ctx.strokeStyle = "#ff0";
-      ctx.lineWidth = 2;
 
-      ctx.beginPath();
-      ctx.moveTo(objX, objTopY);
-      ctx.lineTo(cx, objTopY);
 
-      if (lensType === "convex") {
-        ctx.lineTo(cx + F, cy);
-      } else {
-        ctx.lineTo(cx + 140, objTopY + 50);
-        ctx.setLineDash([6, 6]);
-        ctx.moveTo(cx, objTopY);
-        ctx.lineTo(cx - F, cy);
-        ctx.setLineDash([]);
-      }
-      ctx.stroke();
+  }
 
-      ctx.beginPath();
-      ctx.moveTo(objX, objTopY);
-      ctx.lineTo(cx + 160, cy + (objTopY - cy));
-      ctx.stroke();
-    }
+  ctx.closePath();
+  ctx.stroke();
+
+  /* ================= OBJECT ================= */
+  const objX = 100;
+  const objTopY = cy + sourceY * 60;
+
+  ctx.strokeStyle = "#0f0";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(objX, cy);
+  ctx.lineTo(objX, objTopY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#0f0";
+  ctx.fillText("Object", objX - 20, objTopY - 6);
+
+  if (!lightOn) return;
+
+  /* ================= RAYS ================= */
+  ctx.strokeStyle = "#ff0";
+  ctx.lineWidth = 2;
+
+  // Ray 1: parallel ray
+  ctx.beginPath();
+  ctx.moveTo(objX, objTopY);
+  ctx.lineTo(cx, objTopY);
+
+  if (lensType === "convex") {
+    ctx.lineTo(cx + F, cy);
+  } else {
+    ctx.lineTo(cx + 160, objTopY + 50);
+
+    // dashed virtual focus
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(cx, objTopY);
+    ctx.lineTo(cx - F, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.stroke();
+
+  // Ray 2: through optical center
+  ctx.beginPath();
+  ctx.moveTo(objX, objTopY);
+  ctx.lineTo(cx + 160, cy + (objTopY - cy));
+  ctx.stroke();
+}
 
     function loop() {
       clear();
