@@ -1,4 +1,6 @@
- import React, { useEffect, useRef, useState } from "react";
+ 
+
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RadiationDexterLab.css";
 
@@ -34,6 +36,8 @@ export default function OpticalDexterLab() {
   // 🔹 NEW (Lens states)
   const [lensType, setLensType] = useState("convex");
   const [sourceY, setSourceY] = useState(-1);
+  const [incidentMedium, setIncidentMedium] = useState("air");
+
 
   const prismImg = new Image();
 prismImg.src = "/prism.png";
@@ -53,12 +57,25 @@ prismImg.src = "/prism.png";
   const cx = 320;
   const cy = H / 2;
 
+  const SPREAD = 0.6;
+
+  // --- Refractive indices ---
+  const n1 = incidentMedium === "air" ? 1.0 : REF_INDEX[incidentMedium];
+  const n2 = REF_INDEX[medium];
+
   const i = (angle * Math.PI) / 180;
-  const r = Math.asin(Math.sin(i) / REF_INDEX[medium]);
+  const sinR = (n1 / n2) * Math.sin(i);
 
-  const SPREAD = 0.6; // 🔽 reduced spread for better alignment
+  let r = null;
+  let isTIR = false;
 
-  /* -------- Interface (boundary) -------- */
+  if (Math.abs(sinR) > 1) {
+    isTIR = true;
+  } else {
+    r = Math.asin(sinR);
+  }
+
+  /* -------- Interface -------- */
   ctx.strokeStyle = "#0ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -75,48 +92,71 @@ prismImg.src = "/prism.png";
   ctx.stroke();
   ctx.setLineDash([]);
 
-  /* -------- Labels -------- */
   ctx.fillStyle = "#fff";
   ctx.font = "13px monospace";
-  ctx.fillText("Incident Ray", 80, 80);
-  ctx.fillText("Refracted Ray", 420, 300);
 
   if (!lightOn) return;
 
   /* -------- Incident Ray -------- */
+  const dir = incidentMedium === "air" ? -1 : 1;
+
   ctx.strokeStyle = "#0f0";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(
     cx - 200 * Math.sin(i) * SPREAD,
-    cy - 200 * Math.cos(i) * SPREAD
+    cy + dir * 200 * Math.cos(i) * SPREAD
   );
   ctx.lineTo(cx, cy);
   ctx.stroke();
 
-  /* -------- Refracted Ray -------- */
-  ctx.strokeStyle = "#ff0";
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(
-    cx + 200 * Math.sin(r) * SPREAD,
-    cy + 200 * Math.cos(r) * SPREAD
-  );
-  ctx.stroke();
+  /* -------- Refracted / Reflected Ray -------- */
+  if (!isTIR) {
+    ctx.strokeStyle = "#ff0";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(
+      cx + 200 * Math.sin(r) * SPREAD,
+      cy + 200 * Math.cos(r) * SPREAD
+    );
+    ctx.stroke();
+  } else {
+    // Total internal reflection
+    ctx.strokeStyle = "#ff4444";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(
+      cx - 200 * Math.sin(i) * SPREAD,
+      cy - dir * 200 * Math.cos(i) * SPREAD
+    );
+    ctx.stroke();
+  }
 
-  /* -------- Moving photon (aligned) -------- */
-  const p = (tRef.current % 100) / 100;
+  /* -------- Labels -------- */
   ctx.fillStyle = "#0f0";
-  ctx.beginPath();
-  ctx.arc(
-    cx - 200 * Math.sin(i) * SPREAD * (1 - p),
-    cy - 200 * Math.cos(i) * SPREAD * (1 - p),
-    5,
-    0,
-    Math.PI * 2
+  ctx.fillText(`i = ${angle}°`, cx - 160, cy - 40);
+
+  if (!isTIR) {
+    ctx.fillStyle = "#ff0";
+    ctx.fillText(
+      `r = ${(r * 180 / Math.PI).toFixed(1)}°`,
+      cx + 40,
+      cy + 40
+    );
+  } else {
+    ctx.fillStyle = "#ff4444";
+    ctx.fillText("TOTAL INTERNAL REFLECTION", cx + 20, cy + 40);
+  }
+
+  /* -------- Snell's Law Label -------- */
+  ctx.fillStyle = "#aaa";
+  ctx.fillText(
+    `${n1.toFixed(2)} sin(${angle}°) = ${n2.toFixed(2)} sin(r)`,
+    40,
+    H - 30
   );
-  ctx.fill();
 }
+
 
     /* ---------- PRISM (UNCHANGED) ---------- */
   function drawPrism() {
@@ -363,6 +403,17 @@ ctx.bezierCurveTo(
         >
           REFRACTION
         </button>
+        
+        <button
+  onClick={() =>
+    setIncidentMedium(
+      incidentMedium === "air" ? medium : "air"
+    )
+  }
+>
+  INCIDENT: {incidentMedium.toUpperCase()}
+</button>
+
 
         <button
           className={experiment === "prism" ? "active" : ""}
@@ -432,6 +483,7 @@ ctx.bezierCurveTo(
         >
           {lightOn ? "TURN LIGHT OFF" : "TURN LIGHT ON"}
         </button>
+        
 
         {experiment === "refraction" && (
           <>
