@@ -32,16 +32,19 @@ export default function SemiconductorDexterLab() {
     : 0;
 
   useEffect(() => {
-    const ctx = canvasRef.current.getContext("2d");
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
     const blockTop = 260;
 
-    /* ---------- BASIC DRAW ---------- */
+    /* ---------- BLACK CLEAR (CRITICAL FIX) ---------- */
     function clear() {
-      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#000";           // ← opaque black
+      ctx.fillRect(0, 0, W, H);
     }
 
+    /* ---------- GRID (NOW INVISIBLE ON BLACK) ---------- */
     function grid() {
-      ctx.strokeStyle = "#111";
+      ctx.strokeStyle = "#111"; // black-on-black → invisible
       for (let i = 0; i < W; i += 40) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
@@ -108,18 +111,16 @@ export default function SemiconductorDexterLab() {
       const speed = 0.4;
       const maxTravel = 320;
       const dotSpacing = 22;
-
       const amplitude = 12;
       const wavelength = 90;
 
-      const angle = -Math.PI / 4; // up-right
+      const angle = -Math.PI / 4;
       const ux = Math.cos(angle);
       const uy = Math.sin(angle);
 
       const baseOriginX = 300;
       const originY = blockTop;
       const surfaceSpacing = 22;
-
       const dotsPerStream = 12;
 
       for (let stream = 0; stream < electronCount; stream++) {
@@ -134,9 +135,7 @@ export default function SemiconductorDexterLab() {
 
           const bx = originX + ux * s;
           const by = originY + uy * s;
-
-          const phase = (2 * Math.PI * s) / wavelength;
-          const waveOffset = Math.sin(phase) * amplitude;
+          const waveOffset = Math.sin((2 * Math.PI * s) / wavelength) * amplitude;
 
           const px = bx;
           const py = by - waveOffset;
@@ -173,7 +172,7 @@ export default function SemiconductorDexterLab() {
     }
 
     function loop() {
-      clear();
+      clear();                 // ← BLACK BACKGROUND EVERY FRAME
       grid();
       drawPhotonWaves();
       drawSemiconductor();
@@ -208,7 +207,12 @@ export default function SemiconductorDexterLab() {
         </button>
       </div>
 
-      <canvas ref={canvasRef} width={W} height={H} />
+      <canvas
+        ref={canvasRef}
+        width={W}
+        height={H}
+        style={{ background: "#000" }}
+      />
 
       <div className="energy-panel">
         <div className="energy-label">LIGHT FREQUENCY</div>
@@ -238,3 +242,4 @@ export default function SemiconductorDexterLab() {
     </div>
   );
 }
+
