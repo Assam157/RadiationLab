@@ -1,4 +1,4 @@
-\import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./EMLab.css";
 
 const W = 1100;
@@ -184,5 +184,6 @@ export default function BandGapExperiment() {
     </div>
   );
 }
+
 
 
