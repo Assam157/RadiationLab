@@ -44,29 +44,30 @@ export default function BandGapExperiment() {
       ctx.shadowBlur = 0;
     }
 
-    /* ================= WAVES ================= */
+    /* ================= OUTGOING WAVES ================= */
 
-    // vertical absorption wave
-    function drawIncomingWave(x, yStart, yEnd) {
+    // Outgoing vertical wave (radiating upward)
+    function drawOutgoingVerticalWave(x0, y0) {
       ctx.strokeStyle = "#ffd700";
       ctx.lineWidth = 2;
       ctx.beginPath();
 
       for (let i = 0; i < 80; i++) {
-        const y = yStart + i * 6;
-        if (y > yEnd) break;
+        const x =
+          x0 + Math.sin(i * 0.4 + t * 0.5) * 6;
+        const y =
+          y0 -
+          i * 6 +
+          Math.sin(i * 0.6 + t * 0.4) * 6;
 
-        const xw =
-          x + Math.sin(i * 0.5 + t * 0.4) * 6;
-
-        if (i === 0) ctx.moveTo(xw, y);
-        else ctx.lineTo(xw, y);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
 
-    // diagonal emission wave
-    function drawOutgoingWave(x0, y0) {
+    // Outgoing diagonal wave
+    function drawOutgoingDiagonalWave(x0, y0) {
       ctx.strokeStyle = "#ffcc88";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -78,7 +79,7 @@ export default function BandGapExperiment() {
           Math.sin(i * 0.5 + t * 0.4) * 6;
         const y =
           y0 -
-          i * 4 +
+          i * 5 +
           Math.sin(i * 0.6 + t * 0.4) * 6;
 
         if (i === 0) ctx.moveTo(x, y);
@@ -91,15 +92,15 @@ export default function BandGapExperiment() {
       clear();
 
       /* === ENERGY LEVEL POSITIONS === */
-      const E0 = H / 2 + 160;
-      const E1 = H / 2 + 80;
-      const E2 = H / 2 - 120;
+      const E0 = H / 2 + 160; // Valence band
+      const E1 = H / 2 + 80;  // Intermediate
+      const E2 = H / 2 - 120; // Conduction band
 
       drawEnergyLevel(E0, "E₀ (Valence)", "#5bc0ff");
       drawEnergyLevel(E1, "E₁", "#7fd1ff");
       drawEnergyLevel(E2, "E₂ (Conduction)", "#ff7676");
 
-      /* === BAND GAP === */
+      /* === BAND GAP MARKER === */
       ctx.setLineDash([6, 6]);
       ctx.strokeStyle = "#aaa";
       ctx.beginPath();
@@ -118,10 +119,10 @@ export default function BandGapExperiment() {
       else if (energy < 0.66) y = E1;
       else y = E2;
 
-      const x = 420 + (t % 240);
-      drawElectron(x, y + Math.sin(t * 0.08) * 5);
+      const ex = 420 + (t % 240);
+      drawElectron(ex, y + Math.sin(t * 0.08) * 5);
 
-      /* === TRANSITION ARROW (KEPT) === */
+      /* === TRANSITION ARROW (UNCHANGED) === */
       ctx.strokeStyle = "#ffd700";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -135,18 +136,18 @@ export default function BandGapExperiment() {
       ctx.lineTo(655, y - 10);
       ctx.stroke();
 
-      /* === WAVES FOR ALL TRANSITIONS === */
+      /* === OUTGOING WAVES FOR ALL BANDS === */
 
-      // E0 → E1 absorption
+      // E0 → E1
       if (energy >= 0.33) {
-        drawIncomingWave(650, E0 - 60, E1);
-        drawOutgoingWave(650, E1);
+        drawOutgoingVerticalWave(650, E1);
+        drawOutgoingDiagonalWave(650, E1);
       }
 
-      // E1 → E2 absorption
+      // E1 → E2
       if (energy >= 0.66) {
-        drawIncomingWave(650, E1 - 60, E2);
-        drawOutgoingWave(650, E2);
+        drawOutgoingVerticalWave(650, E2);
+        drawOutgoingDiagonalWave(650, E2);
       }
 
       t++;
@@ -175,9 +176,13 @@ export default function BandGapExperiment() {
         />
 
         <div className="panel-hint">
-          Arrow = transition, waves = photon absorption & emission
+          Arrow = electronic transition  
+          <br />
+          Waves = photons radiating outward
         </div>
       </div>
     </div>
   );
 }
+
+
