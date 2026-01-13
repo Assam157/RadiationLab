@@ -1,4 +1,4 @@
-﻿// src/components/faraday/faraday.js
+ // src/components/faraday/faraday.js
 
 export function startFaraday(canvas) {
   const ctx = canvas.getContext("2d");
@@ -434,127 +434,76 @@ function drawBulb() {
   ctx.restore();
 }
 
-function drawMagnet() {
+ function drawMagnet() {
   const m = state.magnet;
 
   const width = params.magnetHalfWidth * 2;
   const height = 70;
   const half = width / 2;
 
+  // Animate arrow phase
   fluxTime = (fluxTime + 0.015) % 1;
 
   ctx.save();
   ctx.translate(m.x, m.y);
 
-  // Flip orientation
+  // Flip magnet visually when moving left
   if (m.v < 0) ctx.scale(-1, 1);
 
   /* ================= MAGNET BODY ================= */
 
-  const bodyGrad = ctx.createLinearGradient(-half, 0, half, 0);
-  bodyGrad.addColorStop(0, "#c93b3b"); // N
-  bodyGrad.addColorStop(0.5, "#1c222b");
-  bodyGrad.addColorStop(1, "#2b6cb0"); // S
+  const grad = ctx.createLinearGradient(-half, 0, half, 0);
+  grad.addColorStop(0, "#c93b3b");   // North
+  grad.addColorStop(0.5, "#1c222b");
+  grad.addColorStop(1, "#2b6cb0");   // South
 
-  ctx.fillStyle = bodyGrad;
+  ctx.fillStyle = grad;
   ctx.fillRect(-half, -height / 2, width, height);
 
   ctx.strokeStyle = "rgba(255,255,255,0.25)";
   ctx.lineWidth = 2;
   ctx.strokeRect(-half, -height / 2, width, height);
 
-  ctx.fillStyle = "#fff";
+  // N / S labels
+  ctx.fillStyle = "#ffffff";
   ctx.font = "16px Arial";
   ctx.textAlign = "center";
   ctx.fillText("N", -half / 2, 6);
-  ctx.fillText("S", half / 2, 6);
+  ctx.fillText("S",  half / 2, 6);
+  
 
-  /* ================= FLUX LINES ================= */
+  /* ================= INTERNAL FIELD (S → N) ================= */
 
-  ctx.lineWidth = 1.6;
-  ctx.strokeStyle = "rgba(190,190,190,0.75)";
+  ctx.strokeStyle = "rgba(160,160,160,0.55)";
   ctx.fillStyle = "rgba(210,210,210,0.9)";
+  ctx.lineWidth = 1.4;
 
-  // Each index represents a *distinct flux tube*
-  const tubeCount = 5;
-  const tubeSpacing = 12;
+  const lineCount = 6;
+  const spacing = 10;
 
-  for (let i = 1; i <= tubeCount; i++) {
-    const y0 = i * tubeSpacing;
-    const lift = 26 + i * 14;
-    const spread = 80 + i * 26;
+  for (let i = 0; i < lineCount; i++) {
+    const y = (i - (lineCount - 1) / 2) * spacing;
 
-    // ---------- TOP LOOP ----------
-    ctx.beginPath();
-    ctx.moveTo(-half, -y0);
-    ctx.bezierCurveTo(
-      -half - spread,
-      -lift,
-      half + spread,
-      -lift,
-      half,
-      -y0
-    );
-    ctx.stroke();
-
-    // ---------- BOTTOM LOOP ----------
-    ctx.beginPath();
-    ctx.moveTo(-half, y0);
-    ctx.bezierCurveTo(
-      -half - spread,
-      lift,
-      half + spread,
-      lift,
-      half,
-      y0
-    );
-    ctx.stroke();
-
-    // ---------- ANIMATED ARROWS ----------
-    drawFluxArrow(
-      -half,
-      -y0,
-      -lift,
-      spread,
-      fluxTime + i * 0.12,
-      false
-    );
-
-    drawFluxArrow(
-      -half,
-      y0,
-      lift,
-      spread,
-      fluxTime + i * 0.12,
-      true
-    );
-  }
-
-  /* ================= INTERNAL FIELD ================= */
-
-  ctx.strokeStyle = "rgba(150,150,150,0.55)";
-  ctx.lineWidth = 1.2;
-
-  for (let i = -3; i <= 3; i++) {
-    const y = i * 6;
-
+    // Static internal field line
     ctx.beginPath();
     ctx.moveTo(half - 6, y);
     ctx.lineTo(-half + 6, y);
     ctx.stroke();
 
-    const t = (fluxTime + i * 0.1) % 1;
+    // Moving arrow (S → N)
+    const t = (fluxTime + i * 0.18) % 1;
     const ax = half - 12 - t * (width - 24);
 
     ctx.save();
     ctx.translate(ax, y);
-    ctx.rotate(Math.PI); // S → N
+    ctx.rotate(Math.PI); // reverse direction
     drawArrowHead(0, 0, 5);
     ctx.restore();
   }
 
   ctx.restore();
 }
+
 
 function drawFluxArrow(x0, y0, lift, spread, t, lower) {
   t = t % 1;
@@ -604,109 +553,98 @@ function drawArrowHead(x, y, size) {
 }
 
 
-
-function drawFieldLines() {
-  const fieldColor = "rgba(120, 120, 120, 0.8)";
-
-  function drawArrow(x, y, angle) {
-    const size = 7;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(angle);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-size, -size * 0.6);
-    ctx.lineTo(-size, size * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  ctx.save();
-  ctx.strokeStyle = fieldColor;
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.fillStyle = fieldColor;
-
+ function drawFieldLines() {
   const cx = state.magnet.x;
   const cy = state.magnet.y;
   const half = params.magnetHalfWidth;
 
-  // Straight central lines between poles.
-  for (let i = -3; i <= 3; i += 1) {
-    const offset = i * 10;
-    ctx.beginPath();
-    ctx.moveTo(cx - half - 10, cy + offset);
-    ctx.lineTo(cx + half + 10, cy + offset);
-    ctx.stroke();
-    drawArrow(cx + half + 10, cy + offset, 0);
+  ctx.save();
+  ctx.strokeStyle = "rgba(140,140,140,0.6)";
+  ctx.fillStyle = "rgba(140,140,140,0.9)";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+
+  const loopCount = 5;
+  const spacing = 22;
+
+  // advance external arrow phase (slow & smooth)
+  const arrowSpeed = 0.002;
+  const phase = (performance.now() * arrowSpeed) % 1;
+
+  // helper: draw moving arrow on bezier
+  function drawMovingArrow(p0, p1, p2, p3, t) {
+    const x =
+      Math.pow(1 - t, 3) * p0.x +
+      3 * Math.pow(1 - t, 2) * t * p1.x +
+      3 * (1 - t) * t * t * p2.x +
+      Math.pow(t, 3) * p3.x;
+
+    const y =
+      Math.pow(1 - t, 3) * p0.y +
+      3 * Math.pow(1 - t, 2) * t * p1.y +
+      3 * (1 - t) * t * t * p2.y +
+      Math.pow(t, 3) * p3.y;
+
+    const dx =
+      3 * (p1.x - p0.x) * Math.pow(1 - t, 2) +
+      6 * (p2.x - p1.x) * (1 - t) * t +
+      3 * (p3.x - p2.x) * t * t;
+
+    const dy =
+      3 * (p1.y - p0.y) * Math.pow(1 - t, 2) +
+      6 * (p2.y - p1.y) * (1 - t) * t +
+      3 * (p3.y - p2.y) * t * t;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.atan2(dy, dx));
+    drawArrowHead(0, 0, 6);
+    ctx.restore();
   }
 
-  // Shallow lines that bend outward near the ends.
-  const bendOffsets = [-36, -24, -12, 12, 24, 36];
-  bendOffsets.forEach((offset) => {
-    const bend = Math.abs(offset) * 0.3 + 8;
-    ctx.beginPath();
-    ctx.moveTo(cx - half - 10, cy + offset);
-    ctx.quadraticCurveTo(
-      cx - half - 90,
-      cy + offset - Math.sign(offset) * bend,
-      cx - half - 170,
-      cy + offset * 1.05
-    );
-    ctx.stroke();
-    drawArrow(cx - half - 170, cy + offset * 1.05, Math.PI);
+  for (let i = 1; i <= loopCount; i++) {
+    const lift = i * spacing;
+    const spread = half + 40 + i * 22;
+
+    /* ========= TOP LOOP ========= */
+    const topP0 = { x: cx - half, y: cy - 6 };
+    const topP1 = { x: cx - spread, y: cy - lift };
+    const topP2 = { x: cx + spread, y: cy - lift };
+    const topP3 = { x: cx + half, y: cy - 6 };
 
     ctx.beginPath();
-    ctx.moveTo(cx + half + 10, cy + offset);
-    ctx.quadraticCurveTo(
-      cx + half + 90,
-      cy + offset - Math.sign(offset) * bend,
-      cx + half + 170,
-      cy + offset * 1.05
-    );
-    ctx.stroke();
-    drawArrow(cx + half + 170, cy + offset * 1.05, 0);
-  });
-
-  // Upper loops
-  for (let i = 1; i <= 3; i += 1) {
-    const lift = 30 + i * 24;
-    const spread = 90 + i * 40;
-    ctx.beginPath();
-    ctx.moveTo(cx - half + 6, cy - 8 * i);
+    ctx.moveTo(topP0.x, topP0.y);
     ctx.bezierCurveTo(
-      cx - half - spread,
-      cy - lift,
-      cx + half + spread,
-      cy - lift,
-      cx + half - 6,
-      cy - 8 * i
+      topP1.x, topP1.y,
+      topP2.x, topP2.y,
+      topP3.x, topP3.y
     );
     ctx.stroke();
-    drawArrow(cx, cy - lift, 0);
-  }
 
-  // Lower loops
-  for (let i = 1; i <= 3; i += 1) {
-    const drop = 30 + i * 24;
-    const spread = 90 + i * 40;
+    drawMovingArrow(topP0, topP1, topP2, topP3, phase);
+
+    /* ========= BOTTOM LOOP ========= */
+    const botP0 = { x: cx - half, y: cy + 6 };
+    const botP1 = { x: cx - spread, y: cy + lift };
+    const botP2 = { x: cx + spread, y: cy + lift };
+    const botP3 = { x: cx + half, y: cy + 6 };
+
     ctx.beginPath();
-    ctx.moveTo(cx - half + 6, cy + 8 * i);
+    ctx.moveTo(botP0.x, botP0.y);
     ctx.bezierCurveTo(
-      cx - half - spread,
-      cy + drop,
-      cx + half + spread,
-      cy + drop,
-      cx + half - 6,
-      cy + 8 * i
+      botP1.x, botP1.y,
+      botP2.x, botP2.y,
+      botP3.x, botP3.y
     );
     ctx.stroke();
-    drawArrow(cx, cy + drop, 0);
+
+    drawMovingArrow(botP0, botP1, botP2, botP3, phase);
   }
 
   ctx.restore();
 }
+
+
 
 function drawUIOverlay() {
   ctx.save();
