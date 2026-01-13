@@ -1,0 +1,245 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import BandGapExperiment from "./ElectronEnergyBand";
+import FaradayExperiment from "./FaradayExperiment";
+
+import "./EMLab.css";
+
+const W = 1100;
+const H = 820;
+
+export default function EMLab() {
+  const canvasRef = useRef(null);
+  const navigate = useNavigate();
+
+  /* ================= EXPERIMENT MODE ================= */
+  const [mode, setMode] = useState("wire");
+  // "wire" | "atom" | "bandgap" | "faraday"
+
+  /* ================= SHARED CONTROLS ================= */
+  const [direction, setDirection] = useState("same");
+  const [intensity, setIntensity] = useState(0);
+
+  const BASE_LEFT = 280;
+  const BASE_RIGHT = 420;
+
+  /* ================= KEYBOARD CONTROL ================= */
+  useEffect(() => {
+    function onKey(e) {
+      if (mode === "bandgap" || mode === "faraday") return;
+
+      if (e.key === "a" || e.key === "A") {
+        setIntensity(v => Math.max(0, +(v - 0.02).toFixed(2)));
+      }
+      if (e.key === "d" || e.key === "D") {
+        setIntensity(v => Math.min(1, +(v + 0.02).toFixed(2)));
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mode]);
+
+  /* ================= CANVAS LOOP ================= */
+  useEffect(() => {
+    if (mode !== "wire" && mode !== "atom") return;
+
+    const ctx = canvasRef.current.getContext("2d");
+    let t = 0;
+    let raf;
+
+    function clear() {
+      ctx.clearRect(0, 0, W, H);
+    }
+
+    /* ---------- WIRE EXPERIMENT ---------- */
+    function drawElasticWire(x0, bend) {
+      const top = 70;
+      const bottom = H - 70;
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "#888";
+      ctx.beginPath();
+      for (let i = 0; i <= 60; i++) {
+        const s = i / 60;
+        const y = top + s * (bottom - top);
+        const x = x0 + bend * Math.sin(Math.PI * s);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    function drawCoil(cx, cy) {
+      for (let i = 0; i < 9; i++) {
+        ctx.strokeStyle = "#bbb";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 40 + i * 4, 22 + i * 2, 0, -Math.PI / 2, Math.PI / 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 40 + i * 4, 22 + i * 2, 0, Math.PI / 2, (3 * Math.PI) / 2);
+        ctx.stroke();
+      }
+    }
+
+    function drawArrows(cx, cy, clockwise) {
+      const dir = clockwise ? -1 : 1;
+      for (let k = 0; k < 3; k++) {
+        const a = t * 0.03 * dir + k * Math.PI * 2;
+        ctx.save();
+        ctx.translate(cx + 50 * Math.cos(a), cy + 30 * Math.sin(a));
+        ctx.rotate(a);
+        ctx.fillStyle = "#ffd700";
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-8, -14);
+        ctx.lineTo(8, -14);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawWireExperiment() {
+      const cy = H / 2;
+      const F = intensity * 60;
+      const inward = direction === "opposite";
+
+      const bendL = inward ? +F : -F;
+      const bendR = inward ? -F : +F;
+
+      drawCoil(BASE_LEFT + bendL * 0.5, cy);
+      drawCoil(BASE_RIGHT + bendR * 0.5, cy);
+
+      drawArrows(BASE_LEFT + bendL * 0.5, cy, false);
+      drawArrows(BASE_RIGHT + bendR * 0.5, cy, direction !== "same");
+
+      drawElasticWire(BASE_LEFT, bendL);
+      drawElasticWire(BASE_RIGHT, bendR);
+    }
+
+    /* ---------- ATOM EXPERIMENT ---------- */
+    function drawAtomExperiment() {
+      const cx = W / 2;
+      const cy = H / 2;
+
+      [80, 140, 200].forEach(r => {
+        ctx.strokeStyle = "rgba(150,200,255,0.3)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+      ctx.fillStyle = "#ff6b6b";
+      ctx.shadowColor = "#ff6b6b";
+      ctx.shadowBlur = 25 + intensity * 40;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      const level =
+        intensity < 0.33 ? 80 :
+        intensity < 0.66 ? 140 : 200;
+
+      const speed = 0.02 + intensity * 0.04;
+      const ex = cx + level * Math.cos(t * speed);
+      const ey = cy + level * Math.sin(t * speed);
+
+      ctx.beginPath();
+      ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#00eaff";
+      ctx.shadowColor = "#00eaff";
+      ctx.shadowBlur = 18 + intensity * 30;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function loop() {
+      clear();
+      if (mode === "wire") drawWireExperiment();
+      else drawAtomExperiment();
+      t++;
+      raf = requestAnimationFrame(loop);
+    }
+
+    loop();
+    return () => cancelAnimationFrame(raf);
+  }, [mode, direction, intensity]);
+
+  /* ================= UI ================= */
+  return (
+    <div className="lab-root">
+      {/* LEFT PANEL */}
+      <div className="lab-panel">
+        <div className="lab-panel-title">EXPERIMENTS</div>
+
+        <button className={`panel-btn ${mode === "wire" ? "active" : ""}`}
+          onClick={() => setMode("wire")}>
+          Current-Carrying Wires
+        </button>
+
+        <button className={`panel-btn ${mode === "atom" ? "active" : ""}`}
+          onClick={() => setMode("atom")}>
+          Electron Excitation
+        </button>
+
+        <button className={`panel-btn ${mode === "bandgap" ? "active" : ""}`}
+          onClick={() => setMode("bandgap")}>
+          Band Gap Transitions
+        </button>
+
+        <button className={`panel-btn ${mode === "faraday" ? "active" : ""}`}
+          onClick={() => setMode("faraday")}>
+          Faraday Induction
+        </button>
+
+        {mode === "wire" && (
+          <>
+            <div className="panel-section">CURRENT DIRECTION</div>
+            <button className={`panel-btn ${direction === "same" ? "active" : ""}`}
+              onClick={() => setDirection("same")}>
+              Same Current
+            </button>
+            <button className={`panel-btn ${direction === "opposite" ? "active" : ""}`}
+              onClick={() => setDirection("opposite")}>
+              Opposite Current
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* MAIN VIEW */}
+      <div className="lab-canvas-wrap">
+        {mode === "bandgap" && <BandGapExperiment />}
+        {mode === "faraday" && <FaradayExperiment />}
+        {(mode === "wire" || mode === "atom") && (
+          <canvas ref={canvasRef} width={W} height={H} />
+        )}
+
+        {(mode === "wire" || mode === "atom") && (
+          <div className="cinema-energy">
+            <div className="label">CURRENT INTENSITY</div>
+            <div className="value">{intensity.toFixed(2)}</div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={intensity}
+              onChange={e => setIntensity(+e.target.value)}
+            />
+            <div className="panel-hint">Use A / D keys</div>
+          </div>
+        )}
+
+        <button className="lab-back" onClick={() => navigate("/")}>
+          ← BACK
+        </button>
+      </div>
+    </div>
+  );
+}
