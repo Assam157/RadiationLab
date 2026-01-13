@@ -99,6 +99,7 @@ canvas {
   transform: translateY(-50%);
   width: 200px;
   color: #e6f2ff;
+  margin-top: 250px;
 }
 
 .cinema-energy .label {
@@ -228,3 +229,4 @@ canvas {
     transform: scale(0.8);
   }
 }
+
