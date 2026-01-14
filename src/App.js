@@ -1,4 +1,4 @@
- import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,39 +15,37 @@ import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
 import "./App.css";
 
 /* ==============================
-   MAIN MENU (DEXTER CONSOLE)
+   MAIN MENU
 ================================ */
 function DexterHome() {
   const navigate = useNavigate();
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstall, setShowInstall] = useState(false);
+  const installEventRef = useRef(null);
 
+  // Capture install event silently
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault(); // prevent auto browser prompt
-      setDeferredPrompt(e);
-      setShowInstall(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", handler);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      installEventRef.current = e;
+    });
   }, []);
 
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-
-    if (choice.outcome === "accepted") {
-      console.log("Dexter Physics Lab installed");
+  // ALWAYS try to install
+  const triggerInstall = async () => {
+    if (!installEventRef.current) {
+      alert(
+        "Install not available yet.\n\n" +
+        "Chrome requires:\n" +
+        "• Service Worker\n" +
+        "• Valid manifest\n" +
+        "• HTTPS\n\n" +
+        "Check DevTools → Application → Manifest"
+      );
+      return;
     }
 
-    setDeferredPrompt(null);
-    setShowInstall(false);
+    installEventRef.current.prompt();
+    await installEventRef.current.userChoice;
+    installEventRef.current = null;
   };
 
   return (
@@ -66,19 +64,17 @@ function DexterHome() {
     >
       <h1>PARTICLE PHYSICS LAB CONSOLE</h1>
 
-      {/* 🔽 INSTALL BUTTON */}
-      {showInstall && (
-        <button
-          className="lab-btn"
-          style={{
-            border: "2px solid #0f0",
-            boxShadow: "0 0 15px #0f0"
-          }}
-          onClick={handleInstall}
-        >
-          ⬇ INSTALL DEXTER PHYSICS LAB
-        </button>
-      )}
+      {/* 🔥 INSTALL BUTTON — ALWAYS SHOWN */}
+      <button
+        className="lab-btn"
+        style={{
+          border: "2px solid #0f0",
+          boxShadow: "0 0 20px #0f0"
+        }}
+        onClick={triggerInstall}
+      >
+        ⬇ INSTALL DEXTERS LAB
+      </button>
 
       <button className="lab-btn" onClick={() => navigate("/radiation")}>
         ☢ Radiation Physics Lab
