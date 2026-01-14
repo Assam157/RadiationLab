@@ -1,4 +1,4 @@
-{
+ {
   "short_name": "React App",
   "name": "Create React App Sample",
   "icons": [
@@ -8,8 +8,8 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
-      "type": "image/png",
+      "src": "Lab.jpg",
+      "type": "image/jpg",
       "sizes": "192x192"
     },
     {
