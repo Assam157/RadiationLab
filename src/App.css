@@ -1,108 +1,112 @@
 /* =========================================================
-   TAILWIND BASE
+   GLOBAL RESET & BASE (Tailwind-like sane defaults)
    ========================================================= */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* =========================================================
-   GLOBAL RESET & BASE
-   ========================================================= */
-html,
-body {
-  @apply m-0 p-0 font-sans bg-slate-50 text-slate-900 overflow-x-hidden;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-button,
-input,
-select {
-  @apply font-inherit;
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue",
+               Arial, "Noto Sans", sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+button, input, select {
+  font-family: inherit;
 }
 
 /* =========================================================
-   FLEX HELPERS (Tailwind-backed)
+   FLEX HELPERS (Tailwind-like utilities)
    ========================================================= */
 .flex {
-  @apply flex;
+  display: flex;
 }
 
 .flex-col {
-  @apply flex flex-col;
+  flex-direction: column;
 }
 
 .flex-center {
-  @apply flex items-center justify-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.gap-sm {
-  @apply gap-2;
-}
-
-.gap-md {
-  @apply gap-3;
-}
-
-.gap-lg {
-  @apply gap-4;
-}
+.gap-sm { gap: 8px; }
+.gap-md { gap: 12px; }
+.gap-lg { gap: 16px; }
 
 /* =========================================================
    LAB PAGE LAYOUT
    ========================================================= */
 .lab-page,
 .sidebar-lab-root {
-  @apply flex gap-3 p-3 w-full max-w-full
-         max-[900px]:flex-col;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  width: 100%;
+  max-width: 100vw;
 }
 
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
- /* =========================================================
-   SIDEBAR (SCROLLABLE)
-   ========================================================= */
+/* Sidebar */
 .sidebar,
 .lab-sidebar {
-  @apply w-[220px] min-w-[200px]
-         bg-white rounded-xl p-3
-         shadow-lg
-         flex flex-col
-         overflow-y-auto overflow-x-hidden
-         max-h-screen
-         max-[900px]:w-full
-         max-[900px]:min-w-0
-         max-[900px]:max-h-[60vh];
+  width: 220px;
+  min-width: 200px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-
-/* =========================================================
-   LAB CONTENT AREA
-   ========================================================= */
+/* Lab content area */
 .lab-view,
 .lab-content {
-  @apply flex-1 min-w-0
-         bg-white rounded-xl p-3
-         shadow-lg
-         overflow-x-auto;
+  flex: 1;
+  min-width: 0; /* CRITICAL for mobile */
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  overflow-x: auto;
 }
 
 /* =========================================================
-   CANVAS RESPONSIVENESS (CRITICAL)
+   CANVAS RESPONSIVENESS (MOST IMPORTANT PART)
    ========================================================= */
+
+/* Canvas container (wrap all canvas inside a div if possible) */
 .canvas-wrapper {
-  @apply w-full max-w-full overflow-x-auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
+/* All canvas elements */
 canvas {
-  @apply block max-w-full h-auto
-         rounded-lg bg-white
-         touch-none;
+  display: block;
+  max-width: 100%;
+  height: auto;
+
+  /* Prevent overflow on mobile */
+  touch-action: none;
+
+  /* Nice look */
+  border-radius: 10px;
+  background: #ffffff;
 }
 
-/* Mobile canvas scaling */
+/* Scale canvas down on small screens */
 @media (max-width: 768px) {
   canvas {
-    @apply w-full h-auto;
+    width: 100% !important;
+    height: auto !important;
   }
 }
 
@@ -113,53 +117,79 @@ canvas {
 .digital-lab,
 .control-panel,
 .info-panel {
-  @apply flex flex-col gap-2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 label {
-  @apply text-sm font-medium;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 input[type="range"],
 select {
-  @apply w-full;
+  width: 100%;
 }
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
+/* Buttons */
 button {
-  @apply px-4 py-2 rounded-xl
-         font-semibold
-         bg-gray-200
-         transition
-         cursor-pointer;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: #e5e7eb;
+  transition: background 0.2s ease;
 }
 
 button:hover {
-  @apply bg-indigo-200;
+  background: #c7d2fe;
 }
 
 button.active {
-  @apply bg-blue-600 text-white;
+  background: #2563eb;
+  color: white;
 }
 
 /* =========================================================
-   DIGITAL LAB DARK MODE
+   MOBILE STACKING (VERY IMPORTANT)
+   ========================================================= */
+@media (max-width: 900px) {
+  .lab-page,
+  .sidebar-lab-root {
+    flex-direction: column;
+  }
+
+  .sidebar,
+  .lab-sidebar {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .lab-view,
+  .lab-content {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   DIGITAL LAB DARK MODE SUPPORT
    ========================================================= */
 .digital-lab {
-  @apply bg-slate-950 text-gray-200;
+  background: #020617;
+  color: #e5e7eb;
 }
 
 .digital-lab canvas {
-  @apply bg-slate-950;
+  background: #020617;
 }
 
 /* =========================================================
-   SCROLL SAFETY
+   SCROLL SAFETY (no hidden canvas)
    ========================================================= */
 body {
-  @apply overflow-x-hidden;
+  overflow-x: hidden;
 }
 
 
