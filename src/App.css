@@ -58,13 +58,22 @@ select {
 /* =========================================================
    SIDEBAR
    ========================================================= */
+ /* =========================================================
+   SIDEBAR (SCROLLABLE)
+   ========================================================= */
 .sidebar,
 .lab-sidebar {
   @apply w-[220px] min-w-[200px]
          bg-white rounded-xl p-3
          shadow-lg
-         max-[900px]:w-full max-[900px]:min-w-0;
+         flex flex-col
+         overflow-y-auto overflow-x-hidden
+         max-h-screen
+         max-[900px]:w-full
+         max-[900px]:min-w-0
+         max-[900px]:max-h-[60vh];
 }
+
 
 /* =========================================================
    LAB CONTENT AREA
@@ -152,4 +161,5 @@ button.active {
 body {
   @apply overflow-x-hidden;
 }
+
 
