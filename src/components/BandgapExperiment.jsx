@@ -8,9 +8,15 @@ export default function BandGapExperiment() {
   const canvasRef = useRef(null);
   const [energy, setEnergy] = useState(0.2);
 
+  // 🔑 persistent refs (this was missing before)
+  const prevLevelRef = useRef(null);
+  const emissionTimerRef = useRef(0);
+  const emissionYRef = useRef(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
     let t = 0;
     let raf;
 
@@ -44,46 +50,29 @@ export default function BandGapExperiment() {
       ctx.shadowBlur = 0;
     }
 
-    /* ================= OUTGOING WAVES ================= */
-
-    // Outgoing vertical wave (radiating upward)
+    /* ================= PHOTON WAVES ================= */
     function drawOutgoingVerticalWave(x0, y0) {
       ctx.strokeStyle = "#ffd700";
       ctx.lineWidth = 2;
       ctx.beginPath();
 
       for (let i = 0; i < 80; i++) {
-        const x =
-          x0 + Math.sin(i * 0.4 + t * 0.5) * 6;
-        const y =
-          y0 -
-          i * 6 +
-          Math.sin(i * 0.6 + t * 0.4) * 6;
-
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const x = x0 + Math.sin(i * 0.4 + t * 0.5) * 6;
+        const y = y0 - i * 6 + Math.sin(i * 0.6 + t * 0.4) * 6;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
 
-    // Outgoing diagonal wave
     function drawOutgoingDiagonalWave(x0, y0) {
       ctx.strokeStyle = "#ffcc88";
       ctx.lineWidth = 2;
       ctx.beginPath();
 
       for (let i = 0; i < 80; i++) {
-        const x =
-          x0 +
-          i * 6 +
-          Math.sin(i * 0.5 + t * 0.4) * 6;
-        const y =
-          y0 -
-          i * 5 +
-          Math.sin(i * 0.6 + t * 0.4) * 6;
-
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const x = x0 + i * 6 + Math.sin(i * 0.5 + t * 0.4) * 6;
+        const y = y0 - i * 5 + Math.sin(i * 0.6 + t * 0.4) * 6;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
@@ -91,16 +80,16 @@ export default function BandGapExperiment() {
     function loop() {
       clear();
 
-      /* === ENERGY LEVEL POSITIONS === */
-      const E0 = H / 2 + 160; // Valence band
-      const E1 = H / 2 + 80;  // Intermediate
-      const E2 = H / 2 - 120; // Conduction band
+      /* === LEVEL POSITIONS === */
+      const E0 = H / 2 + 160;
+      const E1 = H / 2 + 80;
+      const E2 = H / 2 - 120;
 
       drawEnergyLevel(E0, "E₀ (Valence)", "#5bc0ff");
       drawEnergyLevel(E1, "E₁", "#7fd1ff");
       drawEnergyLevel(E2, "E₂ (Conduction)", "#ff7676");
 
-      /* === BAND GAP MARKER === */
+      /* === BAND GAP === */
       ctx.setLineDash([6, 6]);
       ctx.strokeStyle = "#aaa";
       ctx.beginPath();
@@ -113,16 +102,24 @@ export default function BandGapExperiment() {
       ctx.font = "15px monospace";
       ctx.fillText("Eg", 565, (E1 + E2) / 2);
 
-      /* === ELECTRON LEVEL === */
-      let y;
-      if (energy < 0.33) y = E0;
-      else if (energy < 0.66) y = E1;
-      else y = E2;
+      /* === DETERMINE CURRENT LEVEL === */
+      let level, y;
+      if (energy < 0.33) {
+        level = 0;
+        y = E0;
+      } else if (energy < 0.66) {
+        level = 1;
+        y = E1;
+      } else {
+        level = 2;
+        y = E2;
+      }
 
+      /* === ELECTRON === */
       const ex = 420 + (t % 240);
       drawElectron(ex, y + Math.sin(t * 0.08) * 5);
 
-      /* === TRANSITION ARROW (UNCHANGED) === */
+      /* === TRANSITION ARROW === */
       ctx.strokeStyle = "#ffd700";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -136,18 +133,27 @@ export default function BandGapExperiment() {
       ctx.lineTo(655, y - 10);
       ctx.stroke();
 
-      /* === OUTGOING WAVES FOR ALL BANDS === */
+      /* === DETECT DOWNWARD TRANSITION (CORRECT) === */
+      const prevLevel = prevLevelRef.current;
 
-      // E0 → E1
-      if (energy >= 0.33) {
-        drawOutgoingVerticalWave(650, E1);
-        drawOutgoingDiagonalWave(650, E1);
+      if (prevLevel !== null && level < prevLevel) {
+        if (prevLevel === 2 && level === 1) {
+          emissionYRef.current = E1;
+          emissionTimerRef.current = 45;
+        }
+        if (prevLevel === 1 && level === 0) {
+          emissionYRef.current = E0;
+          emissionTimerRef.current = 45;
+        }
       }
 
-      // E1 → E2
-      if (energy >= 0.66) {
-        drawOutgoingVerticalWave(650, E2);
-        drawOutgoingDiagonalWave(650, E2);
+      prevLevelRef.current = level;
+
+      /* === EMIT PHOTONS (VISIBLE FOR A WHILE) === */
+      if (emissionTimerRef.current > 0) {
+        drawOutgoingVerticalWave(650, emissionYRef.current);
+        drawOutgoingDiagonalWave(650, emissionYRef.current);
+        emissionTimerRef.current--;
       }
 
       t++;
@@ -176,9 +182,9 @@ export default function BandGapExperiment() {
         />
 
         <div className="panel-hint">
-          Arrow = electronic transition  
+          Arrow = electronic transition
           <br />
-          Waves = photons radiating outward
+          Waves = photons emitted during downward transition
         </div>
       </div>
     </div>
