@@ -51,16 +51,7 @@ export default function RadiationDexterLab() {
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
 
-    function drawGrid() {
-      ctx.strokeStyle = "#111";
-      for (let i = 0; i < W; i += 40) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, H);
-        ctx.stroke();
-      }
-    }
-
+    
     function drawSource() {
       ctx.fillStyle = "#333";
       ctx.fillRect(60, 160, 70, 100);
@@ -158,7 +149,7 @@ export default function RadiationDexterLab() {
       }
     }
     function drawMediumLabels() {
-  ctx.fillStyle = "#aaa";
+  ctx.fillStyle = "#000";
   ctx.font = "12px monospace";
 
   ctx.fillText("VACUUM / AIR", 140, 100);
@@ -196,7 +187,7 @@ export default function RadiationDexterLab() {
           ? drawRayDeflected(230, "180,0,255", DEFLECT_FACTOR.gamma)
           : drawRayStraight(230, "180,0,255", BASE_RANGE.gamma);
       }
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#000";
 ctx.font = "12px monospace";
 
 if (particles.alpha) ctx.fillText("α (He²⁺)", 20, 190);
@@ -207,7 +198,7 @@ if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
 
     function loop() {
       ctx.clearRect(0, 0, W, H);
-      drawGrid();
+  
       drawSource();
 
       if (experiments.gold) drawGoldFoil();
@@ -337,7 +328,7 @@ if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
   {experiments.emfield && (
     <>
       <div className="energy-label">EM FIELD STRENGTH</div>
-      <div className="energy-value">{emField.toFixed(2)}×</div>
+      <div className="energy-value">{(emField-3).toFixed(2)}×</div>
 
       <input
         className="energy-slider em"
@@ -359,6 +350,9 @@ if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
  
   );
 }
+
+
+
 
 
 
