@@ -1,0 +1,231 @@
+/* ======================================================
+   CINEMATIC ELECTROMAGNETISM LAB UI (FIXED)
+   ====================================================== */
+
+/* ================= GLOBAL SAFETY ================= */
+/* NEVER allow global canvas background */
+canvas {
+  background: transparent;
+}
+
+/* ================= ROOT ================= */
+.cinema-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #0b1320, #02040a);
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ================= CANVAS ================= */
+.cinema-root canvas {
+  display: block;
+  margin: auto;
+  background: transparent;
+  box-shadow:
+    0 0 60px rgba(80, 160, 255, 0.18),
+    0 0 140px rgba(0, 60, 140, 0.25);
+}
+
+/* ================= TITLE ================= */
+.cinema-title {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  color: #e6f2ff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 28px;
+  text-shadow:
+    0 0 18px rgba(120, 200, 255, 0.5),
+    0 0 40px rgba(120, 200, 255, 0.25);
+}
+
+.cinema-title span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  color: rgba(180, 220, 255, 0.8);
+}
+
+/* ================= TOGGLE BUTTONS ================= */
+.cinema-toggle {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 22px;
+}
+
+.cinema-btn {
+  background: rgba(30, 60, 110, 0.18);
+  border: 1px solid rgba(120, 200, 255, 0.15);
+  color: rgba(200, 220, 255, 0.65);
+  padding: 12px 26px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+}
+
+.cinema-btn:hover {
+  background: rgba(60, 120, 200, 0.35);
+  color: #ffffff;
+}
+
+.cinema-btn.active {
+  background: rgba(120, 200, 255, 0.35);
+  color: #ffffff;
+  border-color: rgba(120, 200, 255, 0.8);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    0 0 36px rgba(120, 200, 255, 0.45),
+    inset 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+/* ================= ENERGY PANEL ================= */
+.cinema-energy {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  color: #e6f2ff;
+  margin-top: 250px;
+}
+
+.cinema-energy .label {
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  opacity: 0.85;
+}
+
+.cinema-energy .value {
+  font-size: 30px;
+  margin: 10px 0 14px;
+  text-shadow:
+    0 0 14px rgba(255, 200, 100, 0.65),
+    0 0 30px rgba(255, 200, 100, 0.35);
+}
+
+/* ================= SLIDER ================= */
+.cinema-energy input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, #ffb347, #ffcc33);
+  border-radius: 2px;
+}
+
+.cinema-energy input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff3c4;
+  box-shadow:
+    0 0 18px rgba(255, 200, 100, 0.9),
+    0 0 32px rgba(255, 180, 80, 0.6);
+  cursor: pointer;
+}
+
+/* ================= BACK BUTTON ================= */
+.cinema-back,
+.lab-back {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  color: rgba(200, 220, 255, 0.8);
+  cursor: pointer;
+}
+
+.cinema-back:hover,
+.lab-back:hover {
+  color: #ffffff;
+}
+
+/* ================= LAB LAYOUT ================= */
+.lab-root {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, #0b1320, #02040a);
+}
+
+.lab-panel {
+  width: 260px;
+  padding: 20px;
+  background: linear-gradient(#060b18, #02040a);
+  border-right: 1px solid rgba(120, 200, 255, 0.15);
+  color: #e6f2ff;
+}
+
+.lab-panel-title {
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  opacity: 0.85;
+}
+
+.panel-section {
+  margin-top: 18px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.panel-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(30, 60, 110, 0.2);
+  border: 1px solid rgba(120, 200, 255, 0.2);
+  color: #dff1ff;
+  cursor: pointer;
+}
+
+.panel-btn.active {
+  background: rgba(120, 200, 255, 0.35);
+  box-shadow: 0 0 18px rgba(120, 200, 255, 0.6);
+}
+
+.panel-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ================= CANVAS WRAP ================= */
+.lab-canvas-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.lab-canvas-wrap canvas {
+  display: block;
+  margin: auto;
+  background: transparent;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1500px) {
+  .cinema-root canvas {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 1200px) {
+  .cinema-root canvas {
+    transform: scale(0.8);
+  }
+}
