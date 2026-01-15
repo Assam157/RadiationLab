@@ -20,23 +20,54 @@ import "./App.css";
 function DexterHome() {
   const navigate = useNavigate();
   const installEventRef = useRef(null);
+  const [isInstalled, setIsInstalled] = React.useState(false);
 
-  // Capture install event silently
+  /* ==============================
+     INSTALL STATE DETECTION
+  ============================== */
   useEffect(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
+    // Check if app is already installed
+    const checkInstalled = () => {
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+
+      if (isStandalone) setIsInstalled(true);
+    };
+
+    checkInstalled();
+
+    // Capture install prompt
+    const handleBeforeInstall = (e) => {
       e.preventDefault();
       installEventRef.current = e;
-    });
+    };
+
+    // Fired when installation is completed
+    const handleInstalled = () => {
+      setIsInstalled(true);
+      installEventRef.current = null;
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("appinstalled", handleInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
   }, []);
 
-  // ALWAYS try to install
+  /* ==============================
+     INSTALL TRIGGER
+  ============================== */
   const triggerInstall = async () => {
     if (!installEventRef.current) {
       alert(
         "Install not available yet.\n\n" +
-        "Chrome requires:\n" +
-        "• Service Worker\n" +
-        "• Valid manifest\n" +
+        "Requirements:\n" +
+        "• Service Worker registered\n" +
+        "• Valid manifest.json\n" +
         "• HTTPS\n\n" +
         "Check DevTools → Application → Manifest"
       );
@@ -48,6 +79,9 @@ function DexterHome() {
     installEventRef.current = null;
   };
 
+  /* ==============================
+     UI
+  ============================== */
   return (
     <div
       style={{
@@ -64,17 +98,19 @@ function DexterHome() {
     >
       <h1>PARTICLE PHYSICS LAB CONSOLE</h1>
 
-      {/* 🔥 INSTALL BUTTON — ALWAYS SHOWN */}
-      <button
-        className="lab-btn"
-        style={{
-          border: "2px solid #0f0",
-          boxShadow: "0 0 20px #0f0"
-        }}
-        onClick={triggerInstall}
-      >
-        ⬇ INSTALL DEXTERS LAB
-      </button>
+      {/* 🔥 INSTALL BUTTON — ONLY IF NOT INSTALLED */}
+      {!isInstalled && (
+        <button
+          className="lab-btn"
+          style={{
+            border: "2px solid #0f0",
+            boxShadow: "0 0 20px #0f0"
+          }}
+          onClick={triggerInstall}
+        >
+          ⬇ INSTALL DEXTERS LAB
+        </button>
+      )}
 
       <button className="lab-btn" onClick={() => navigate("/radiation")}>
         ☢ Radiation Physics Lab
@@ -102,6 +138,7 @@ function DexterHome() {
     </div>
   );
 }
+
 
 /* ==============================
    APP ROOT
