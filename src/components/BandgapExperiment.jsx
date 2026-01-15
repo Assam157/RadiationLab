@@ -51,12 +51,28 @@ export default function BandGapExperiment() {
     }
 
     /* ================= PHOTON WAVES ================= */
-     function drawOutgoingVerticalWave(x0, y0) {
+let verticalWaveStartTime = null;
+const VERTICAL_WAVE_LIFETIME = 5000; // 5 seconds
+
+function drawOutgoingVerticalWave(x0, y0) {
+
+  // Start lifetime timer once
+  if (verticalWaveStartTime === null) {
+    verticalWaveStartTime = performance.now();
+  }
+
+  // Check lifetime
+  const elapsed = performance.now() - verticalWaveStartTime;
+  if (elapsed > VERTICAL_WAVE_LIFETIME) {
+    return; // stop drawing after 5 seconds
+  }
+
   ctx.strokeStyle = "#ffd700";
   ctx.lineWidth = 1.8;
 
   const lines = 5;
   const spacing = 6;
+    const LEFT_SHIFT = 80; 
 
   for (let l = 0; l < lines; l++) {
     ctx.beginPath();
@@ -68,11 +84,11 @@ export default function BandGapExperiment() {
       const wave2 = Math.sin(i * 0.2 + t * 0.4) * 4;
       const ampFalloff = 1 - progress * 0.65;
 
-      const x =
-        x0 +
+       const x =
+        x0 -
+        LEFT_SHIFT +                     // ← left shift
         (wave1 + wave2) * ampFalloff +
         l * spacing;
-
       const y =
         y0 -
         i * 6 +
@@ -86,7 +102,22 @@ export default function BandGapExperiment() {
 }
 
 
-    function drawOutgoingDiagonalWave(x0, y0) {
+  let diagonalWaveStartTime = null;
+const DIAGONAL_WAVE_LIFETIME = 5000; // 5 seconds
+
+function drawOutgoingDiagonalWave(x0, y0) {
+
+  // Start lifetime timer once
+  if (diagonalWaveStartTime === null) {
+    diagonalWaveStartTime = performance.now();
+  }
+
+  // Check lifetime
+  const elapsed = performance.now() - diagonalWaveStartTime;
+  if (elapsed > DIAGONAL_WAVE_LIFETIME) {
+    return; // stop drawing after 5 seconds
+  }
+
   ctx.strokeStyle = "#ffcc88";
   ctx.lineWidth = 1.8;
 
@@ -110,7 +141,7 @@ export default function BandGapExperiment() {
         l * spacing;
 
       const y =
-        y0 -
+        y0 +
         i * 5 +
         (wave1 - wave2) * ampFalloff -
         l * spacing;
@@ -192,17 +223,31 @@ export default function BandGapExperiment() {
           emissionTimerRef.current = 45;
         }
       }
+ 
+
+if (prevLevel !== null && level > prevLevel) {
+  if (prevLevel === 0 && level === 1) {
+    emissionYRef.current = E0;
+    emissionTimerRef.current = -45;
+  }
+  if (prevLevel === 1 && level === 2) {
+     emissionYRef.current = E1;
+    emissionTimerRef.current = -45;
+  }
+}
+
 
       prevLevelRef.current = level;
 
       /* === EMIT PHOTONS (VISIBLE FOR A WHILE) === */
       if (emissionTimerRef.current < 0) {
-        drawOutgoingDiagonalWave(650, emissionYRef.current);
-        emissionTimerRef.current--;
-      }
-      else{
         drawOutgoingVerticalWave(650, emissionYRef.current);
         emissionTimerRef.current++;
+      }
+      else if (emissionTimerRef.current > 0){
+        drawOutgoingDiagonalWave(650, emissionYRef.current);
+        emissionTimerRef.current--;
+     
       }
 
       t++;
