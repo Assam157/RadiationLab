@@ -20,32 +20,28 @@ import "./App.css";
 function DexterHome() {
   const navigate = useNavigate();
   const installEventRef = useRef(null);
+  const [canInstall, setCanInstall] = React.useState(false);
   const [isInstalled, setIsInstalled] = React.useState(false);
 
-  /* ==============================
-     INSTALL STATE DETECTION
-  ============================== */
   useEffect(() => {
-    // Check if app is already installed
-    const checkInstalled = () => {
-      const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true;
+    // Detect already installed
+    if (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true
+    ) {
+      setIsInstalled(true);
+      return;
+    }
 
-      if (isStandalone) setIsInstalled(true);
-    };
-
-    checkInstalled();
-
-    // Capture install prompt
     const handleBeforeInstall = (e) => {
-      e.preventDefault();
+      e.preventDefault();              // REQUIRED
       installEventRef.current = e;
+      setCanInstall(true);             // 🔥 SHOW BUTTON ONLY NOW
     };
 
-    // Fired when installation is completed
     const handleInstalled = () => {
       setIsInstalled(true);
+      setCanInstall(false);
       installEventRef.current = null;
     };
 
@@ -58,30 +54,19 @@ function DexterHome() {
     };
   }, []);
 
-  /* ==============================
-     INSTALL TRIGGER
-  ============================== */
   const triggerInstall = async () => {
     if (!installEventRef.current) {
-      alert(
-        "Install not available yet.\n\n" +
-        "Requirements:\n" +
-        "• Service Worker registered\n" +
-        "• Valid manifest.json\n" +
-        "• HTTPS\n\n" +
-        "Check DevTools → Application → Manifest"
-      );
+      alert("Install not ready yet. Reload the page once.");
       return;
     }
 
-    installEventRef.current.prompt();
-    await installEventRef.current.userChoice;
+    const promptEvent = installEventRef.current;
+    promptEvent.prompt();
+    await promptEvent.userChoice;
     installEventRef.current = null;
+    setCanInstall(false);
   };
 
-  /* ==============================
-     UI
-  ============================== */
   return (
     <div
       style={{
@@ -98,8 +83,8 @@ function DexterHome() {
     >
       <h1>PARTICLE PHYSICS LAB CONSOLE</h1>
 
-      {/* 🔥 INSTALL BUTTON — ONLY IF NOT INSTALLED */}
-      {!isInstalled && (
+      {/* ✅ ONLY SHOW WHEN CHROME ALLOWS INSTALL */}
+      {canInstall && !isInstalled && (
         <button
           className="lab-btn"
           style={{
@@ -132,13 +117,7 @@ function DexterHome() {
         🚀 SID Physics Lab (Kinematics)
       </button>
 
-      <button className="lab-btn" onClick={() => navigate("/digital")}>
-        🧩 Digital Lab
-      </button>
-    </div>
-  );
-}
-
+      <butto
 
 /* ==============================
    APP ROOT
