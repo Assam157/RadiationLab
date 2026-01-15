@@ -62,58 +62,77 @@ export default function VICircuit() {
 
   /* ---------------- ANALOG METER ---------------- */
 
-  function analogMeter(ctx, x, y, label, value, max, unit) {
-    ctx.fillStyle = "#f8fafc";
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.fillRect(x - 95, y - 75, 190, 115);
-    ctx.strokeRect(x - 95, y - 75, 190, 115);
+ function analogMeter(ctx, x, y, label, value, max, unit) {
+  const radius = 60;
+  const dialOffsetY = -25;
+
+  /* ===== BODY RECT (UNCHANGED DESIGN) ===== */
+  ctx.fillStyle = "#f8fafc";
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+
+  ctx.fillRect(x - 95, y - 75, 190, 115);
+  ctx.strokeRect(x - 95, y - 75, 190, 115);
+
+  /* ===== FULL CIRCLE DIAL (SHIFTED UP) ===== */
+  ctx.beginPath();
+  ctx.arc(x, y + 10 + dialOffsetY, radius-3, 0, Math.PI * 2);
+  ctx.stroke();
+
+  /* ===== TICK MARKS (FULL CIRCLE) ===== */
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
 
     ctx.beginPath();
-    ctx.arc(x, y + 10, 60, Math.PI, 0);
-    ctx.stroke();
-
-    for (let i = 0; i <= 10; i++) {
-      const a = Math.PI * (1 - i / 10);
-      ctx.beginPath();
-      ctx.moveTo(
-        x + 52 * Math.cos(a),
-        y + 10 - 52 * Math.sin(a)
-      );
-      ctx.lineTo(
-        x + 60 * Math.cos(a),
-        y + 10 - 60 * Math.sin(a)
-      );
-      ctx.stroke();
-    }
-
-    const ang = Math.PI * (1 - value / max);
-    ctx.strokeStyle = "#dc2626";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(x, y + 10);
+    ctx.moveTo(
+      x + 52 * Math.cos(a),
+      y + 10 + dialOffsetY - 52 * Math.sin(a)
+    );
     ctx.lineTo(
-      x + 55 * Math.cos(ang),
-      y + 10 - 55 * Math.sin(ang)
+      x + radius * Math.cos(a),
+      y + 10 + dialOffsetY - radius * Math.sin(a)
     );
     ctx.stroke();
-
-    arrow(
-      ctx,
-      x + 55 * Math.cos(ang),
-      y + 10 - 55 * Math.sin(ang),
-      ang
-    );
-
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.arc(x, y + 10, 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.font = "14px sans-serif";
-    ctx.fillText(label, x - 6, y - 45);
-    ctx.fillText(`${value.toFixed(2)} ${unit}`, x - 35, y + 55);
   }
+
+  /* ===== NEEDLE ===== */
+  const clamped = Math.max(0, Math.min(value, max));
+  const ang = (clamped / max) * Math.PI * 2 - Math.PI / 2;
+
+  ctx.strokeStyle = "#dc2626";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(x, y + 10 + dialOffsetY);
+  ctx.lineTo(
+    x + 55 * Math.cos(ang),
+    y + 10 + dialOffsetY - 55 * Math.sin(ang)
+  );
+  ctx.stroke();
+
+  arrow(
+    ctx,
+    x + 55 * Math.cos(ang),
+    y + 10 + dialOffsetY - 55 * Math.sin(ang),
+    ang
+  );
+
+  /* ===== CENTER HUB ===== */
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.arc(x, y + 10 + dialOffsetY, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  /* ===== LABELS ===== */
+  ctx.fillStyle = "#000";
+  ctx.font = "14px sans-serif";
+  ctx.textAlign = "center";
+
+  ctx.fillText(label, x, y - 45);
+  ctx.fillText(`${clamped.toFixed(2)} ${unit}`, x, y + 55);
+
+  ctx.textAlign = "start";
+}
+
 
   /* ---------------- CIRCUIT ---------------- */
 
@@ -160,7 +179,7 @@ export default function VICircuit() {
 
     // AMMETER (PARALLEL, ROTATED)
     ctx.save();
-    ctx.translate(980, 320);
+    ctx.translate(970, 320);
     ctx.rotate(Math.PI / 2);
     analogMeter(ctx, 0, 0, "A", connected ? I : 0, 2, "A");
     ctx.restore();
@@ -170,6 +189,7 @@ export default function VICircuit() {
     wire(ctx, 930, 180, 930, 230);
     wire(ctx, 860, 500, 930, 500);
     wire(ctx, 930, 500, 930, 410);
+    
 
     // CURRENT FLOW
     if (connected) {
@@ -199,9 +219,10 @@ export default function VICircuit() {
           − R
         </button>
 
-        <button onClick={() => setR(r => r + 1)} style={{ marginLeft: 6 }}>
+         <button onClick={() => setR(r => Math.min(r + 1, 50))}style={{ marginLeft: 6 }}>
           + R
-        </button>
+          </button>
+
       </div>
     </div>
   );

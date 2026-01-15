@@ -51,31 +51,77 @@ export default function BandGapExperiment() {
     }
 
     /* ================= PHOTON WAVES ================= */
-    function drawOutgoingVerticalWave(x0, y0) {
-      ctx.strokeStyle = "#ffd700";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+     function drawOutgoingVerticalWave(x0, y0) {
+  ctx.strokeStyle = "#ffd700";
+  ctx.lineWidth = 1.8;
 
-      for (let i = 0; i < 80; i++) {
-        const x = x0 + Math.sin(i * 0.4 + t * 0.5) * 6;
-        const y = y0 - i * 6 + Math.sin(i * 0.6 + t * 0.4) * 6;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+  const lines = 5;
+  const spacing = 6;
+
+  for (let l = 0; l < lines; l++) {
+    ctx.beginPath();
+
+    for (let i = 0; i < 90; i++) {
+      const progress = i / 90;
+
+      const wave1 = Math.sin(i * 0.5 + t * 0.7 + l) * 9;
+      const wave2 = Math.sin(i * 0.2 + t * 0.4) * 4;
+      const ampFalloff = 1 - progress * 0.65;
+
+      const x =
+        x0 +
+        (wave1 + wave2) * ampFalloff +
+        l * spacing;
+
+      const y =
+        y0 -
+        i * 6 +
+        (wave1 - wave2) * ampFalloff;
+
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
+
+    ctx.stroke();
+  }
+}
+
 
     function drawOutgoingDiagonalWave(x0, y0) {
-      ctx.strokeStyle = "#ffcc88";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+  ctx.strokeStyle = "#ffcc88";
+  ctx.lineWidth = 1.8;
 
-      for (let i = 0; i < 80; i++) {
-        const x = x0 + i * 6 + Math.sin(i * 0.5 + t * 0.4) * 6;
-        const y = y0 - i * 5 + Math.sin(i * 0.6 + t * 0.4) * 6;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+  const lines = 5;
+  const spacing = 6;
+
+  for (let l = 0; l < lines; l++) {
+    ctx.beginPath();
+
+    for (let i = 0; i < 90; i++) {
+      const progress = i / 90;
+
+      const wave1 = Math.sin(i * 0.45 + t * 0.6 + l) * 8;
+      const wave2 = Math.sin(i * 0.18 + t * 0.3) * 4;
+      const ampFalloff = 1 - progress * 0.6;
+
+      const x =
+        x0 +
+        i * 6 +
+        (wave1 + wave2) * ampFalloff +
+        l * spacing;
+
+      const y =
+        y0 -
+        i * 5 +
+        (wave1 - wave2) * ampFalloff -
+        l * spacing;
+
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
+
+    ctx.stroke();
+  }
+}
+
 
     function loop() {
       clear();
@@ -150,10 +196,13 @@ export default function BandGapExperiment() {
       prevLevelRef.current = level;
 
       /* === EMIT PHOTONS (VISIBLE FOR A WHILE) === */
-      if (emissionTimerRef.current > 0) {
-        drawOutgoingVerticalWave(650, emissionYRef.current);
+      if (emissionTimerRef.current < 0) {
         drawOutgoingDiagonalWave(650, emissionYRef.current);
         emissionTimerRef.current--;
+      }
+      else{
+        drawOutgoingVerticalWave(650, emissionYRef.current);
+        emissionTimerRef.current++;
       }
 
       t++;
