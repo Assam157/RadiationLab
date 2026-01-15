@@ -13,6 +13,10 @@ export default function AtomExperiment() {
   const excitation = useRef(0);       // 0 → 1 smooth excitation
   const photonState = useRef("idle"); // idle | incoming | outgoing
   const photonT = useRef(0);
+  const activeElectron = useRef(0); // index of electron that transitions
+  const activeElectron2 = useRef(0); // electron that transitions E1 -> E2
+
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -77,32 +81,53 @@ export default function AtomExperiment() {
     }
 
     /* ================= ELECTRONS ================= */
-    function drawElectrons(level, idx) {
-      const baseR = levels[idx].r;
-      const nextR = levels[idx + 1]?.r ?? baseR;
+ function drawElectrons(level, idx) {
+  const baseR = levels[idx].r;
+  const nextR = levels[idx + 1]?.r ?? baseR;
 
-      // Transition visualization
-      const r =
-        idx === 0
-          ? baseR + excitation.current * (nextR - baseR)
-          : baseR;
+  const angleStep = (Math.PI * 2) / level.count;
 
-      for (let i = 0; i < level.count; i++) {
-        const phase = (i / level.count) * Math.PI * 2;
-        const a = (paused ? phase : t * (0.02 + idx * 0.01) + phase);
+  // 🔒 90° spin-phase offset per orbit
+  const spinPhaseOffset = idx * (Math.PI / 2);
 
-        const x = cx + r * Math.cos(a);
-        const y = cy + r * Math.sin(a);
+  const OMEGA = 0.015; // same speed for all orbits
 
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#00eaff";
-        ctx.shadowColor = "#00eaff";
-        ctx.shadowBlur = 18;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-    }
+  for (let i = 0; i < level.count; i++) {
+    // permanent angular slot
+    const basePhase = i * angleStep;
+
+    const isActive1 = idx === 0 && i === activeElectron.current;
+    const isActive2 = idx === 1 && i === activeElectron2.current;
+
+    const transitionProgress =
+      isActive1 || isActive2 ? excitation.current : 0;
+
+    // diagonal transition component
+    const diagonalDrift = transitionProgress * 0.6;
+
+    // ✅ spin-phase offset applies ALWAYS
+    const a = paused
+      ? basePhase + spinPhaseOffset + diagonalDrift
+      : basePhase + spinPhaseOffset + diagonalDrift + t * OMEGA;
+
+    const r =
+      isActive1 || isActive2
+        ? baseR + transitionProgress * (nextR - baseR)
+        : baseR;
+
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#00eaff";
+    ctx.shadowColor = "#00eaff";
+    ctx.shadowBlur = 18;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
 
     /* ================= PHOTON WAVES ================= */
     function drawPhotonWave(xStart, dir = 1) {
@@ -111,7 +136,7 @@ export default function AtomExperiment() {
       ctx.beginPath();
 
       for (let i = 0; i < 80; i++) {
-        const x = xStart + dir * i * 6;
+        const x = xStart + dir * i * 1;
         const y =
           cy +
           Math.sin(i * 0.5 + photonT.current * 0.15) * 10; // ⬅ slower wave
