@@ -236,13 +236,13 @@ video.addEventListener("ended", stop);
 
       <div className="experiment-row">
         <video
-  ref={videoRef}
-  src={`https://dexterlab.onrender.com/KarnaughtCycle1.mp4`}
-  controls
-  loop
-  muted
-  className="experiment-video"
-/>
+          ref={videoRef}
+          src="/KarnaughtCycle1.mp4"
+          controls
+          loop
+          muted
+          className="experiment-video"
+        />
 
         <canvas
           ref={canvasRef}
@@ -254,5 +254,3 @@ video.addEventListener("ended", stop);
     </div>
   );
 }
-
-
