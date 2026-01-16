@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ProjectileMotionLab from "./ProjectileMotionLab";
 import InverseSquareLawLab from "./InverseSquareLaw";
 import CharlesLawExperiment from "./CharlesLawExperiment";
+import CarnotEngineExperiment from "./KarnoughCycle";
 import "./SidebarPhysicsLab.css";
 
 export default function SidebarPhysicsLab() {
@@ -43,6 +44,12 @@ export default function SidebarPhysicsLab() {
         >
            Charles Law Therodynamics
         </button>
+         <button
+          className={activeLab === "inverse" ? "active" : ""}
+          onClick={() => setActiveLab("karnough")}
+        >
+           Charles Law Therodynamics
+        </button>
       </div>
 
       {/* LAB VIEW */}
@@ -50,6 +57,7 @@ export default function SidebarPhysicsLab() {
         {activeLab === "projectile" && <ProjectileMotionLab />}
         {activeLab === "inverse" && <InverseSquareLawLab />}
         {activeLab === "charles" && <CharlesLawExperiment />}
+        {activeLab ==="karnough" && <CarnotEngineExperiment/>}
       </div>
     </div>
   );

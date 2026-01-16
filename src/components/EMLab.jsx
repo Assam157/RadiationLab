@@ -5,6 +5,7 @@ import WireExperiment from "./WireExperiment";
 import AtomExperiment from "./AtomExcitation";
 import BandGapExperiment from "./BandgapExperiment";
 import FaradayExperiment from "./FaradayExperiment";
+import WaveInterferenceExperiment from "./WaveExperiment";
 import VICircuit from "./VLCCircuit";   // ✅ ADD THIS
 
 import "./EMLab.css";
@@ -46,6 +47,12 @@ export default function EMLab() {
         >
           Faraday Induction
         </button>
+        <button
+          className={`panel-btn ${mode === "wave" ? "active" : ""}`}
+          onClick={() => setMode("wave")}
+        >
+          Wave Experiment
+        </button>
 
         {/* ✅ NEW BUTTON */}
         <button
@@ -63,6 +70,7 @@ export default function EMLab() {
         {mode === "bandgap" && <BandGapExperiment />}
         {mode === "faraday" && <FaradayExperiment />}
         {mode === "vi" && <VICircuit />}   {/* ✅ RENDERED HERE */}
+        {mode === "wave" && <WaveInterferenceExperiment/>}  
 
         <button className="lab-back" onClick={() => navigate("/")}>
           ← BACK
