@@ -48,7 +48,7 @@ export default function SidebarPhysicsLab() {
           className={activeLab === "inverse" ? "active" : ""}
           onClick={() => setActiveLab("karnough")}
         >
-           Charles Law Therodynamics
+          Karnough Experiment
         </button>
       </div>
 
@@ -62,3 +62,4 @@ export default function SidebarPhysicsLab() {
     </div>
   );
 }
+
