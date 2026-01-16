@@ -5,6 +5,7 @@ import InverseSquareLawLab from "./InverseSquareLaw";
 import CharlesLawExperiment from "./CharlesLawExperiment";
 import CarnotEngineExperiment from "./KarnoughCycle";
 import HeatingCurveWithParticles from "./StateTemp";
+import PendulumEnergyLab from "./PendulamExperiment";
 import "./SidebarPhysicsLab.css";
 
 export default function SidebarPhysicsLab() {
@@ -37,6 +38,13 @@ export default function SidebarPhysicsLab() {
         >
           🌍 Inverse Square Law
         </button>
+        
+        <button
+          className={activeLab === "pendulam" ? "active" : ""}
+          onClick={() => setActiveLab("pendulam")}
+        >
+         Pendulam Lab
+        </button>
 
         
         <button
@@ -66,6 +74,7 @@ export default function SidebarPhysicsLab() {
         {activeLab === "charles" && <CharlesLawExperiment />}
         {activeLab ==="karnough" && <CarnotEngineExperiment/>}
         {activeLab ==="heat" && <HeatingCurveWithParticles/>}
+        {activeLab ==="pendulam" && <PendulumEnergyLab/>}
       </div>
     </div>
   );

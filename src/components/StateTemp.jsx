@@ -256,16 +256,18 @@ useEffect(() => {
         <div style={{ fontSize: 18, marginBottom: 10 }}>
           🌡 <b>{heat} °C</b>
         </div>
-
+   <label style={{ color: "#000" }}>
+    Set Tempareture
+   </label>
         <input
           type="range"
           min="-20"
           max="140"
           value={heat}
           onChange={e => setHeat(+e.target.value)}
-          style={{ width: 160 }}
+          style={{ width: 160, color:"#000" }}
         />
-
+ 
         <div style={{ marginTop: 12 }}>
           <button onClick={() => setHeat(-10)}>Solid</button>
           <br />
