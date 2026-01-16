@@ -166,7 +166,7 @@ export default function GasLawExperiment() {
 
     loop();
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [BOTTOM,LEFT,RIGHT]);
 
   /* ================= UI ================= */
   return (
@@ -215,3 +215,4 @@ export default function GasLawExperiment() {
     </div>
   );
 }
+
