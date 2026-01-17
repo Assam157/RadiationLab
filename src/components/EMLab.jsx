@@ -7,8 +7,10 @@ import BandGapExperiment from "./BandgapExperiment";
 import FaradayExperiment from "./FaradayExperiment";
 import WaveInterferenceExperiment from "./WaveExperiment";
 import VICircuit from "./VLCCircuit";   // ✅ ADD THIS
+import OrbitalBoxes from "./ElectronBoxes";
 
 import "./EMLab.css";
+ 
 
 export default function EMLab() {
   const navigate = useNavigate();
@@ -61,6 +63,12 @@ export default function EMLab() {
         >
           V–I Characteristics
         </button>
+         <button
+          className={`panel-btn ${mode === "boxes" ? "active" : ""}`}
+          onClick={() => setMode("boxes")}
+        >
+          Electron-Boxes
+        </button>
       </div>
 
       {/* MAIN VIEW */}
@@ -71,6 +79,7 @@ export default function EMLab() {
         {mode === "faraday" && <FaradayExperiment />}
         {mode === "vi" && <VICircuit />}   {/* ✅ RENDERED HERE */}
         {mode === "wave" && <WaveInterferenceExperiment/>}  
+        {mode === "boxes" && <OrbitalBoxes/>}
 
         <button className="lab-back" onClick={() => navigate("/")}>
           ← BACK

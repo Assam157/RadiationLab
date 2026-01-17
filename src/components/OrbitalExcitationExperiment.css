@@ -1,0 +1,99 @@
+/* ================= ROOT ================= */
+.experiment {
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  max-width: 1200px;
+  margin: auto;
+  background: #ffffff;
+}
+
+/* ================= TITLE ================= */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* ================= MAIN LAYOUT ================= */
+/* Subshell groups arranged SIDE BY SIDE */
+.orbital-table {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ================= SUBSHELL BLOCK ================= */
+.orbital-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 80px;
+}
+
+/* ================= LABELS ================= */
+.n-label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.orbital-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+/* ================= BOX ROW ================= */
+.box-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* ================= ORBITAL BOX ================= */
+.orbital-box {
+  width: 46px;
+  height: 36px;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #fff;
+}
+
+/* ================= ELECTRONS ================= */
+.electron {
+  font-size: 18px;
+  font-weight: bold;
+  user-select: none;
+}
+
+.electron.up {
+  color: blue;
+}
+
+.electron.down {
+  color: green;
+}
+
+/* ================= CONTROLS ================= */
+.controls {
+  text-align: center;
+  margin-top: 25px;
+}
+
+button {
+  padding: 8px 14px;
+  margin: 0 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button.reset {
+  background: #ccc;
+}
