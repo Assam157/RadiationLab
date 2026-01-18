@@ -11,7 +11,7 @@ import PendulumEnergyLab from "./PendulamExperiment";
 import "./SidebarPhysicsLab.css";
 
 /* ================= GLOBAL CANVAS SIZE ================= */
-const GLOBAL_W = 1600;
+const GLOBAL_W = 2800;
 const GLOBAL_H = 920;
 
 export default function SidebarPhysicsLab() {
@@ -96,4 +96,5 @@ export default function SidebarPhysicsLab() {
     </div>
   );
 }
+
 
