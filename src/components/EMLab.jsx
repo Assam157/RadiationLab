@@ -12,8 +12,8 @@ import OrbitalBoxes from "./ElectronBoxes";
 import "./EMLab.css";
 
 /* ================= GLOBAL CANVAS SIZE ================= */
-const GLOBAL_W = 1600;
-const GLOBAL_H = 920;
+const GLOBAL_W = 700;
+const GLOBAL_H = 420;
 
 export default function EMLab() {
   const navigate = useNavigate();
@@ -105,4 +105,5 @@ export default function EMLab() {
     </div>
   );
 }
+
 
