@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RadiationDexterLab.css";
+import ExperimentLayout from "./ExperimentLayout";
 
 const W = 700;
 const H = 420;
@@ -222,8 +223,10 @@ if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
 
 
   return (
+ 
     <div className="dexter-root">
       {/* LEFT PANEL */}
+     
       <div className="control-panel">
         <h2>☢ RADIATION LAB</h2>
 
@@ -345,8 +348,9 @@ if (particles.gamma) ctx.fillText("γ (Photon)", 20, 230);
  
 
 </div>
-
+ 
       </div>
+
  
   );
 }
