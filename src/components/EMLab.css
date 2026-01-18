@@ -36,7 +36,7 @@ canvas {
   max-height: 100vh;
 
   background: transparent;
-  touch-action: none;      /* prevents scroll while dragging */
+     /* prevents scroll while dragging */
 }
 
 /* ======================================================
@@ -319,5 +319,6 @@ canvas {
     font-size: 11px;
   }
 }
+
 
 
