@@ -7,24 +7,32 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  width: 100%;
+  height: -webkit-fill-available;
+}
+
+body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   overflow-x: hidden;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   background: #02040a;
   color: #e6f2ff;
 }
 
-/* NEVER force canvas background */
+/* ======================================================
+   CANVAS (HARD STABLE — NO JUMPING)
+   ====================================================== */
 canvas {
   display: block;
-  background: transparent;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
-  height: auto;
+  background: transparent;
 }
 
 /* ======================================================
@@ -33,10 +41,11 @@ canvas {
 .cinema-root {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   background: radial-gradient(circle at center, #0b1320, #02040a);
   overflow: hidden;
-  contain: layout paint; /* HARD STABILITY LOCK */
+  contain: layout paint;
 }
 
 .cinema-root canvas {
@@ -83,6 +92,7 @@ canvas {
   transform: translateX(-50%);
   display: flex;
   gap: 22px;
+  z-index: 15;
 }
 
 .cinema-btn {
@@ -114,7 +124,7 @@ canvas {
 }
 
 /* ======================================================
-   ENERGY PANEL
+   ENERGY PANEL (SLIDER FIXED)
    ====================================================== */
 .cinema-energy {
   position: absolute;
@@ -122,7 +132,10 @@ canvas {
   top: 50%;
   transform: translateY(-50%);
   width: 200px;
+  max-width: calc(100vw - 32px);
   color: #e6f2ff;
+  box-sizing: border-box;
+  z-index: 20;
 }
 
 .cinema-energy .label {
@@ -140,7 +153,7 @@ canvas {
 }
 
 /* ======================================================
-   CINEMATIC SLIDER (STABLE)
+   CINEMATIC SLIDER (NO OVERFLOW)
    ====================================================== */
 .cinema-energy input[type="range"] {
   appearance: none;
@@ -149,6 +162,8 @@ canvas {
   background: linear-gradient(to right, #ffb347, #ffcc33);
   border-radius: 999px;
   outline: none;
+  margin: 0;
+  padding: 0;
 }
 
 .cinema-energy input[type="range"]::-webkit-slider-thumb {
@@ -157,6 +172,7 @@ canvas {
   height: 14px;
   border-radius: 50%;
   background: #fff3c4;
+  margin-top: -5px;
   box-shadow:
     0 0 18px rgba(255, 200, 100, 0.9),
     0 0 32px rgba(255, 180, 80, 0.6);
@@ -175,6 +191,7 @@ canvas {
   border: none;
   color: rgba(200, 220, 255, 0.8);
   cursor: pointer;
+  z-index: 20;
 }
 
 .cinema-back:hover,
@@ -183,13 +200,13 @@ canvas {
 }
 
 /* ======================================================
-   LAB ROOT (LEFT | CENTER | RIGHT SAFE)
+   LAB ROOT
    ====================================================== */
 .lab-root {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   background: radial-gradient(circle, #0b1320, #02040a);
 }
 
@@ -239,7 +256,7 @@ canvas {
 }
 
 /* ======================================================
-   CANVAS WRAPPER (HARD STABLE)
+   CANVAS WRAPPER (NO JUMP)
    ====================================================== */
 .lab-canvas-wrap {
   position: relative;
@@ -250,38 +267,42 @@ canvas {
   contain: layout paint;
 }
 
-.lab-canvas-wrap canvas {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
 /* ======================================================
-   MOBILE BEHAVIOR (NO HACKS)
+   MOBILE BEHAVIOR (LOCKED & SAFE)
    ====================================================== */
 @media (max-width: 768px) {
 
-  .lab-root,
-  .cinema-root {
+  .cinema-energy {
+    position: fixed;
+    right: 16px;
+    bottom: 90px;
+    top: auto;
+    transform: none;
+    width: min(220px, calc(100vw - 32px));
+  }
+
+  .cinema-toggle {
+    bottom: 24px;
+  }
+
+  .cinema-root,
+  .lab-root {
     height: 100dvh;
   }
 
-  .cinema-energy {
-    right: 20px;
-    transform: translateY(-50%);
-  }
-
-  .lab-canvas-wrap canvas,
-  .cinema-root canvas {
-    max-width: 100%;
-    max-height: 92dvh;
+  canvas {
+    width: 100%;
+    height: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .lab-canvas-wrap canvas,
-  .cinema-root canvas {
-    max-height: 96dvh;
+
+  .cinema-title {
+    font-size: 22px;
+  }
+
+  .cinema-title span {
+    font-size: 11px;
   }
 }
- 
