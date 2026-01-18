@@ -12,12 +12,13 @@ import SemiconductorDexterLab from "./components/SemiconducterLab";
 import EMLab from "./components/EMLab";
 import DigitalGateLab from "./components/DigitalGateLogic";
 import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
+import ExperimentLayout from "./components/ExperimentLayout";
 import "./App.css";
 
 /* ==============================
    MAIN MENU
 ================================ */
- function DexterHome() {
+function DexterHome() {
   const navigate = useNavigate();
   const installEventRef = useRef(null);
   const [isInstalled, setIsInstalled] = React.useState(false);
@@ -138,6 +139,7 @@ import "./App.css";
     </div>
   );
 }
+
 
 /* ==============================
    APP ROOT
