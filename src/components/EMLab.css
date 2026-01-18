@@ -1,34 +1,54 @@
 /* ======================================================
-   CINEMATIC ELECTROMAGNETISM LAB UI (FIXED)
+   GLOBAL RESET & SAFETY
    ====================================================== */
-
-/* ================= GLOBAL SAFETY ================= */
-/* NEVER allow global canvas background */
-canvas {
-  background: transparent;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* ================= ROOT ================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: #02040a;
+  color: #e6f2ff;
+}
+
+/* NEVER force canvas background */
+canvas {
+  display: block;
+  background: transparent;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+}
+
+/* ======================================================
+   CINEMATIC ROOT
+   ====================================================== */
 .cinema-root {
   position: relative;
   width: 100vw;
   height: 100vh;
   background: radial-gradient(circle at center, #0b1320, #02040a);
   overflow: hidden;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  contain: layout paint; /* HARD STABILITY LOCK */
 }
 
-/* ================= CANVAS ================= */
 .cinema-root canvas {
-  display: block;
   margin: auto;
-  background: transparent;
   box-shadow:
     0 0 60px rgba(80, 160, 255, 0.18),
     0 0 140px rgba(0, 60, 140, 0.25);
 }
 
-/* ================= TITLE ================= */
+/* ======================================================
+   CINEMATIC TITLE
+   ====================================================== */
 .cinema-title {
   position: absolute;
   top: 26px;
@@ -36,10 +56,10 @@ canvas {
   transform: translateX(-50%);
   text-align: center;
   pointer-events: none;
-  color: #e6f2ff;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-size: 28px;
+  color: #e6f2ff;
   text-shadow:
     0 0 18px rgba(120, 200, 255, 0.5),
     0 0 40px rgba(120, 200, 255, 0.25);
@@ -53,7 +73,9 @@ canvas {
   color: rgba(180, 220, 255, 0.8);
 }
 
-/* ================= TOGGLE BUTTONS ================= */
+/* ======================================================
+   TOGGLE BUTTONS
+   ====================================================== */
 .cinema-toggle {
   position: absolute;
   bottom: 120px;
@@ -91,7 +113,9 @@ canvas {
     inset 0 0 12px rgba(255, 255, 255, 0.2);
 }
 
-/* ================= ENERGY PANEL ================= */
+/* ======================================================
+   ENERGY PANEL
+   ====================================================== */
 .cinema-energy {
   position: absolute;
   right: 40px;
@@ -99,7 +123,6 @@ canvas {
   transform: translateY(-50%);
   width: 200px;
   color: #e6f2ff;
-  margin-top: 250px;
 }
 
 .cinema-energy .label {
@@ -116,17 +139,20 @@ canvas {
     0 0 30px rgba(255, 200, 100, 0.35);
 }
 
-/* ================= SLIDER ================= */
+/* ======================================================
+   CINEMATIC SLIDER (STABLE)
+   ====================================================== */
 .cinema-energy input[type="range"] {
-  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  height: 3px;
+  height: 4px;
   background: linear-gradient(to right, #ffb347, #ffcc33);
-  border-radius: 2px;
+  border-radius: 999px;
+  outline: none;
 }
 
 .cinema-energy input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
+  appearance: none;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -137,7 +163,9 @@ canvas {
   cursor: pointer;
 }
 
-/* ================= BACK BUTTON ================= */
+/* ======================================================
+   BACK BUTTON
+   ====================================================== */
 .cinema-back,
 .lab-back {
   position: absolute;
@@ -154,16 +182,21 @@ canvas {
   color: #ffffff;
 }
 
-/* ================= LAB LAYOUT ================= */
+/* ======================================================
+   LAB ROOT (LEFT | CENTER | RIGHT SAFE)
+   ====================================================== */
 .lab-root {
-  display: flex;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
   width: 100vw;
   height: 100vh;
   background: radial-gradient(circle, #0b1320, #02040a);
 }
 
+/* ======================================================
+   LAB PANEL
+   ====================================================== */
 .lab-panel {
-  width: 260px;
   padding: 20px;
   background: linear-gradient(#060b18, #02040a);
   border-right: 1px solid rgba(120, 200, 255, 0.15);
@@ -205,65 +238,80 @@ canvas {
   opacity: 0.6;
 }
 
-/* ================= CANVAS WRAP ================= */
+/* ======================================================
+   CANVAS WRAPPER (HARD STABLE)
+   ====================================================== */
 .lab-canvas-wrap {
-  flex: 1;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  contain: layout paint;
 }
 
 .lab-canvas-wrap canvas {
-  display: block;
-  margin: auto;
-  background: transparent;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 1500px) {
-  .cinema-root canvas {
-    transform: scale(0.9);
-  }
-}
-
-@media (max-width: 1200px) {
-  .cinema-root canvas {
-    transform: scale(0.8);
-  }
-}   
 /* ======================================================
-   MOBILE CANVAS SIZE FIX (LAYOUT PRESERVED)
-   Only canvas gets bigger & slightly left
+   MOBILE BEHAVIOR (NO HACKS)
    ====================================================== */
-
-/* ---------- Phones & small tablets ---------- */
 @media (max-width: 768px) {
 
-  /* Keep overall layout unchanged */
-  .lab-root {
+  .lab-root,
+  .cinema-root {
     height: 100dvh;
   }
 
-  /* Make canvas BIGGER on mobile */
-  .lab-canvas-wrap canvas {
-    width: 110vw;          /* bigger than screen */
-    max-width: none;
-    height: auto;
-    margin-left: -5vw;    /* shift canvas LEFT */
-    margin-right: 0;
+  .cinema-energy {
+    right: 20px;
+    transform: translateY(-50%);
   }
 
-  /* If canvas is inside cinema-root */
+  .lab-canvas-wrap canvas,
   .cinema-root canvas {
-    width: 110vw;
-    max-width: none;
-    margin-left: -5vw;
+    max-width: 100%;
+    max-height: 92dvh;
   }
 }
 
-/* ---------- Very small phones ---------- */
 @media (max-width: 480px) {
   .lab-canvas-wrap canvas,
   .cinema-root canvas {
-    width: 120vw;         /* even bigger */
-    margin-left: -10vw;  /* stronger left shift */
+    max-height: 96dvh;
   }
 }
+/* ======================================================
+   GLOBAL 700 × 420 CANVAS SYSTEM
+   ====================================================== */
+.global-canvas-frame {
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scale everything INSIDE without touching logic */
+.global-canvas-scale {
+  transform-origin: top left;
+}
+
+/* Auto-scale based on container */
+.lab-canvas-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Ensure children don't escape */
+.global-canvas-frame * {
+  max-width: none;
+}
+

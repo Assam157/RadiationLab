@@ -6,11 +6,14 @@ import AtomExperiment from "./AtomExcitation";
 import BandGapExperiment from "./BandgapExperiment";
 import FaradayExperiment from "./FaradayExperiment";
 import WaveInterferenceExperiment from "./WaveExperiment";
-import VICircuit from "./VLCCircuit";   // ✅ ADD THIS
+import VICircuit from "./VLCCircuit";
 import OrbitalBoxes from "./ElectronBoxes";
 
 import "./EMLab.css";
- 
+
+/* ================= GLOBAL CANVAS SIZE ================= */
+const GLOBAL_W = 1200;
+const GLOBAL_H = 620;
 
 export default function EMLab() {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ export default function EMLab() {
 
   return (
     <div className="lab-root">
-      {/* LEFT PANEL */}
+      {/* ================= LEFT PANEL ================= */}
       <div className="lab-panel">
         <div className="lab-panel-title">EXPERIMENTS</div>
 
@@ -49,6 +52,7 @@ export default function EMLab() {
         >
           Faraday Induction
         </button>
+
         <button
           className={`panel-btn ${mode === "wave" ? "active" : ""}`}
           onClick={() => setMode("wave")}
@@ -56,31 +60,44 @@ export default function EMLab() {
           Wave Experiment
         </button>
 
-        {/* ✅ NEW BUTTON */}
         <button
           className={`panel-btn ${mode === "vi" ? "active" : ""}`}
           onClick={() => setMode("vi")}
         >
           V–I Characteristics
         </button>
-         <button
+
+        <button
           className={`panel-btn ${mode === "boxes" ? "active" : ""}`}
           onClick={() => setMode("boxes")}
         >
-          Electron-Boxes
+          Electron Boxes
         </button>
       </div>
 
-      {/* MAIN VIEW */}
+      {/* ================= CENTER VIEWPORT ================= */}
       <div className="lab-canvas-wrap">
-        {mode === "wire" && <WireExperiment />}
-        {mode === "atom" && <AtomExperiment />}
-        {mode === "bandgap" && <BandGapExperiment />}
-        {mode === "faraday" && <FaradayExperiment />}
-        {mode === "vi" && <VICircuit />}   {/* ✅ RENDERED HERE */}
-        {mode === "wave" && <WaveInterferenceExperiment/>}  
-        {mode === "boxes" && <OrbitalBoxes/>}
+        {/* GLOBAL VIEWPORT */}
+        <div
+          className="global-canvas-frame"
+          style={{
+            width: GLOBAL_W,
+            height: GLOBAL_H
+          }}
+        >
+          {/* SCALE LAYER */}
+          <div className="global-canvas-scale">
+            {mode === "wire" && <WireExperiment />}
+            {mode === "atom" && <AtomExperiment />}
+            {mode === "bandgap" && <BandGapExperiment />}
+            {mode === "faraday" && <FaradayExperiment />}
+            {mode === "wave" && <WaveInterferenceExperiment />}
+            {mode === "vi" && <VICircuit />}
+            {mode === "boxes" && <OrbitalBoxes />}
+          </div>
+        </div>
 
+        {/* BACK */}
         <button className="lab-back" onClick={() => navigate("/")}>
           ← BACK
         </button>

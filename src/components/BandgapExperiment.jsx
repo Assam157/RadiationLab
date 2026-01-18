@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./EMLab.css";
 
-const W = 1100;
-const H = 820;
+const W = 1600;
+const H = 920;
 
 export default function BandGapExperiment() {
   const canvasRef = useRef(null);

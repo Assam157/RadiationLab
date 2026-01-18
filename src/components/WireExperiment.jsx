@@ -1,4 +1,4 @@
- import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./EMLab.css";
 
 const W = 1100;
@@ -115,13 +115,21 @@ export default function WireExperiment() {
     return () => cancelAnimationFrame(raf);
   }, [direction, intensity]);
 
+  /* ================= UI ================= */
   return (
     <>
+      {/* CANVAS */}
       <canvas ref={canvasRef} width={W} height={H} />
 
-      <div className="cinema-energy">
-        <div className="label">CURRENT INTENSITY</div>
-        <div className="value">{intensity.toFixed(2)}</div>
+      {/* CONTROL PANEL */}
+      <div className="cinema-energy" style={{ color: "#000" }}>
+        <div className="label" style={{ color: "#000" }}>
+          CURRENT INTENSITY
+        </div>
+
+        <div className="value" style={{ color: "#000", textShadow: "none" }}>
+          {intensity.toFixed(2)}
+        </div>
 
         <input
           type="range"
@@ -132,12 +140,23 @@ export default function WireExperiment() {
           onChange={e => setIntensity(+e.target.value)}
         />
 
-        <div className="panel-hint">Use A / D keys</div>
+        <div className="panel-hint" style={{ color: "#000" }}>
+          Use A / D keys
+        </div>
 
-        <div className="panel-section">CURRENT DIRECTION</div>
+        <div
+          className="panel-section"
+          style={{ color: "#000", opacity: 1 }}
+        >
+          CURRENT DIRECTION
+        </div>
 
         <button
           className={`panel-btn ${direction === "same" ? "active" : ""}`}
+          style={{
+            color: "#000",
+            borderColor: "#000"
+          }}
           onClick={() => setDirection("same")}
         >
           Same Direction
@@ -145,6 +164,10 @@ export default function WireExperiment() {
 
         <button
           className={`panel-btn ${direction === "opposite" ? "active" : ""}`}
+          style={{
+            color: "#000",
+            borderColor: "#000"
+          }}
           onClick={() => setDirection("opposite")}
         >
           Opposite Direction
