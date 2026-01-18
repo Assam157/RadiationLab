@@ -11,8 +11,8 @@ import PendulumEnergyLab from "./PendulamExperiment";
 import "./SidebarPhysicsLab.css";
 
 /* ================= GLOBAL CANVAS SIZE ================= */
-const GLOBAL_W = 1200;
-const GLOBAL_H = 620;
+const GLOBAL_W = 1600;
+const GLOBAL_H = 920;
 
 export default function SidebarPhysicsLab() {
   const [activeLab, setActiveLab] = useState("projectile");
@@ -96,3 +96,4 @@ export default function SidebarPhysicsLab() {
     </div>
   );
 }
+
