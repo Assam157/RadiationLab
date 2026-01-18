@@ -237,7 +237,7 @@ video.addEventListener("ended", stop);
       <div className="experiment-row">
         <video
           ref={videoRef}
-          src="/KarnaughtCycle1.mp4"
+          src="https://dexterlab.onrender.com/KarnaughtCycle1.mp4"
           controls
           loop
           muted
@@ -254,3 +254,4 @@ video.addEventListener("ended", stop);
     </div>
   );
 }
+
