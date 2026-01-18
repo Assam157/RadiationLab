@@ -1,4 +1,4 @@
-/* ======================================================
+ /* ======================================================
    GLOBAL RESET & SAFETY
    ====================================================== */
 *,
@@ -9,14 +9,14 @@
 
 html {
   width: 100%;
-  height: -webkit-fill-available;
+  height: 100%;
 }
 
 body {
   margin: 0;
   padding: 0;
   width: 100%;
-  min-height: 100dvh;
+  min-height: 100svh;
   overflow-x: hidden;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   background: #02040a;
@@ -24,20 +24,16 @@ body {
 }
 
 /* ======================================================
-   CANVAS (HARD STABLE — NO JUMPING)
+   CANVAS (MOBILE SAFE – NO JUMP)
    ====================================================== */
-/* MOBILE-SAFE CANVAS */
 canvas {
   display: block;
-  width: 120vw;
-  height: 120vh;
-
-  max-width: 120vw;
-  max-height: 120vh;
-
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   background: transparent;
-  touch-action:none, 
-     /* prevents scroll while dragging */
+  touch-action: none;
 }
 
 /* ======================================================
@@ -46,11 +42,11 @@ canvas {
 .cinema-root {
   position: relative;
   width: 100vw;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100svh;
   background: radial-gradient(circle at center, #0b1320, #02040a);
   overflow: hidden;
-  contain: layout paint;
+  display: flex;
+  flex-direction: column;
 }
 
 .cinema-root canvas {
@@ -61,30 +57,26 @@ canvas {
 }
 
 /* ======================================================
-   CINEMATIC TITLE
+   TITLE
    ====================================================== */
 .cinema-title {
   position: absolute;
-  top: 26px;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
   pointer-events: none;
   letter-spacing: 2px;
   text-transform: uppercase;
-  font-size: 28px;
-  color: #e6f2ff;
-  text-shadow:
-    0 0 18px rgba(120, 200, 255, 0.5),
-    0 0 40px rgba(120, 200, 255, 0.25);
+  font-size: 26px;
+  z-index: 10;
 }
 
 .cinema-title span {
   display: block;
   margin-top: 6px;
-  font-size: 13px;
-  letter-spacing: 1.4px;
-  color: rgba(180, 220, 255, 0.8);
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 /* ======================================================
@@ -92,59 +84,39 @@ canvas {
    ====================================================== */
 .cinema-toggle {
   position: absolute;
-  bottom: 120px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 22px;
-  z-index: 15;
+  gap: 18px;
+  z-index: 20;
 }
 
 .cinema-btn {
-  background: rgba(30, 60, 110, 0.18);
-  border: 1px solid rgba(120, 200, 255, 0.15);
-  color: rgba(200, 220, 255, 0.65);
-  padding: 12px 26px;
-  font-size: 13px;
+  background: rgba(30, 60, 110, 0.2);
+  border: 1px solid rgba(120, 200, 255, 0.2);
+  color: rgba(220, 240, 255, 0.8);
+  padding: 10px 22px;
+  font-size: 12px;
   letter-spacing: 1px;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: all 0.25s ease;
-  text-transform: uppercase;
-}
-
-.cinema-btn:hover {
-  background: rgba(60, 120, 200, 0.35);
-  color: #ffffff;
 }
 
 .cinema-btn.active {
   background: rgba(120, 200, 255, 0.35);
-  color: #ffffff;
-  border-color: rgba(120, 200, 255, 0.8);
-  box-shadow:
-    0 0 18px rgba(120, 200, 255, 0.8),
-    0 0 36px rgba(120, 200, 255, 0.45),
-    inset 0 0 12px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 18px rgba(120, 200, 255, 0.7);
 }
 
 /* ======================================================
-   ENERGY PANEL (SLIDER FIXED)
-   ====================================================== */
- /* ======================================================
-   ENERGY PANEL (ALWAYS BOTTOM-RIGHT)
+   ENERGY SLIDER
    ====================================================== */
 .cinema-energy {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 18px;
+  bottom: 90px;
   width: 220px;
-  max-width: calc(100vw - 32px);
-  color: #e6f2ff;
-  box-sizing: border-box;
   z-index: 30;
-
-  /* subtle cinematic separation */
   background: rgba(10, 20, 40, 0.35);
   backdrop-filter: blur(8px);
   padding: 12px 14px;
@@ -154,30 +126,20 @@ canvas {
 
 .cinema-energy .label {
   font-size: 12px;
-  letter-spacing: 1.2px;
   opacity: 0.85;
 }
 
 .cinema-energy .value {
-  font-size: 30px;
+  font-size: 28px;
   margin: 10px 0 14px;
-  text-shadow:
-    0 0 14px rgba(255, 200, 100, 0.65),
-    0 0 30px rgba(255, 200, 100, 0.35);
 }
 
-/* ======================================================
-   CINEMATIC SLIDER (NO OVERFLOW)
-   ====================================================== */
 .cinema-energy input[type="range"] {
   appearance: none;
   width: 100%;
   height: 4px;
   background: linear-gradient(to right, #ffb347, #ffcc33);
   border-radius: 999px;
-  outline: none;
-  margin: 0;
-  padding: 0;
 }
 
 .cinema-energy input[type="range"]::-webkit-slider-thumb {
@@ -187,141 +149,88 @@ canvas {
   border-radius: 50%;
   background: #fff3c4;
   margin-top: -5px;
-  box-shadow:
-    0 0 18px rgba(255, 200, 100, 0.9),
-    0 0 32px rgba(255, 180, 80, 0.6);
-  cursor: pointer;
+  box-shadow: 0 0 18px rgba(255, 200, 100, 0.9);
 }
 
 /* ======================================================
-   BACK BUTTON
-   ====================================================== */
-.cinema-back,
-.lab-back {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background: none;
-  border: none;
-  color: rgba(200, 220, 255, 0.8);
-  cursor: pointer;
-  z-index: 20;
-}
-
-.cinema-back:hover,
-.lab-back:hover {
-  color: #ffffff;
-}
-
-/* ======================================================
-   LAB ROOT
+   LAB LAYOUT
    ====================================================== */
 .lab-root {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
   width: 100vw;
-  height: 100dvh;
-  background: radial-gradient(circle, #0b1320, #02040a);
+  height: 100svh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
 }
 
-/* ======================================================
-   LAB PANEL
-   ====================================================== */
 .lab-panel {
   padding: 20px;
   background: linear-gradient(#060b18, #02040a);
   border-right: 1px solid rgba(120, 200, 255, 0.15);
-  color: #e6f2ff;
 }
 
-.lab-panel-title {
-  font-size: 14px;
-  letter-spacing: 2px;
-  margin-bottom: 18px;
-  opacity: 0.85;
-}
-
-.panel-section {
-  margin-top: 18px;
-  font-size: 11px;
-  letter-spacing: 1px;
-  opacity: 0.7;
-}
-
-.panel-btn {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(30, 60, 110, 0.2);
-  border: 1px solid rgba(120, 200, 255, 0.2);
-  color: #dff1ff;
-  cursor: pointer;
-}
-
-.panel-btn.active {
-  background: rgba(120, 200, 255, 0.35);
-  box-shadow: 0 0 18px rgba(120, 200, 255, 0.6);
-}
-
-.panel-hint {
-  margin-top: 6px;
-  font-size: 11px;
-  opacity: 0.6;
-}
-
-/* ======================================================
-   CANVAS WRAPPER (NO JUMP)
-   ====================================================== */
 .lab-canvas-wrap {
-  position: relative;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  contain: layout paint;
 }
 
 /* ======================================================
-   MOBILE BEHAVIOR (LOCKED & SAFE)
+   MOBILE PORTRAIT
    ====================================================== */
-@media (max-width: 768px) {
+@media (max-width: 768px) and (orientation: portrait) {
 
-  .cinema-energy {
-    position: fixed;
-    right: 16px;
-    bottom: 90px;
-    top: auto;
-    transform: none;
-    width: min(220px, calc(100vw - 32px));
+  .cinema-root {
+    flex-direction: column;
   }
-
-  .cinema-toggle {
-    bottom: 24px;
-  }
-
-  .cinema-root,
-  .lab-root {
-    height: 100dvh;
-  }
-
-  canvas {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-@media (max-width: 480px) {
 
   .cinema-title {
+    top: 14px;
     font-size: 22px;
   }
 
-  .cinema-title span {
-    font-size: 11px;
+  .cinema-energy {
+    bottom: 80px;
+    right: 14px;
+  }
+
+  .cinema-toggle {
+    bottom: 14px;
   }
 }
 
+/* ======================================================
+   MOBILE LANDSCAPE (KEY PART)
+   ====================================================== */
+@media (max-width: 900px) and (orientation: landscape) {
 
+  .cinema-root {
+    display: grid;
+    grid-template-columns: 1fr 2.5fr 1fr;
+    align-items: center;
+  }
 
+  /* CENTER CANVAS */
+  canvas {
+    max-height: 90svh;
+    max-width: 100%;
+  }
 
+  /* ENERGY SLIDER RIGHT (CENTERED) */
+  .cinema-energy {
+    right: 14px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
 
+  /* TOGGLES BOTTOM CENTER */
+  .cinema-toggle {
+    bottom: 10px;
+  }
+
+  /* TITLE TOP CENTER */
+  .cinema-title {
+    top: 8px;
+    font-size: 20px;
+  }
+}
