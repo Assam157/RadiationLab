@@ -1,4 +1,101 @@
- /* ======================================================
+/* ======================================================
+   MOBILE PORTRAIT — FORCE STACK & CENTER
+   ====================================================== */
+@media (max-width: 768px) and (orientation: portrait) {
+
+  /* Kill desktop grid */
+  .lab-root,
+  .cinema-root {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100vw;
+    height: 100svh;
+  }
+
+  /* LEFT PANEL → FULL WIDTH TOP */
+  .lab-panel {
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(120,200,255,0.15);
+  }
+
+  /* CANVAS → TRUE CENTER */
+  .lab-canvas-wrap {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  /* ENERGY BOX → BOTTOM CENTER */
+  .cinema-energy {
+    position: fixed;
+    left: 50%;
+    right: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    width: calc(100vw - 32px);
+    max-width: 320px;
+  }
+
+  /* TOGGLE BUTTONS */
+  .cinema-toggle {
+    bottom: 90px;
+  }
+}
+
+/* ======================================================
+   MOBILE LANDSCAPE — 3 COLUMN LOCK
+   ====================================================== */
+@media (max-width: 900px) and (orientation: landscape) {
+
+  .cinema-root,
+  .lab-root {
+    display: grid !important;
+    grid-template-columns: 220px 1fr 240px;
+    grid-template-rows: 1fr;
+    height: 100svh;
+  }
+
+  /* LEFT PANEL */
+  .lab-panel {
+    grid-column: 1;
+    height: 100%;
+  }
+
+  /* CANVAS CENTER */
+  .lab-canvas-wrap {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  canvas {
+    max-width: 100%;
+    max-height: 90svh;
+  }
+
+  /* ENERGY RIGHT CENTER */
+  .cinema-energy {
+    position: relative;
+    grid-column: 3;
+    top: auto;
+    bottom: auto;
+    transform: none;
+    margin: auto;
+  }
+} /* ======================================================
    GLOBAL RESET & SAFETY
    ====================================================== */
 *,
@@ -234,3 +331,102 @@ canvas {
     font-size: 20px;
   }
 }
+/* ======================================================
+   MOBILE PORTRAIT — FORCE STACK & CENTER
+   ====================================================== */
+@media (max-width: 768px) and (orientation: portrait) {
+
+  /* Kill desktop grid */
+  .lab-root,
+  .cinema-root {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100vw;
+    height: 100svh;
+  }
+
+  /* LEFT PANEL → FULL WIDTH TOP */
+  .lab-panel {
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(120,200,255,0.15);
+  }
+
+  /* CANVAS → TRUE CENTER */
+  .lab-canvas-wrap {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  /* ENERGY BOX → BOTTOM CENTER */
+  .cinema-energy {
+    position: fixed;
+    left: 50%;
+    right: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    width: calc(100vw - 32px);
+    max-width: 320px;
+  }
+
+  /* TOGGLE BUTTONS */
+  .cinema-toggle {
+    bottom: 90px;
+  }
+}
+
+/* ======================================================
+   MOBILE LANDSCAPE — 3 COLUMN LOCK
+   ====================================================== */
+@media (max-width: 900px) and (orientation: landscape) {
+
+  .cinema-root,
+  .lab-root {
+    display: grid !important;
+    grid-template-columns: 220px 1fr 240px;
+    grid-template-rows: 1fr;
+    height: 100svh;
+  }
+
+  /* LEFT PANEL */
+  .lab-panel {
+    grid-column: 1;
+    height: 100%;
+  }
+
+  /* CANVAS CENTER */
+  .lab-canvas-wrap {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  canvas {
+    max-width: 100%;
+    max-height: 90svh;
+  }
+
+  /* ENERGY RIGHT CENTER */
+  .cinema-energy {
+    position: relative;
+    grid-column: 3;
+    top: auto;
+    bottom: auto;
+    transform: none;
+    margin: auto;
+  }
+}
+
