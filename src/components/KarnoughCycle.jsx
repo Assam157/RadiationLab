@@ -254,4 +254,3 @@ video.addEventListener("ended", stop);
     </div>
   );
 }
-

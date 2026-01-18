@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import "./ProjectileMotionGraph.css";
 
-const W = 760;
-const H = 460;
+const W = 560;
+const H = 360;
 const g = 9.8; // m/s^2
 
 const M = { left: 70, right: 40, top: 40, bottom: 60 };

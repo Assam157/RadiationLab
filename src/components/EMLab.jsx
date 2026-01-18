@@ -11,6 +11,7 @@ import OrbitalBoxes from "./ElectronBoxes";
 
 import "./EMLab.css";
 
+
 /* ================= GLOBAL CANVAS SIZE ================= */
 const GLOBAL_W = 1000;
 const GLOBAL_H = 920;
@@ -23,6 +24,8 @@ export default function EMLab() {
     <div className="lab-root">
       {/* ================= LEFT PANEL ================= */}
       <div className="lab-panel">
+        <div className="experiment-shell">
+          
         <div className="lab-panel-title">EXPERIMENTS</div>
 
         <button
@@ -73,6 +76,8 @@ export default function EMLab() {
         >
           Electron Boxes
         </button>
+        </div>
+            <button className="carousel-arrow right">›</button>
       </div>
 
       {/* ================= CENTER VIEWPORT ================= */}
