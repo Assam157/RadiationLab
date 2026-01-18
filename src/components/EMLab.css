@@ -284,34 +284,4 @@ canvas {
     max-height: 96dvh;
   }
 }
-/* ======================================================
-   GLOBAL 700 × 420 CANVAS SYSTEM
-   ====================================================== */
-.global-canvas-frame {
-  position: relative;
-  background: transparent;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Scale everything INSIDE without touching logic */
-.global-canvas-scale {
-  transform-origin: top left;
-}
-
-/* Auto-scale based on container */
-.lab-canvas-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-/* Ensure children don't escape */
-.global-canvas-frame * {
-  max-width: none;
-}
-
+ 

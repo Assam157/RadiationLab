@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import ProjectileMotionLab from "./ProjectileMotionLab";
 import InverseSquareLawLab from "./InverseSquareLaw";
 import CharlesLawExperiment from "./CharlesLawExperiment";
 import CarnotEngineExperiment from "./KarnoughCycle";
 import HeatingCurveWithParticles from "./StateTemp";
 import PendulumEnergyLab from "./PendulamExperiment";
+
 import "./SidebarPhysicsLab.css";
+
+/* ================= GLOBAL CANVAS SIZE ================= */
+const GLOBAL_W = 1200;
+const GLOBAL_H = 620;
 
 export default function SidebarPhysicsLab() {
   const [activeLab, setActiveLab] = useState("projectile");
@@ -14,11 +20,10 @@ export default function SidebarPhysicsLab() {
 
   return (
     <div className="sidebar-lab-root">
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <div className="sidebar">
         <h3>Physics Side Lab</h3>
 
-        {/* 🔙 BACK BUTTON */}
         <button className="back-btn" onClick={() => navigate("/")}>
           ⬅ Back to Console
         </button>
@@ -38,43 +43,55 @@ export default function SidebarPhysicsLab() {
         >
           🌍 Inverse Square Law
         </button>
-        
+
         <button
           className={activeLab === "pendulam" ? "active" : ""}
           onClick={() => setActiveLab("pendulam")}
         >
-         Pendulam Lab
+          Pendulum Lab
         </button>
 
-        
         <button
           className={activeLab === "charles" ? "active" : ""}
           onClick={() => setActiveLab("charles")}
         >
-           Charles Law Therodynamics
+          Charles Law Thermodynamics
         </button>
-         <button
+
+        <button
           className={activeLab === "karnough" ? "active" : ""}
           onClick={() => setActiveLab("karnough")}
         >
-            Karnough ENgine Duty Cycle
+          Carnot Engine Duty Cycle
         </button>
-         <button
-          className={activeLab === "inverse" ? "active" : ""}
+
+        <button
+          className={activeLab === "heat" ? "active" : ""}
           onClick={() => setActiveLab("heat")}
         >
-          Heting State Change Experiment
+          Heating State Change
         </button>
       </div>
 
-      {/* LAB VIEW */}
+      {/* ================= LAB VIEW ================= */}
       <div className="lab-view">
-        {activeLab === "projectile" && <ProjectileMotionLab />}
-        {activeLab === "inverse" && <InverseSquareLawLab />}
-        {activeLab === "charles" && <CharlesLawExperiment />}
-        {activeLab ==="karnough" && <CarnotEngineExperiment/>}
-        {activeLab ==="heat" && <HeatingCurveWithParticles/>}
-        {activeLab ==="pendulam" && <PendulumEnergyLab/>}
+        {/* GLOBAL VIEWPORT */}
+        <div
+          className="global-canvas-frame"
+          style={{
+            width: GLOBAL_W,
+            height: GLOBAL_H
+          }}
+        >
+          <div className="global-canvas-scale">
+            {activeLab === "projectile" && <ProjectileMotionLab />}
+            {activeLab === "inverse" && <InverseSquareLawLab />}
+            {activeLab === "charles" && <CharlesLawExperiment />}
+            {activeLab === "karnough" && <CarnotEngineExperiment />}
+            {activeLab === "heat" && <HeatingCurveWithParticles />}
+            {activeLab === "pendulam" && <PendulumEnergyLab />}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -73,3 +73,26 @@
   border-top: 1px solid #e5e7eb;
 }
 
+/* ======================================================
+   GLOBAL 700 × 420 CANVAS SYSTEM
+   ====================================================== */
+.global-canvas-frame {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scale wrapper (future-proof) */
+.global-canvas-scale {
+  transform-origin: top left;
+}
+
+/* Ensure lab view centers canvas */
+.lab-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
