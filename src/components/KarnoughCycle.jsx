@@ -219,7 +219,7 @@ export default function CarnotPVExperiment() {
       <div className="experiment-row">
         <video
           ref={videoRef}
-          src="./KarnaughtCycle1.mp4"
+          src="https://dexterslabortory.onrender.com/KarnaughtCycle1.mp4"
           controls
           loop
           muted
@@ -236,3 +236,4 @@ export default function CarnotPVExperiment() {
     </div>
   );
 }
+
