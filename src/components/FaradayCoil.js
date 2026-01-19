@@ -500,6 +500,7 @@ function drawBulb() {
     drawArrowHead(0, 0, 5);
     ctx.restore();
   }
+  
 
   ctx.restore();
 }
@@ -540,6 +541,7 @@ function drawFluxArrow(x0, y0, lift, spread, t, lower) {
   ctx.translate(x, y);
   ctx.rotate(angle);
   drawArrowHead(0, 0, 6);
+ 
   ctx.restore();
 }
 
@@ -551,6 +553,91 @@ function drawArrowHead(x, y, size) {
   ctx.closePath();
   ctx.fill();
 }
+function drawStraightPoleLines() {
+  const cx = state.magnet.x;
+  const cy = state.magnet.y;
+  const half = params.magnetHalfWidth;
+
+  const count = 12;
+  const length = 100;      // outward reach
+  const fan = 75;          // vertical spread
+  const bend = 80;         // 🔥 outward curvature strength
+  const originPad = 0.4;   // extremely close to magnet face
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(140,140,140,0.6)"; // SAME as field lines
+  ctx.fillStyle   = "rgba(140,140,140,0.9)";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+
+  for (let i = 0; i < count; i++) {
+    const t = (i - (count - 1) / 2) / ((count - 1) / 2); // -1 → +1
+
+    /* ========= RIGHT POLE (N → outward) ========= */
+
+    const r0 = {
+      x: cx + half + originPad,
+      y: cy
+    };
+
+    // ✅ control point is AHEAD → forces outward bow
+    const r1 = {
+      x: cx + half + bend,
+      y: cy + t * bend
+    };
+
+    const r2 = {
+      x: cx + half + length,
+      y: cy + t * fan
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(r0.x, r0.y);
+    ctx.quadraticCurveTo(r1.x, r1.y, r2.x, r2.y);
+    ctx.stroke();
+
+    const aR = Math.atan2(r2.y - r1.y, r2.x - r1.x);
+    ctx.save();
+    ctx.translate(r2.x, r2.y);
+    ctx.rotate(aR);
+    drawArrowHead(0, 0, 6);
+    ctx.restore();
+
+    /* ========= LEFT POLE (into S, mirrored outward bow) ========= */
+
+    const l0 = {
+      x: cx - half - originPad,
+      y: cy
+    };
+
+    const l1 = {
+      x: cx - half - bend,
+      y: cy + t * bend
+    };
+
+    const l2 = {
+      x: cx - half - length,
+      y: cy + t * fan
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(l2.x, l2.y);
+    ctx.quadraticCurveTo(l1.x, l1.y, l0.x, l0.y);
+    ctx.stroke();
+
+    const aL = Math.atan2(l0.y - l1.y, l0.x - l1.x);
+    ctx.save();
+    ctx.translate(l0.x, l0.y);
+    ctx.rotate(aL);
+    drawArrowHead(0, 0, 6);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+
+
 
 
  function drawFieldLines() {
@@ -639,6 +726,7 @@ function drawArrowHead(x, y, size) {
     ctx.stroke();
 
     drawMovingArrow(botP0, botP1, botP2, botP3, phase);
+       drawStraightPoleLines();
   }
 
   ctx.restore();

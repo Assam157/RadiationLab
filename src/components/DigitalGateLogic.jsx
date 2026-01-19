@@ -4,6 +4,8 @@ import "./DigitalGateLab.css";
 const W = 1400;
 const H = 900;
 
+/* ================= GATES ================= */
+
 const gates = {
   AND: (a, b) => a & b,
   OR: (a, b) => a | b,
@@ -13,9 +15,13 @@ const gates = {
   NOT: (a) => (!a ? 1 : 0),
 };
 
+/* ================= BULB SPRITE ================= */
+
+const bulbImg = new Image();
+bulbImg.src = "/bulby.png";
+
 export default function DigitalGateLab() {
   const canvasRef = useRef(null);
-  const animRef = useRef(0);
 
   const [gate, setGate] = useState("AND");
   const [A, setA] = useState(0);
@@ -24,10 +30,12 @@ export default function DigitalGateLab() {
 
   const output = gate === "NOT" ? gates.NOT(A) : gates[gate](A, B);
 
+  /* ================= ANIMATION ================= */
+
   useEffect(() => {
     let raf;
     const animate = () => {
-      setPhase((p) => (p + 2) % 40);
+      setPhase((p) => (p + 1) % 1000);
       raf = requestAnimationFrame(animate);
     };
     animate();
@@ -37,6 +45,8 @@ export default function DigitalGateLab() {
   useEffect(() => {
     draw();
   }, [gate, A, B, phase]);
+
+  /* ================= DRAW ================= */
 
   const getGateOutputX = () => {
     if (gate === "AND" || gate === "NAND") return 365;
@@ -48,17 +58,27 @@ export default function DigitalGateLab() {
   const draw = () => {
     const ctx = canvasRef.current.getContext("2d");
     ctx.clearRect(0, 0, W, H);
+
     ctx.fillStyle = "#020617";
     ctx.fillRect(0, 0, W, H);
 
     drawWire(ctx, 100, 140, 260, 140, A);
-    if (gate !== "NOT") drawWire(ctx, 100, 180, 260, 180, B);
+    drawLabel(ctx, "A", 70, 145);
+
+    if (gate !== "NOT") {
+      drawWire(ctx, 100, 180, 260, 180, B);
+      drawLabel(ctx, "B", 70, 185);
+    }
 
     drawGate(ctx, gate);
+    drawGateLabel(ctx, gate);
 
     const outX = getGateOutputX();
     drawWire(ctx, outX, 160, 620, 160, output);
+    drawLabel(ctx, "OUTPUT", 630, 165);
+
     drawLamp(ctx, output);
+    drawBulbLabel(ctx);
   };
 
   /* ================= WIRES ================= */
@@ -76,22 +96,59 @@ export default function DigitalGateLab() {
 
   const animateCurrent = (ctx, x1, y1, x2, y2) => {
     const len = Math.hypot(x2 - x1, y2 - y1);
-    const t = (phase % len);
+    const speed = 6;
+    const segLen = 40;
 
+    const t = (phase * speed) % len;
     const dx = (x2 - x1) / len;
     const dy = (y2 - y1) / len;
 
     ctx.strokeStyle = "#22c55e";
     ctx.lineWidth = 6;
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 18;
     ctx.shadowColor = "#22c55e";
 
     ctx.beginPath();
     ctx.moveTo(x1 + dx * t, y1 + dy * t);
-    ctx.lineTo(x1 + dx * (t + 25), y1 + dy * (t + 25));
-    ctx.stroke();
+    ctx.lineTo(
+      x1 + dx * Math.min(t + segLen, len),
+      y1 + dy * Math.min(t + segLen, len)
+    );
 
+    if (t + segLen > len) {
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(
+        x1 + dx * ((t + segLen) % len),
+        y1 + dy * ((t + segLen) % len)
+      );
+    }
+
+    ctx.stroke();
     ctx.shadowBlur = 0;
+  };
+
+  /* ================= LABELS ================= */
+
+  const drawLabel = (ctx, text, x, y) => {
+    ctx.fillStyle = "#e5e7eb";
+    ctx.font = "14px monospace";
+    ctx.fillText(text, x, y);
+  };
+
+  const drawGateLabel = (ctx, gateName) => {
+    ctx.fillStyle = "#e5e7eb";
+    ctx.font = "bold 16px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(gateName, 320, 165);
+    ctx.textAlign = "left";
+  };
+
+  const drawBulbLabel = (ctx) => {
+    ctx.fillStyle = "#e5e7eb";
+    ctx.font = "13px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("OUTPUT LAMP", 650, 255);
+    ctx.textAlign = "left";
   };
 
   /* ================= GATES ================= */
@@ -166,11 +223,17 @@ export default function DigitalGateLab() {
     ctx.beginPath();
     ctx.arc(650, 160, 18, 0, Math.PI * 2);
     ctx.fillStyle = state ? "#fde047" : "#334155";
-    ctx.shadowBlur = state ? 25 : 0;
+    ctx.shadowBlur = state ? 30 : 0;
     ctx.shadowColor = "#fde047";
     ctx.fill();
     ctx.shadowBlur = 0;
+
+    if (bulbImg.complete) {
+      ctx.drawImage(bulbImg, 625, 115, 50, 90);
+    }
   };
+
+  /* ================= UI ================= */
 
   return (
     <div className="digital-lab">

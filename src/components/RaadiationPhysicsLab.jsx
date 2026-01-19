@@ -80,32 +80,41 @@ export default function RadiationDexterLab() {
       ctx.fill();
     }
 
-    function drawRayDeflected(yBase, rgb, factor) {
-      const startX = 140;
-      const length = 520 * energy;
-      const deflect = (factor * emField * 140) / Math.max(energy, 0.2);
+  function drawRayDeflected(yBase, rgb, factor) {
+  const startX = 140;
+  const length = 520 * energy;
+  const deflect = (factor * emField * 140) / Math.max(energy, 0.2);
 
-      ctx.strokeStyle = `rgb(${rgb})`;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
+  // =====================
+  // DRAW RAY
+  // =====================
+  ctx.strokeStyle = `rgb(${rgb})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
 
-      for (let x = 0; x < length; x += 6) {
-        const p = x / length;
-        const y = yBase + deflect * p * p;
-        if (x === 0) ctx.moveTo(startX + x, y);
-        else ctx.lineTo(startX + x, y);
-      }
-      ctx.stroke();
+  for (let i = 0; i <= 100; i++) {
+    const p = i / 100;
+    const x = startX + length * p;
+    const y = yBase + deflect * p * p;
 
-      const px = startX + (tRef.current % length);
-      const p = px / length;
-      const py = yBase + deflect * p * p;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
 
-      ctx.fillStyle = `rgb(${rgb})`;
-      ctx.beginPath();
-      ctx.arc(px, py, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
+  // =====================
+  // PARTICLE (SAME CURVE)
+  // =====================
+  const p = (tRef.current % 100) / 100;   // normalized parameter
+  const px = startX + length * p;
+  const py = yBase + deflect * p * p;
+
+  ctx.fillStyle = `rgb(${rgb})`;
+  ctx.beginPath();
+  ctx.arc(px, py, 5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 
      function drawGoldFoil() {
   const baseX = 360;
