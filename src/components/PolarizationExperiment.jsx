@@ -9,6 +9,8 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
 
   const [theta1, setTheta1] = useState(20);
   const [theta2, setTheta2] = useState(60);
+  const [activeSlider, setActiveSlider] = useState(0); // 0 = theta1, 1 = theta2
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -149,6 +151,41 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
     loop();
     return () => cancelAnimationFrame(rafRef.current);
   }, [lightOn, theta1, theta2]);
+  useEffect(() => {
+  function onKey(e) {
+    if (!lightOn) return;
+
+    // ================= SWITCH SLIDER =================
+    if (e.key === "q" || e.key === "Q") {
+      setActiveSlider((s) => (s + 1) % 2);
+    }
+
+    if (e.key === "e" || e.key === "E") {
+      setActiveSlider((s) => (s + 1) % 2);
+    }
+
+    // ================= ADJUST VALUE =================
+    if (e.key === "a" || e.key === "A") {
+      adjust(-1);
+    }
+
+    if (e.key === "d" || e.key === "D") {
+      adjust(+1);
+    }
+  }
+
+  function adjust(dir) {
+    if (activeSlider === 0) {
+      setTheta1((v) => Math.min(90, Math.max(0, v + dir)));
+    } else {
+      setTheta2((v) => Math.min(90, Math.max(0, v + dir)));
+    }
+  }
+
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [activeSlider, lightOn]);
+
 
   return (
     <div style={{ padding: 18 }}>
@@ -177,29 +214,44 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
         }}
       />
 
-      {lightOn && (
-        <div style={{ marginTop: 12, color: "#9ef" }}>
-          <div>Crystal 1 Angle: {theta1}°</div>
-          <input
-            type="range"
-            min="0"
-            max="90"
-            value={theta1}
-            onChange={(e) => setTheta1(+e.target.value)}
-            style={{ width: 260 }}
-          />
+       {lightOn && (
+  <div
+    style={{
+      marginTop: 14,
+      color: "#9ef",
+      display: "flex",
+      gap: 24,
+      alignItems: "flex-start"
+    }}
+  >
+    {/* ===== SLIDER 1 ===== */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div>Crystal 1 Angle: {theta1}°</div>
+      <input
+        type="range"
+        min="0"
+        max="90"
+        value={theta1}
+        onChange={(e) => setTheta1(+e.target.value)}
+        style={{ width: 220 }}
+      />
+    </div>
 
-          <div style={{ marginTop: 8 }}>Crystal 2 Angle: {theta2}°</div>
-          <input
-            type="range"
-            min="0"
-            max="90"
-            value={theta2}
-            onChange={(e) => setTheta2(+e.target.value)}
-            style={{ width: 260 }}
-          />
-        </div>
-      )}
+    {/* ===== SLIDER 2 ===== */}
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div>Crystal 2 Angle: {theta2}°</div>
+      <input
+        type="range"
+        min="0"
+        max="90"
+        value={theta2}
+        onChange={(e) => setTheta2(+e.target.value)}
+        style={{ width: 220 }}
+      />
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

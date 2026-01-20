@@ -10,6 +10,7 @@ export default function WaveInterferenceExperiment() {
   const [phase, setPhase] = useState(Math.PI);
   const [freq, setFreq] = useState(0.02);
   const interference = getInterferenceType(amp1, amp2, phase);
+  const [activeSlider,setActiveSlider]=useState(0);
 
 
   useEffect(() => {
@@ -87,6 +88,58 @@ function getInterferenceType(amp1, amp2, phase) {
     color: "#1e90ff"
   };
 }
+useEffect(() => {
+  function onKey(e) {
+    // ========= SWITCH ACTIVE SLIDER =========
+    if (e.key === "q" || e.key === "Q") {
+      setActiveSlider(s => (s + 3) % 4);
+    }
+
+    if (e.key === "e" || e.key === "E") {
+      setActiveSlider(s => (s + 1) % 4);
+    }
+
+    // ========= ADJUST VALUE =========
+    if (e.key === "a" || e.key === "A") {
+      adjust(-1);
+    }
+
+    if (e.key === "d" || e.key === "D") {
+      adjust(+1);
+    }
+  }
+
+  function adjust(dir) {
+    switch (activeSlider) {
+      case 0: // Amplitude 1
+        setAmp1(v => Math.min(80, Math.max(0, v + dir * 2)));
+        break;
+
+      case 1: // Amplitude 2
+        setAmp2(v => Math.min(80, Math.max(0, v + dir * 2)));
+        break;
+
+      case 2: // Phase
+        setPhase(v =>
+          Math.min(6.2, Math.max(0, v + dir * 0.1))
+        );
+        break;
+
+      case 3: // Frequency
+        setFreq(v =>
+          Math.min(0.05, Math.max(0.005, v + dir * 0.005))
+        );
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [activeSlider]);
+
 
 
   return (

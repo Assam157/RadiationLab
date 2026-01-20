@@ -7,6 +7,8 @@ export default function InverseSquareMotion() {
   const [m1, setM1] = useState(5);
   const [m2, setM2] = useState(5);
   const [distance, setDistance] = useState(300);
+  const [activeSlider, setActiveSlider] = useState(0);
+// 0 = m1, 1 = m2, 2 = distance
 
   const G = 60;
   const FORCE_REF = 1; // visual scaling
@@ -89,41 +91,160 @@ export default function InverseSquareMotion() {
     ctx.fill();
     ctx.shadowBlur = 0;
   }
+useEffect(() => {
+  function onKey(e) {
+    // ========= SWITCH SLIDER =========
+    if (e.key === "q" || e.key === "Q") {
+      setActiveSlider(s => (s + 2) % 3);
+    }
+
+    if (e.key === "e" || e.key === "E") {
+      setActiveSlider(s => (s + 1) % 3);
+    }
+
+    // ========= ADJUST VALUE =========
+    if (e.key === "a" || e.key === "A") {
+      adjust(-1);
+    }
+
+    if (e.key === "d" || e.key === "D") {
+      adjust(+1);
+    }
+  }
+
+  function adjust(dir) {
+    switch (activeSlider) {
+      case 0: // Mass m₁ (1 → 10)
+        setM1(v =>
+          Math.min(10, Math.max(1, v + dir))
+        );
+        break;
+
+      case 1: // Mass m₂ (1 → 10)
+        setM2(v =>
+          Math.min(10, Math.max(1, v + dir))
+        );
+        break;
+
+      case 2: // Distance r (20 → 500)
+        setDistance(v =>
+          Math.min(500, Math.max(20, v + dir * 10))
+        );
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [activeSlider]);
 
   return (
-    <div className="inverse-container">
-      <div className="control-panel">
-        <h2>Inverse Square Law</h2>
+  <div className="inverse-container">
+    <h2>Inverse Square Law</h2>
 
-        <label>Mass m₁: {m1}</label>
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={m1}
-          onChange={(e) => setM1(+e.target.value)}
-        />
+    <canvas ref={canvasRef} width={800} height={600} />
 
-        <label>Mass m₂: {m2}</label>
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={m2}
-          onChange={(e) => setM2(+e.target.value)}
-        />
+    {/* ================= CONTROLS ================= */}
+    <div className="inverse-controls">
 
-        <label>Distance r: {distance}px</label>
-        <input
-          type="range"
-          min="20"
-          max="500"
-          value={distance}
-          onChange={(e) => setDistance(+e.target.value)}
-        />
+      {/* ===== MASS m1 ===== */}
+      <div className={`slider-row ${activeSlider === 0 ? "active" : ""}`}>
+        <button
+          className="slider-select-btn"
+          onClick={() => setActiveSlider(0)}
+        >
+          m₁
+        </button>
+
+        <div className="slider-wrap">
+          {activeSlider === 0 && (
+            <div
+              className="slider-tooltip"
+              style={{
+                left: `${((m1 - 1) / (10 - 1)) * 100}%`
+              }}
+            >
+              {m1}
+            </div>
+          )}
+
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={m1}
+            onChange={(e) => setM1(+e.target.value)}
+          />
+        </div>
       </div>
 
-      <canvas ref={canvasRef} width={800} height={600} />
+      {/* ===== MASS m2 ===== */}
+      <div className={`slider-row ${activeSlider === 1 ? "active" : ""}`}>
+        <button
+          className="slider-select-btn"
+          onClick={() => setActiveSlider(1)}
+        >
+          m₂
+        </button>
+
+        <div className="slider-wrap">
+          {activeSlider === 1 && (
+            <div
+              className="slider-tooltip"
+              style={{
+                left: `${((m2 - 1) / (10 - 1)) * 100}%`
+              }}
+            >
+              {m2}
+            </div>
+          )}
+
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={m2}
+            onChange={(e) => setM2(+e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* ===== DISTANCE r ===== */}
+      <div className={`slider-row ${activeSlider === 2 ? "active" : ""}`}>
+        <button
+          className="slider-select-btn"
+          onClick={() => setActiveSlider(2)}
+        >
+          r
+        </button>
+
+        <div className="slider-wrap">
+          {activeSlider === 2 && (
+            <div
+              className="slider-tooltip"
+              style={{
+                left: `${((distance - 20) / (500 - 20)) * 100}%`
+              }}
+            >
+              {distance}px
+            </div>
+          )}
+
+          <input
+            type="range"
+            min="20"
+            max="500"
+            value={distance}
+            onChange={(e) => setDistance(+e.target.value)}
+          />
+        </div>
+      </div>
+
     </div>
-  );
+  </div>
+);
+
 }
