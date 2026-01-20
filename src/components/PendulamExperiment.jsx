@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
- 
+
 const g = 9.81;
 
 export default function PendulumEnergyLab() {
@@ -11,7 +11,7 @@ export default function PendulumEnergyLab() {
   const [mass, setMass] = useState(1);         // controls energy magnitude
   const [angle0, setAngle0] = useState(30);    // controls initial swing
   const [running, setRunning] = useState(true);
-  const [activeSlider,setActiveSlider]=useState(0);
+
   const startTime = useRef(null);
   const energyData = useRef([]);
 
@@ -99,179 +99,66 @@ export default function PendulumEnergyLab() {
     animationRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationRef.current);
   }, [length, mass, angle0, running]);
-  useEffect(() => {
-  function onKey(e) {
-    // ========= SWITCH SLIDER =========
-    if (e.key === "q" || e.key === "Q") {
-      setActiveSlider(s => (s + 2) % 3);
-    }
 
-    if (e.key === "e" || e.key === "E") {
-      setActiveSlider(s => (s + 1) % 3);
-    }
+  return (
+    <div style={{ display: "flex", gap: 20, color: "#fff" }}>
+      <canvas ref={pendulumRef} width={300} height={300} />
 
-    // ========= ADJUST VALUE =========
-    if (e.key === "a" || e.key === "A") {
-      adjust(-1);
-    }
+      <div>
+        <canvas ref={graphRef} width={320} height={200} />
 
-    if (e.key === "d" || e.key === "D") {
-      adjust(+1);
-    }
-  }
+        <p style={{ color: "#00ff00" }}>Kinetic Energy (KE)</p>
+        <p style={{ color: "#00aaff" }}>Potential Energy (PE)</p>
 
-  function adjust(dir) {
-    switch (activeSlider) {
-      case 0: // Length (100 → 250)
-        setLength(v =>
-          Math.min(250, Math.max(100, v + dir * 5))
-        );
-        break;
-
-      case 1: // Mass (1 → 5)
-        setMass(v =>
-          Math.min(5, Math.max(1, v + dir))
-        );
-        break;
-
-      case 2: // Initial Angle (10 → 60)
-        setAngle0(v =>
-          Math.min(60, Math.max(10, v + dir))
-        );
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, [activeSlider]);
-
-
- return (
-  <div style={{ display: "flex", gap: 24, color: "#fff" }}>
-    {/* ================= PENDULUM VIEW ================= */}
-    <canvas ref={pendulumRef} width={300} height={300} />
-
-    {/* ================= RIGHT PANEL ================= */}
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <canvas ref={graphRef} width={320} height={200} />
-
-      <p style={{ color: "#00ff00" }}>Kinetic Energy (KE)</p>
-      <p style={{ color: "#00aaff" }}>Potential Energy (PE)</p>
-
-      {/* ================= LENGTH ================= */}
-      <div className="slider-block">
-        <button
-          className={`slider-btn ${activeSlider === 0 ? "active" : ""}`}
-          onClick={() => setActiveSlider(0)}
-        >
-          Pendulum Length
-        </button>
-
-        <div className="slider-wrap">
-          {activeSlider === 0 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((length - 100) / (250 - 100)) * 100}%`
-              }}
-            >
-              {length}px
-            </div>
-          )}
-
+        {/* 🔹 SLIDERS WITH CLEAR LABELS */}
+        <div>
+          <label style={{ color: "#000" }}>
+            Pendulum Length (controls string length): <b>{length}px</b>
+          </label>
           <input
             type="range"
             min="100"
             max="250"
             value={length}
-            onChange={(e) => setLength(+e.target.value)}
+            onChange={e => setLength(+e.target.value)}
           />
         </div>
-      </div>
 
-      {/* ================= MASS ================= */}
-      <div className="slider-block">
-        <button
-          className={`slider-btn ${activeSlider === 1 ? "active" : ""}`}
-          onClick={() => setActiveSlider(1)}
-        >
-          Mass of Bob
-        </button>
-
-        <div className="slider-wrap">
-          {activeSlider === 1 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((mass - 1) / (5 - 1)) * 100}%`
-              }}
-            >
-              {mass} kg
-            </div>
-          )}
-
+        <div>
+          <label style={{ color: "#000" }}>
+            Mass of Bob (controls energy magnitude): <b>{mass} kg</b>
+          </label>
           <input
             type="range"
             min="1"
             max="5"
             value={mass}
-            onChange={(e) => setMass(+e.target.value)}
+            onChange={e => setMass(+e.target.value)}
           />
         </div>
-      </div>
 
-      {/* ================= ANGLE ================= */}
-      <div className="slider-block">
-        <button
-          className={`slider-btn ${activeSlider === 2 ? "active" : ""}`}
-          onClick={() => setActiveSlider(2)}
-        >
-          Initial Angle
-        </button>
-
-        <div className="slider-wrap">
-          {activeSlider === 2 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((angle0 - 10) / (60 - 10)) * 100}%`
-              }}
-            >
-              {angle0}°
-            </div>
-          )}
-
+        <div>
+          <label style={{ color: "#000" }}>
+            Initial Angle (controls swing amplitude): <b>{angle0}°</b>
+          </label>
           <input
             type="range"
             min="10"
             max="60"
             value={angle0}
-            onChange={(e) => setAngle0(+e.target.value)}
+            onChange={e => setAngle0(+e.target.value)}
           />
         </div>
+
+        <button
+          onClick={() => {
+            startTime.current = null;
+            setRunning(r => !r);
+          }}
+        >
+          {running ? "Pause" : "Resume"}
+        </button>
       </div>
-
-      {/* ================= PLAY / PAUSE ================= */}
-      <button
-        onClick={() => {
-          startTime.current = null;
-          setRunning((r) => !r);
-        }}
-        style={{
-          marginTop: 8,
-          padding: "8px",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}
-      >
-        {running ? "Pause" : "Resume"}
-      </button>
     </div>
-  </div>
-);
-
+  );
 }

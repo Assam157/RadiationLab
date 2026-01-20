@@ -227,31 +227,6 @@ useEffect(() => {
   );
 
 }, [heat]);
-useEffect(() => {
-  function onKey(e) {
-    // ========= SWITCH SLIDER (FUTURE SAFE) =========
-   
-
-    // ========= ADJUST VALUE =========
-    if (e.key === "a" || e.key === "A") {
-      adjust(-1);
-    }
-
-    if (e.key === "d" || e.key === "D") {
-      adjust(+1);
-    }
-  }
-
-  function adjust(dir) {
-    // Temperature (−20 → 140)
-    setHeat(v =>
-      Math.min(140, Math.max(-20, v + dir))
-    );
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, []);
 
 
 

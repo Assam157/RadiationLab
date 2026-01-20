@@ -9,7 +9,6 @@ export default function WireExperiment() {
 
   const [direction, setDirection] = useState("same");
   const [intensity, setIntensity] = useState(0.3);
-  const [activeSlider,setActiveSlider]=useState(0);
 
   const BASE_LEFT = 280;
   const BASE_RIGHT = 420;
@@ -115,35 +114,6 @@ export default function WireExperiment() {
     drawScene();
     return () => cancelAnimationFrame(raf);
   }, [direction, intensity]);
-  useEffect(() => {
-  function onKey(e) {
-
-
-    // ================= ADJUST VALUE =================
-    if (e.key === "a" || e.key === "A") {
-      adjust(-0.1);
-    }
-
-    if (e.key === "d" || e.key === "D") {
-      adjust(+0.1);
-    }
-  }
-
-  function adjust(dir) {
-    
-  
-  
- 
-      setIntensity(v =>
-        Math.min(1, Math.max(0, v + dir * 0.2))
-      );
- 
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, [activeSlider]);
-
 
   /* ================= UI ================= */
   return (

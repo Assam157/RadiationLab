@@ -16,8 +16,6 @@ export default function ProjectileMotionLab() {
   const [speed, setSpeed] = useState(30);      // m/s
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [activeSlider, setActiveSlider] = useState(0);
-// 0 = angle, 1 = speed
 
   const proj = useRef({ t: 0, path: [], maxH: 0, range: 0 });
 
@@ -264,131 +262,43 @@ export default function ProjectileMotionLab() {
       ctx.fillText(`Horizontal Range = ${proj.current.range.toFixed(1)} m`, 90, 48);
     }
   };
-  useEffect(() => {
-  function onKey(e) {
-    // ========= SWITCH SLIDER =========
-    if (e.key === "q" || e.key === "Q") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    if (e.key === "e" || e.key === "E") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    // ========= ADJUST VALUE =========
-    if (e.key === "a" || e.key === "A") {
-      adjust(-1);
-    }
-
-    if (e.key === "d" || e.key === "D") {
-      adjust(+1);
-    }
-  }
-
-  function adjust(dir) {
-    if (activeSlider === 0) {
-      // Launch Angle (5 → 85)
-      setAngle(v =>
-        Math.min(85, Math.max(5, v + dir))
-      );
-    } else {
-      // Initial Speed (5 → maxAllowedSpeed)
-      setSpeed(v =>
-        Math.min(
-          maxAllowedSpeed,
-          Math.max(5, v + dir * 0.5)
-        )
-      );
-    }
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, [activeSlider, maxAllowedSpeed]);
-
 
   /* ---------- UI ---------- */
- return (
-  <div className="proj-graph-root">
-    <h2>Projectile Motion Laboratory (Vector Decomposition)</h2>
+  return (
+    <div className="proj-graph-root">
+      <h2>Projectile Motion Laboratory (Vector Decomposition)</h2>
 
-    <canvas ref={canvasRef} width={W} height={H} />
+      <canvas ref={canvasRef} width={W} height={H} />
 
-    {/* ================= CONTROLS ================= */}
-    <div className="proj-controls">
+       <label>
+  Launch Angle (degrees): <strong>{angle}°</strong>
+  <input
+    type="range"
+    min="5"
+    max="85"
+    value={angle}
+    onChange={(e) => setAngle(+e.target.value)}
+  />
+</label>
 
-      {/* ===== ANGLE CONTROL ===== */}
-      <div className={`proj-slider-row ${activeSlider === 0 ? "active" : ""}`}>
-        <button
-          className="slider-select-btn"
-          onClick={() => setActiveSlider(0)}
-        >
-          ANGLE
-        </button>
+<label>
+  Initial Speed (m/s): <strong>{speed.toFixed(1)}</strong>
+  <input
+    type="range"
+    min="5"
+    max={maxAllowedSpeed}
+    step="0.1"
+    value={speed}
+    onChange={(e) => setSpeed(+e.target.value)}
+  />
+</label>
 
-        <div className="slider-wrap">
-          {activeSlider === 0 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((angle - 5) / (85 - 5)) * 100}%`
-              }}
-            >
-              {angle}°
-            </div>
-          )}
 
-          <input
-            type="range"
-            min="5"
-            max="85"
-            value={angle}
-            onChange={(e) => setAngle(+e.target.value)}
-          />
-        </div>
+      <div className="lab-buttons">
+        <button onClick={launch}>Launch Projectile</button>
+        <button onClick={reset}>Reset Experiment</button>
       </div>
-
-      {/* ===== SPEED CONTROL ===== */}
-      <div className={`proj-slider-row ${activeSlider === 1 ? "active" : ""}`}>
-        <button
-          className="slider-select-btn"
-          onClick={() => setActiveSlider(1)}
-        >
-          SPEED
-        </button>
-
-        <div className="slider-wrap">
-          {activeSlider === 1 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((speed - 5) / (maxAllowedSpeed - 5)) * 100}%`
-              }}
-            >
-              {speed.toFixed(1)} m/s
-            </div>
-          )}
-
-          <input
-            type="range"
-            min="5"
-            max={maxAllowedSpeed}
-            step="0.1"
-            value={speed}
-            onChange={(e) => setSpeed(+e.target.value)}
-          />
-        </div>
-      </div>
-
     </div>
-
-    {/* ================= ACTION BUTTONS ================= */}
-    <div className="lab-buttons">
-      <button onClick={launch}>Launch Projectile</button>
-      <button onClick={reset}>Reset Experiment</button>
-    </div>
-  </div>
-);
-
+  );
 }
 

@@ -14,7 +14,6 @@ export default function GasLawExperiment() {
   const burnerTRef = useRef(0);     // 🔥 independent burner time
 
   const [temperature, setTemperature] = useState(0.3);
-  const [activeSlider,setActiveSlider]=useState(0);
   const [load, setLoad] = useState(0.3);
 
   const BOTTOM = H - 80;
@@ -168,141 +167,51 @@ export default function GasLawExperiment() {
     loop();
     return () => cancelAnimationFrame(raf);
   }, [BOTTOM,LEFT,RIGHT]);
-  useEffect(() => {
-  function onKey(e) {
-    // ========= SWITCH ACTIVE SLIDER =========
-    if (e.key === "q" || e.key === "Q") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    if (e.key === "e" || e.key === "E") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    // ========= ADJUST VALUE =========
-    if (e.key === "a" || e.key === "A") {
-      adjust(-1);
-    }
-
-    if (e.key === "d" || e.key === "D") {
-      adjust(+1);
-    }
-  }
-
-  function adjust(dir) {
-    if (activeSlider === 0) {
-      // Temperature (0.1 → 1)
-      setTemperature(v => {
-        const nv = Math.min(1, Math.max(0.1, v + dir * 0.01));
-        tempRef.current = nv;
-        return nv;
-      });
-    } else {
-      // Load (0.1 → 1)
-      setLoad(v => {
-        const nv = Math.min(1, Math.max(0.1, v + dir * 0.01));
-        loadRef.current = nv;
-        return nv;
-      });
-    }
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, [activeSlider]);
-
 
   /* ================= UI ================= */
- return (
-  <div style={{ textAlign: "center", color: "#fff" }}>
-    <canvas ref={canvasRef} width={W} height={H} />
+  return (
+    <div style={{ textAlign: "center", color: "#fff" }}>
+      <canvas ref={canvasRef} width={W} height={H} />
 
-    {/* ================= CONTROL PANEL ================= */}
-    <div
-      style={{
-        width: 460,
-        margin: "18px auto",
-        background: "#0b0b0b",
-        padding: 20,
-        borderRadius: 14,
-        display: "flex",
-        flexDirection: "column",
-        gap: 28
-      }}
-    >
-      {/* ================= TEMPERATURE ================= */}
-      <div className="slider-block">
-        <button
-          className={`slider-btn ${activeSlider === 0 ? "active" : ""}`}
-          onClick={() => setActiveSlider(0)}
-        >
-          Gas Temperature
-        </button>
+      <div
+        style={{
+          width: 420,
+          margin: "12px auto",
+          background: "#111",
+          padding: 16,
+          borderRadius: 12
+        }}
+      >
+        <div style={{ color: "#b3fffc" }}>Piston Load</div>
+        <input
+          type="range"
+          min="0.1"
+          max="1"
+          step="0.01"
+          value={temperature}
+          onChange={e => {
+            const v = +e.target.value;
+            setTemperature(v);
+            tempRef.current = v;
+          }}
+          style={{ width: "100%", accentColor: "#4a7aff" }}
+        />
 
-        <div className="slider-wrap">
-          {activeSlider === 0 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((temperature - 0.1) / (1 - 0.1)) * 100}%`
-              }}
-            >
-              {temperature.toFixed(2)}
-            </div>
-          )}
-
-          <input
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.01"
-            value={temperature}
-            onChange={(e) => {
-              const v = +e.target.value;
-              setTemperature(v);
-              tempRef.current = v;
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ================= LOAD ================= */}
-      <div className="slider-block">
-        <button
-          className={`slider-btn ${activeSlider === 1 ? "active" : ""}`}
-          onClick={() => setActiveSlider(1)}
-        >
-          Piston Load
-        </button>
-
-        <div className="slider-wrap">
-          {activeSlider === 1 && (
-            <div
-              className="slider-tooltip"
-              style={{
-                left: `${((load - 0.1) / (1 - 0.1)) * 100}%`
-              }}
-            >
-              {load.toFixed(2)}
-            </div>
-          )}
-
-          <input
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.01"
-            value={load}
-            onChange={(e) => {
-              const v = +e.target.value;
-              setLoad(v);
-              loadRef.current = v;
-            }}
-          />
-        </div>
+        <div style={{ marginTop: 12, color: "#ffc9b3" }}>Heat Tempareture</div>
+        <input
+          type="range"
+          min="0.1"
+          max="1"
+          step="0.01"
+          value={load}
+          onChange={e => {
+            const v = +e.target.value;
+            setLoad(v);
+            loadRef.current = v;
+          }}
+          style={{ width: "100%", accentColor: "#ff2a2a" }}
+        />
       </div>
     </div>
-  </div>
-);
-
+  );
 }

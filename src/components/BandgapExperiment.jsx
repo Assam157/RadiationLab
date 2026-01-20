@@ -7,7 +7,6 @@ const H = 920;
 export default function BandGapExperiment() {
   const canvasRef = useRef(null);
   const [energy, setEnergy] = useState(0.2);
-  const [activeSlider,setActiveSlider]=useState(0);
 
   // 🔑 persistent refs (this was missing before)
   const prevLevelRef = useRef(null);
@@ -258,35 +257,7 @@ if (prevLevel !== null && level > prevLevel) {
     loop();
     return () => cancelAnimationFrame(raf);
   }, [energy]);
-  useEffect(() => {
-    function onKey(e) {
-  
-  
-      // ================= ADJUST VALUE =================
-      if (e.key === "a" || e.key === "A") {
-        adjust(-0.1);
-      }
-  
-      if (e.key === "d" || e.key === "D") {
-        adjust(+0.1);
-      }
-    }
-  
-    function adjust(dir) {
-      
-    
-    
-   
-        setEnergy(v =>
-          Math.min(1, Math.max(0, v + dir * 0.2))
-        );
-   
-    }
-  
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [activeSlider]);
-  
+
   return (
     <div className="lab-canvas-wrap">
       <canvas ref={canvasRef} width={W} height={H} />

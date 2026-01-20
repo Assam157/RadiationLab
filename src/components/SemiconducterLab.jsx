@@ -21,8 +21,6 @@ export default function SemiconductorDexterLab() {
   const [frequency, setFrequency] = useState(1.0);
   const [amount, setAmount] = useState(1.0);
   const [material, setMaterial] = useState("Silicon");
-  const [activeSlider, setActiveSlider] = useState(0); 
-// 0 = frequency, 1 = amount
 
   const Eg = MATERIALS[material].Eg;
 
@@ -203,71 +201,27 @@ export default function SemiconductorDexterLab() {
 
     loop();
   }, [frequency, amount, material, Eg, emission, electronCount]);
-  useEffect(() => {
-  function onKey(e) {
-    // ================= SLIDER SWITCH =================
-    if (e.key === "q" || e.key === "Q") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    if (e.key === "e" || e.key === "E") {
-      setActiveSlider(s => (s + 1) % 2);
-    }
-
-    // ================= ADJUST VALUE =================
-    if (e.key === "a" || e.key === "A") {
-      adjust(-1);
-    }
-
-    if (e.key === "d" || e.key === "D") {
-      adjust(+1);
-    }
-  }
-
-  function adjust(dir) {
-    if (activeSlider === 0) {
-      // LIGHT FREQUENCY
-      setFrequency(v =>
-        Math.min(3, Math.max(0.2, v + dir * 0.02))
-      );
-    } else {
-      // LIGHT AMOUNT
-      setAmount(v =>
-        Math.min(2, Math.max(1, v + dir * 0.02))
-      );
-    }
-  }
-
-  window.addEventListener("keydown", onKey);
-  return () => window.removeEventListener("keydown", onKey);
-}, [activeSlider]);
-
 
   return (
-  <div className="dexter-root">
-    {/* ================= LEFT PANEL ================= */}
-    <div className="control-panel">
-      <h2>🔌 SEMICONDUCTOR LAB</h2>
+    <div className="dexter-root">
+      <div className="control-panel">
+        <h2>🔌 SEMICONDUCTOR LAB</h2>
 
-      {Object.keys(MATERIALS).map((m) => (
-        <button
-          key={m}
-          className={material === m ? "active" : ""}
-          onClick={() => setMaterial(m)}
-        >
-          {m}
+        {Object.keys(MATERIALS).map((m) => (
+          <button
+            key={m}
+            className={material === m ? "active" : ""}
+            onClick={() => setMaterial(m)}
+          >
+            {m}
+          </button>
+        ))}
+
+        <button style={{ marginTop: 20 }} onClick={() => navigate("/")}>
+          ⬅ BACK TO CONSOLE
         </button>
-      ))}
+      </div>
 
-      <button style={{ marginTop: 20 }} onClick={() => navigate("/")}>
-        ⬅ BACK TO CONSOLE
-      </button>
-    </div>
-
-    {/* ================= RIGHT COLUMN ================= */}
-    <div className="canvas-column">
-
-      {/* ===== MAIN CANVAS ===== */}
       <canvas
         ref={canvasRef}
         width={W}
@@ -275,60 +229,32 @@ export default function SemiconductorDexterLab() {
         style={{ background: "#000" }}
       />
 
-      {/* ===== ENERGY PANEL (BELOW CANVAS) ===== */}
       <div className="energy-panel">
-
         <div className="energy-label">LIGHT FREQUENCY</div>
         <div className="energy-value">{frequency.toFixed(2)} eV</div>
-
-        <div className="slider-wrap">
-          <div
-            className="slider-tooltip"
-            style={{
-              left: `${((frequency - 0.2) / (3 - 0.2)) * 100}%`
-            }}
-          >
-            {frequency.toFixed(2)} eV
-          </div>
-
-          <input
-            className="energy-slider"
-            type="range"
-            min="0.2"
-            max="3"
-            step="0.01"
-            value={frequency}
-            onChange={(e) => setFrequency(+e.target.value)}
-          />
-        </div>
+        <input
+          className="energy-slider"
+          type="range"
+          min="0.2"
+          max="3"
+          step="0.01"
+          value={frequency}
+          onChange={(e) => setFrequency(+e.target.value)}
+        />
 
         <div className="energy-label">LIGHT AMOUNT</div>
         <div className="energy-value">{amount.toFixed(2)}×</div>
-
-        <div className="slider-wrap">
-          <div
-            className="slider-tooltip"
-            style={{
-              left: `${((amount - 1) / (2 - 1)) * 100}%`
-            }}
-          >
-            {amount.toFixed(2)}×
-          </div>
-
-          <input
-            className="energy-slider em"
-            type="range"
-            min="1"
-            max="2"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(+e.target.value)}
-          />
-        </div>
+        <input
+          className="energy-slider em"
+          type="range"
+          min="1"
+          max="2"
+          step="0.01"
+          value={amount}
+          onChange={(e) => setAmount(+e.target.value)}
+        />
       </div>
     </div>
-  </div>
-);
-
+  );
 }
 
