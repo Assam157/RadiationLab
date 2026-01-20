@@ -12,7 +12,6 @@ import SemiconductorDexterLab from "./components/SemiconducterLab";
 import EMLab from "./components/EMLab";
 import DigitalGateLab from "./components/DigitalGateLogic";
 import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
-import ExperimentLayout from "./components/ExperimentLayout";
 import "./App.css";
 
 /* ==============================
@@ -58,6 +57,39 @@ function DexterHome() {
       window.removeEventListener("appinstalled", handleInstalled);
     };
   }, []);
+  useEffect(() => {
+  const handleKeyDown = (e) => {
+    // ignore typing inside inputs
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+    switch (e.key) {
+      case "1":
+        navigate("/radiation");
+        break;
+      case "2":
+        navigate("/optical");
+        break;
+      case "3":
+        navigate("/semiconductor");
+        break;
+      case "4":
+        navigate("/em");
+        break;
+      case "5":
+        navigate("/sid");
+        break;
+      case "6":
+        navigate("/digital");
+        break;
+      default:
+        break;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [navigate]);
+
 
   /* ==============================
      INSTALL TRIGGER
