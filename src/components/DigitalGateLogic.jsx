@@ -20,7 +20,7 @@ const gates = {
 /* ================= BULB SPRITE ================= */
 
 const bulbImg = new Image();
-bulbImg.src = "/bulby.png";
+bulbImg.src = "/Bulby.png";
 
 export default function DigitalGateLab() {
   const canvasRef = useRef(null);
@@ -271,4 +271,5 @@ export default function DigitalGateLab() {
     </div>
   );
 }
+
 
