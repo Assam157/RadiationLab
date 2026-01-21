@@ -1,0 +1,86 @@
+/* ================= ROOT ================= */
+
+.sidebar-lab-root {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: #020617;
+  color: blue;
+  overflow: hidden;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+  width: 260px;
+  background: #020617;
+  border-right: 1px solid #1e293b;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  color: #38bdf8;
+  margin-bottom: 12px;
+}
+
+.sidebar hr {
+  border: none;
+  border-top: 1px solid #1e293b;
+  margin: 12px 0;
+}
+
+.sidebar button {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #020617;
+  border: 1px solid #334155;
+  color: #e5e7eb;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+  transition: all 0.25s ease;
+}
+
+.sidebar button:hover:not(.disabled) {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.sidebar button.active {
+  border: 2px solid #38bdf8;
+  background: rgba(56, 189, 248, 0.18);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+}
+
+.sidebar button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Back button */
+.back-btn {
+  border-color: #64748b;
+  color: #cbd5f5;
+}
+
+/* ================= LAB VIEW ================= */
+
+.lab-view {
+  flex: 1;
+  background: #020617;
+  overflow: auto;
+}
+
+/* Canvas container (same as physics lab) */
+.global-canvas-frame {
+  position: relative;
+  margin: auto;
+  background: #020617;
+}
+
+.global-canvas-scale {
+  transform-origin: top left;
+}
