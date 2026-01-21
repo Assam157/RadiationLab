@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./DigitalGateLab.css";
+
+/* ================= CANVAS SIZE ================= */
 
 const W = 1400;
 const H = 900;
+
+/* ================= LOGIC GATES ================= */
 
 const gates = {
   AND: (a, b) => a & b,
@@ -16,6 +21,7 @@ const gates = {
 export default function DigitalGateLab() {
   const canvasRef = useRef(null);
   const animRef = useRef(0);
+  const navigate = useNavigate();
 
   const [gate, setGate] = useState("AND");
   const [A, setA] = useState(0);
@@ -23,6 +29,8 @@ export default function DigitalGateLab() {
   const [phase, setPhase] = useState(0);
 
   const output = gate === "NOT" ? gates.NOT(A) : gates[gate](A, B);
+
+  /* ================= ANIMATION ================= */
 
   useEffect(() => {
     let raf;
@@ -33,6 +41,8 @@ export default function DigitalGateLab() {
     animate();
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  /* ================= DRAW ================= */
 
   useEffect(() => {
     draw();
@@ -48,14 +58,19 @@ export default function DigitalGateLab() {
   const draw = () => {
     const ctx = canvasRef.current.getContext("2d");
     ctx.clearRect(0, 0, W, H);
+
+    /* Background */
     ctx.fillStyle = "#020617";
     ctx.fillRect(0, 0, W, H);
 
+    /* Input wires */
     drawWire(ctx, 100, 140, 260, 140, A);
     if (gate !== "NOT") drawWire(ctx, 100, 180, 260, 180, B);
 
+    /* Gate */
     drawGate(ctx, gate);
 
+    /* Output */
     const outX = getGateOutputX();
     drawWire(ctx, outX, 160, 620, 160, output);
     drawLamp(ctx, output);
@@ -76,7 +91,7 @@ export default function DigitalGateLab() {
 
   const animateCurrent = (ctx, x1, y1, x2, y2) => {
     const len = Math.hypot(x2 - x1, y2 - y1);
-    const t = (phase % len);
+    const t = phase % len;
 
     const dx = (x2 - x1) / len;
     const dy = (y2 - y1) / len;
@@ -160,7 +175,7 @@ export default function DigitalGateLab() {
     ctx.stroke();
   };
 
-  /* ================= LAMP ================= */
+  /* ================= OUTPUT LAMP ================= */
 
   const drawLamp = (ctx, state) => {
     ctx.beginPath();
@@ -172,9 +187,19 @@ export default function DigitalGateLab() {
     ctx.shadowBlur = 0;
   };
 
+  /* ================= UI ================= */
+
   return (
     <div className="digital-lab">
       <div className="digital-controls">
+        {/* BACK BUTTON */}
+        <button
+          className="digital-back-btn"
+          onClick={() => navigate("/")}
+        >
+          ⬅ Back to Canvas
+        </button>
+
         <h3>Digital Gate Lab</h3>
 
         <select value={gate} onChange={(e) => setGate(e.target.value)}>
