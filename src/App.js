@@ -12,6 +12,7 @@ import SemiconductorDexterLab from "./components/SemiconducterLab";
 import EMLab from "./components/EMLab";
 import DigitalGateLab from "./components/DigitalGateLogic";
 import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
+import QuantumSideLab from "./components/QuantumLab";
 import "./App.css";
 
 /* ==============================
@@ -21,7 +22,7 @@ function DexterHome() {
   const navigate = useNavigate();
   const installEventRef = useRef(null);
   const [isInstalled, setIsInstalled] = React.useState(false);
-
+  
   /* ==============================
      INSTALL STATE DETECTION
   ============================== */
@@ -80,6 +81,9 @@ function DexterHome() {
         break;
       case "6":
         navigate("/digital");
+        break;
+      case "7":
+        navigate("/quantum");
         break;
       default:
         break;
@@ -168,6 +172,9 @@ function DexterHome() {
       <button className="lab-btn" onClick={() => navigate("/digital")}>
         🧩 Digital Lab
       </button>
+       <button className="lab-btn" onClick={() => navigate("/quantum")}>
+         Quantum Lab
+      </button>
     </div>
   );
 }
@@ -187,6 +194,7 @@ export default function App() {
         <Route path="/em" element={<EMLab />} />
         <Route path="/sid" element={<SidebarPhysicsLab />} />
         <Route path="/digital" element={<DigitalGateLab />} />
+        <Route path="/quantum" element={<QuantumSideLab/>} />
       </Routes>
     </Router>
   );
