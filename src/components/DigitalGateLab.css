@@ -1,4 +1,4 @@
-.digital-lab {
+ .digital-lab {
   display: flex;
   gap: 12px;
   background: #020617;
@@ -54,4 +54,27 @@
   background: rgba(255,255,255,0.05);
   border-radius: 8px;
   text-align: center;
+}
+/* ===============================
+   Back Button
+   =============================== */
+
+.digital-back-btn {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: #020617;
+  border: 1px solid #64748b;
+  color: #cbd5f5;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.digital-back-btn:hover {
+  border-color: #38bdf8;
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.08);
 }
