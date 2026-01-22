@@ -38,7 +38,18 @@ export default function PendulumEnergyLab() {
       const TE = mass * g * (length / 100) * (1 - Math.cos(theta0));
       const KE = Math.max(0, TE - PE);
 
-      energyData.current.push({ KE, PE });
+       const alpha = 0.15; // smoothing factor (0.1–0.25 ideal)
+
+const last = energyData.current[energyData.current.length - 1];
+
+const smoothKE = last ? last.KE + alpha * (KE - last.KE) : KE;
+const smoothPE = last ? last.PE + alpha * (PE - last.PE) : PE;
+
+energyData.current.push({
+  KE: smoothKE,
+  PE: smoothPE
+});
+
       if (energyData.current.length > 260) energyData.current.shift();
 
       /* ===== PENDULUM ===== */
