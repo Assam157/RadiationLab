@@ -20,7 +20,7 @@ const gates = {
 /* ================= BULB SPRITE ================= */
 
 const bulbImg = new Image();
-bulbImg.src = "https://dexterslabortory.onrender.com/bulby.png";
+bulbImg.src = "https://github.com/Assam157/RadiationLab/blob/main/public/bulby.png";
 
 export default function DigitalGateLab() {
   const canvasRef = useRef(null);
@@ -271,5 +271,6 @@ export default function DigitalGateLab() {
     </div>
   );
 }
+
 
 
