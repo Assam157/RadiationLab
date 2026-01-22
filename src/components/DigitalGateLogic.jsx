@@ -272,9 +272,3 @@ export default function DigitalGateLab() {
   );
 }
 
-
-
-
-
-
-
