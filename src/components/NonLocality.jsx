@@ -2,8 +2,8 @@
 import "./QuantumLab.css";
 
 /* ================= CONSTANTS ================= */
-const W = 1400;
-const H = 800;
+const W = 1200;
+const H = 700;
 const SOURCE_X = 150;
 const SLIT_X = 600;
 const DETECTOR_X = 1150;
@@ -191,12 +191,7 @@ export default function QuantumWaveNonLocality() {
         </button>
       </div>
 
-      <p className="lab-note">
-        The incident quantum wave reaches the slit and splits into
-        multiple momentum components (rays).  
-        These rays are not particle paths, but directions of the
-        wavefunction. Measurement collapses the wave to one outcome.
-      </p>
+     
     </div>
   );
 }

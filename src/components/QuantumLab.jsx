@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import BellLocalHiddenVariableLab from "./HiddenLocaalVariable";
 import QuantumWaveNonLocality from "./NonLocality";
+import CHSHInequalityLab from "./CHSHinequlity";
+
 
 import "./QuantumLab.css";
 
@@ -57,9 +59,15 @@ export default function QuantumSideLab() {
           🌊 Quantum Wave Non-Locality
         </button>
 
-        <button className="ql-exp-btn disabled" disabled>
-          CHSH Inequality (Coming Soon)
-        </button>
+         <button
+  className={`ql-exp-btn ${
+    activeExperiment === "chsh" ? "active" : ""
+  }`}
+  onClick={() => setActiveExperiment("chsh")}
+>
+  📐 CHSH Inequality
+</button>
+
       </div>
 
       {/* ================= CENTER PANEL ================= */}
@@ -75,6 +83,15 @@ export default function QuantumSideLab() {
             </div>
           </>
         )}
+        {activeExperiment === "chsh" && (
+  <>
+    <CHSHInequalityLab />
+    <div className="ql-overlay-title">
+      CHSH Inequality — Quantum Violation
+    </div>
+  </>
+)}
+
 
         {activeExperiment === "wave" && (
           <>

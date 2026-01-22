@@ -1,12 +1,17 @@
 import React, { useRef, useEffect, useState } from "react";
 
 /* =====================================================
+   GLOBAL CANVAS SIZE
+   ===================================================== */
+const W = 1200;
+const H = 700;
+
+/* =====================================================
    Bell Experiment — Local Hidden Variable (EMBED SAFE)
    ===================================================== */
 
 export default function BellLocalHiddenVariableLab() {
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
 
   /* ===== State ===== */
   const [lambda, setLambda] = useState(1);
@@ -17,36 +22,24 @@ export default function BellLocalHiddenVariableLab() {
     Math.cos(((analyzerAngle - phi) * Math.PI) / 180) * lambda;
   const spinUp = measurement >= 0;
 
-  /* ===== Resize ===== */
-  const resizeCanvas = () => {
+  /* ===== INIT CANVAS (GLOBAL SIZE) ===== */
+  useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d");
 
     const dpr = window.devicePixelRatio || 1;
-    const rect = container.getBoundingClientRect();
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = `${W}px`;
+    canvas.style.height = `${H}px`;
 
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-
-  useEffect(() => {
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-    return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
   /* ===== DRAW ===== */
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
     const ctx = canvas.getContext("2d");
-    const { width: W, height: H } = container.getBoundingClientRect();
 
     /* ===== BACKGROUND ===== */
     ctx.fillStyle = "#0b1320";
@@ -63,8 +56,19 @@ export default function BellLocalHiddenVariableLab() {
     ctx.strokeStyle = "#4fd1c5";
     ctx.lineWidth = 2;
 
-    ctx.strokeRect(leftX - panelW / 2, centerY - panelH / 2, panelW, panelH);
-    ctx.strokeRect(rightX - panelW / 2, centerY - panelH / 2, panelW, panelH);
+    ctx.strokeRect(
+      leftX - panelW / 2,
+      centerY - panelH / 2,
+      panelW,
+      panelH
+    );
+
+    ctx.strokeRect(
+      rightX - panelW / 2,
+      centerY - panelH / 2,
+      panelW,
+      panelH
+    );
 
     /* Titles */
     ctx.fillStyle = "#ffffff";
@@ -84,7 +88,7 @@ export default function BellLocalHiddenVariableLab() {
     ctx.stroke();
     ctx.restore();
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#ffffff";
     ctx.font = "14px Arial";
     ctx.fillText(`Hidden Axis φ = ${phi}°`, leftX - 80, centerY + 110);
 
@@ -127,7 +131,6 @@ export default function BellLocalHiddenVariableLab() {
     ctx.lineTo(0, dir * 55);
     ctx.stroke();
 
-    /* Arrow head */
     ctx.beginPath();
     ctx.moveTo(0, dir * 55);
     ctx.lineTo(-6, dir * 45);
@@ -144,32 +147,26 @@ export default function BellLocalHiddenVariableLab() {
     ctx.fillText("−1", cx - 8, cy + R + 20);
 
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(
-      `Analyzer Angle θ = ${analyzerAngle}°`,
-      cx - 85,
-      cy + 110
-    );
-
+    ctx.fillText(`Analyzer Angle θ = ${analyzerAngle}°`, cx - 85, cy + 110);
     ctx.fillText(
       `Spin Outcome: ${spinUp ? "+1 (↑)" : "−1 (↓)"}`,
       cx - 85,
       cy + 135
     );
-
   }, [phi, lambda, analyzerAngle, spinUp]);
 
   /* ===== UI ===== */
   return (
     <div
-      ref={containerRef}
       style={{
         position: "relative",
-        width: "100%",
-        height: "100%",
-        background: "#0b1320"
+        width: W,
+        height: H,
+        background: "#0b1320",
+        margin: "0 auto"
       }}
     >
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+      <canvas ref={canvasRef} />
 
       <div
         style={{
@@ -187,14 +184,21 @@ export default function BellLocalHiddenVariableLab() {
       >
         <div>
           <label>Hidden Axis φ</label><br />
-          <input type="range" min="0" max="180" value={phi}
-            onChange={(e) => setPhi(+e.target.value)} />
+          <input
+            type="range"
+            min="0"
+            max="180"
+            value={phi}
+            onChange={(e) => setPhi(+e.target.value)}
+          />
         </div>
 
         <div>
           <label>Hidden λ</label><br />
-          <select value={lambda}
-            onChange={(e) => setLambda(+e.target.value)}>
+          <select
+            value={lambda}
+            onChange={(e) => setLambda(+e.target.value)}
+          >
             <option value={1}>+1</option>
             <option value={-1}>−1</option>
           </select>
@@ -202,8 +206,13 @@ export default function BellLocalHiddenVariableLab() {
 
         <div>
           <label>Analyzer θ</label><br />
-          <input type="range" min="0" max="180" value={analyzerAngle}
-            onChange={(e) => setAnalyzerAngle(+e.target.value)} />
+          <input
+            type="range"
+            min="0"
+            max="180"
+            value={analyzerAngle}
+            onChange={(e) => setAnalyzerAngle(+e.target.value)}
+          />
         </div>
       </div>
     </div>
