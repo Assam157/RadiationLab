@@ -173,7 +173,7 @@ function DexterHome() {
         🧩 Digital Lab
       </button>
        <button className="lab-btn" onClick={() => navigate("/quantum")}>
-         Quantum Lab
+         ⚛️ Quantum Lab
       </button>
     </div>
   );
