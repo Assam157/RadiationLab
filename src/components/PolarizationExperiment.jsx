@@ -133,7 +133,7 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
         drawPointSource(60, H / 2, 1);
 
         drawHexCrystal(260, t1, "Crystal 1");
-        const I1 = Math.cos(t1) ** 2;
+        const I1 = 1;
         drawField(300, 420, t1, I1);
 
         drawHexCrystal(480, t2, "Crystal 2");

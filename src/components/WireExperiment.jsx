@@ -122,12 +122,12 @@ export default function WireExperiment() {
       <canvas ref={canvasRef} width={W} height={H} />
 
       {/* CONTROL PANEL */}
-      <div className="cinema-energy" style={{ color: "#000" }}>
-        <div className="label" style={{ color: "#000" }}>
+      <div className="cinema-energy" style={{ color: "#eae6e6" }}>
+        <div className="label" style={{ color: "#faf7f7" }}>
           CURRENT INTENSITY
         </div>
 
-        <div className="value" style={{ color: "#000", textShadow: "none" }}>
+        <div className="value" style={{ color: "#fcf7f7", textShadow: "none" }}>
           {intensity.toFixed(2)}
         </div>
 
@@ -137,16 +137,18 @@ export default function WireExperiment() {
           max="1"
           step="0.01"
           value={intensity}
+          
           onChange={e => setIntensity(+e.target.value)}
         />
 
-        <div className="panel-hint" style={{ color: "#000" }}>
+        <div    className="note"
+  style={{ color: "#ffffff" }}>
           Use A / D keys
         </div>
 
         <div
           className="panel-section"
-          style={{ color: "#000", opacity: 1 }}
+          style={{ color: "#fcfcfc", opacity: 1 }}
         >
           CURRENT DIRECTION
         </div>

@@ -20,12 +20,20 @@ export default function EMLab() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("wire");
 
-  return (
-    <div className="lab-root">
-      {/* ================= LEFT PANEL ================= */}
-      <div className="lab-panel">
-        <div className="experiment-shell">
-          
+ return (
+  <div className="lab-root">
+    {/* ================= LEFT PANEL ================= */}
+    <div className="lab-panel">
+      <div className="experiment-shell">
+
+        {/* BACK TO CANVAS */}
+        <button
+          className="panel-btn back-btn"
+          onClick={() => navigate("/")}
+        >
+          ← Back to Canvas
+        </button>
+
         <div className="lab-panel-title">EXPERIMENTS</div>
 
         <button
@@ -76,37 +84,38 @@ export default function EMLab() {
         >
           Electron Boxes
         </button>
-        </div>
-            <button className="carousel-arrow right">›</button>
       </div>
 
-      {/* ================= CENTER VIEWPORT ================= */}
-      <div className="lab-canvas-wrap">
-        {/* GLOBAL VIEWPORT */}
-        <div
-          className="global-canvas-frame"
-          style={{
-            width: GLOBAL_W,
-            height: GLOBAL_H
-          }}
-        >
-          {/* SCALE LAYER */}
-          <div className="global-canvas-scale">
-            {mode === "wire" && <WireExperiment />}
-            {mode === "atom" && <AtomExperiment />}
-            {mode === "bandgap" && <BandGapExperiment />}
-            {mode === "faraday" && <FaradayExperiment />}
-            {mode === "wave" && <WaveInterferenceExperiment />}
-            {mode === "vi" && <VICircuit />}
-            {mode === "boxes" && <OrbitalBoxes />}
-          </div>
-        </div>
-
-        {/* BACK */}
-        <button className="lab-back" onClick={() => navigate("/")}>
-          ← BACK
-        </button>
-      </div>
+      {/* Optional carousel arrow (unchanged) */}
+      <button className="carousel-arrow right">›</button>
     </div>
-  );
+
+    {/* ================= CENTER VIEWPORT ================= */}
+    <div className="lab-canvas-wrap">
+      <div
+        className="global-canvas-frame"
+        style={{
+          width: GLOBAL_W,
+          height: GLOBAL_H
+        }}
+      >
+        <div className="global-canvas-scale">
+          {mode === "wire" && <WireExperiment />}
+          {mode === "atom" && <AtomExperiment />}
+          {mode === "bandgap" && <BandGapExperiment />}
+          {mode === "faraday" && <FaradayExperiment />}
+          {mode === "wave" && <WaveInterferenceExperiment />}
+          {mode === "vi" && <VICircuit />}
+          {mode === "boxes" && <OrbitalBoxes />}
+        </div>
+      </div>
+
+      {/* EXISTING BACK BUTTON (can keep or remove if redundant) */}
+      <button className="lab-back" onClick={() => navigate("/")}>
+        ← BACK
+      </button>
+    </div>
+  </div>
+);
+
 }

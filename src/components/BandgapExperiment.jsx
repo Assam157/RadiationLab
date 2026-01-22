@@ -263,8 +263,10 @@ if (prevLevel !== null && level > prevLevel) {
       <canvas ref={canvasRef} width={W} height={H} />
 
       <div className="cinema-energy">
-        <div className="label">INPUT ENERGY</div>
-        <div className="value">{energy.toFixed(2)}</div>
+        <div className="label"   
+  style={{ color: "#ffffff" }}>INPUT ENERGY</div>
+        <div className="value"    
+  style={{ color: "#ffffff" }}>{energy.toFixed(2)}</div>
 
         <input
           type="range"
@@ -272,10 +274,11 @@ if (prevLevel !== null && level > prevLevel) {
           max="1"
           step="0.01"
           value={energy}
+          
           onChange={(e) => setEnergy(+e.target.value)}
         />
 
-        <div className="panel-hint">
+        <div className="panel-hint"   style={{ color: "#ffffff" }}>
           Arrow = electronic transition
           <br />
           Waves = photons emitted during downward transition

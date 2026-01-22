@@ -194,8 +194,10 @@ export default function AtomExperiment() {
       <canvas ref={canvasRef} width={W} height={H} />
 
       <div className="cinema-energy">
-        <div className="label">EXCITATION ENERGY</div>
-        <div className="value">{energy.toFixed(2)}</div>
+        <div   className="note"
+  style={{ color: "#ffffff" }}>EXCITATION ENERGY</div>
+        <div   className="note"
+  style={{ color: "#ffffff" }}>{energy.toFixed(2)}</div>
 
         <input
           type="range"
@@ -213,7 +215,8 @@ export default function AtomExperiment() {
           {paused ? "▶ Resume Rotation" : "⏸ Stop Rotation"}
         </button>
 
-        <div className="panel-hint">
+        <div className="panel-hint"   
+  style={{ color: "#ffffff" }}>
           Rotation can be frozen to observe quantum transitions
         </div>
       </div>
