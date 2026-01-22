@@ -13,6 +13,7 @@ import EMLab from "./components/EMLab";
 import DigitalGateLab from "./components/DigitalGateLogic";
 import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
 import QuantumSideLab from "./components/QuantumLab";
+import ChemLab from "./components/ChemistrySideLab";
 import "./App.css";
 
 /* ==============================
@@ -152,6 +153,9 @@ function DexterHome() {
       <button className="lab-btn" onClick={() => navigate("/radiation")}>
         ☢ Radiation Physics Lab
       </button>
+       <button className="lab-btn" onClick={() => navigate("/chemistry")}>
+        Chemistry Lab
+      </button>
 
       <button className="lab-btn" onClick={() => navigate("/optical")}>
         🔍 Optical Deflection Lab
@@ -195,6 +199,7 @@ export default function App() {
         <Route path="/sid" element={<SidebarPhysicsLab />} />
         <Route path="/digital" element={<DigitalGateLab />} />
         <Route path="/quantum" element={<QuantumSideLab/>} />
+        <Route path="/chemistry" element={<ChemLab/>}/>
       </Routes>
     </Router>
   );
