@@ -120,16 +120,23 @@
 /* ===============================
    INFO BOX
    =============================== */
-
-.ql-info-box {
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
+ .ql-info-box {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: 1px solid #334155;
   background: #020617;
   color: #60a5fa;
-  font-size: 14px;
+  font-size: 13px;
+
+  display: flex;              /* 🔑 */
+  align-items: center;        /* vertical centering */
+  gap: 12px;                  /* spacing between items */
+  white-space: nowrap;        /* keep single line */
+  
 }
+
+
 /* ===============================
    BACK BUTTON
    =============================== */
@@ -243,5 +250,16 @@
 
   .ql-info-box {
     font-size: 13px;
+  }
+}
+@media (max-width: 768px) {
+  .ql-root {
+    height: auto;          /* allow natural height */
+    min-height: 100vh;     /* still fill screen */
+    overflow-y: auto;      /* ENABLE SCROLL */
+  }
+
+  .ql-controls {
+    overflow-y: auto;     /* scroll controls if long */
   }
 }
