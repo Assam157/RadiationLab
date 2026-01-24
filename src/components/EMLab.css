@@ -170,3 +170,17 @@ body {
     min-height: 120vh;       /* force scrollable height */
   }
 }
+/* ======================================================
+   MOBILE LANDSCAPE SCROLL FIX (CANVAS)
+   ====================================================== */
+@media (max-width: 900px) and (orientation: landscape) {
+  .lab-canvas-full {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lab-canvas-full canvas {
+    min-height: 140vh; /* force vertical overflow */
+  }
+}
+
