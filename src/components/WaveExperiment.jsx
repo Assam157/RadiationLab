@@ -92,9 +92,9 @@ export default function WaveInterferenceExperiment() {
       />
 
       {/* Controls */}
-      <div className="controls">
+      <div className="controls" style={{color:"black"}}>
         <div>
-          <label>Amplitude Wave 1: {amp1}</label>
+          <label style={{color:"black"}}>Amplitude Wave 1: {amp1}</label>
           <input
             type="range"
             min="0"
@@ -105,7 +105,7 @@ export default function WaveInterferenceExperiment() {
         </div>
 
         <div>
-          <label>Amplitude Wave 2: {amp2}</label>
+          <label style={{color:"black"}}>Amplitude Wave 2: {amp2}</label>
           <input
             type="range"
             min="0"
@@ -116,7 +116,7 @@ export default function WaveInterferenceExperiment() {
         </div>
 
         <div>
-          <label>Phase Difference (ϕ): {phase.toFixed(2)} rad</label>
+          <label style={{color:"black"}}>Phase Difference (ϕ): {phase.toFixed(2)} rad</label>
           <input
             type="range"
             min="0"
@@ -129,7 +129,7 @@ export default function WaveInterferenceExperiment() {
 
         {/* 🔹 NEW frequency controls */}
         <div>
-          <label>Frequency Wave 1: {freq1.toFixed(3)}</label>
+          <label style={{color:"black"}}>Frequency Wave 1: {freq1.toFixed(3)}</label>
           <input
             type="range"
             min="0.005"
@@ -141,7 +141,7 @@ export default function WaveInterferenceExperiment() {
         </div>
 
         <div>
-          <label>Frequency Wave 2: {freq2.toFixed(3)}</label>
+          <label style={{color:"black"}}>Frequency Wave 2: {freq2.toFixed(3)}</label>
           <input
             type="range"
             min="0.005"
@@ -166,7 +166,7 @@ export default function WaveInterferenceExperiment() {
 
      <p
   className="note"
-  style={{ color: "#ffffff" }}
+  style={{ color: "#070303" }}
 >
   Different frequencies produce beating patterns; equal frequencies with
   phase ≈ π cause destructive interference.

@@ -195,9 +195,9 @@ export default function AtomExperiment() {
 
       <div className="cinema-energy">
         <div   className="note"
-  style={{ color: "#ffffff" }}>EXCITATION ENERGY</div>
+  style={{ color: "#0b0404" }}>EXCITATION ENERGY</div>
         <div   className="note"
-  style={{ color: "#ffffff" }}>{energy.toFixed(2)}</div>
+  style={{ color: "#0c0606" }}>{energy.toFixed(2)}</div>
 
         <input
           type="range"
@@ -216,7 +216,7 @@ export default function AtomExperiment() {
         </button>
 
         <div className="panel-hint"   
-  style={{ color: "#ffffff" }}>
+  style={{ color: "#070404" }}>
           Rotation can be frozen to observe quantum transitions
         </div>
       </div>

@@ -136,70 +136,131 @@ export default function VICircuit() {
 
   /* ---------------- CIRCUIT ---------------- */
 
-  function drawCircuit(ctx) {
-    // MAIN LOOP
-    wire(ctx, 160, 320, 420, 320);
-    wire(ctx, 420, 320, 420, 180);
-    wire(ctx, 420, 180, 860, 180);
-    wire(ctx, 860, 180, 860, 500);
-    wire(ctx, 860, 500, 420, 500);
-    wire(ctx, 420, 500, 420, 320);
+   function drawCircuit(ctx) {
+  ctx.font = "14px sans-serif";
+  ctx.fillStyle = "#000";
 
-    // BATTERY
-    wire(ctx, 140, 290, 140, 350);
-    wire(ctx, 120, 305, 120, 335);
-    ctx.fillText("Battery 10V", 80, 370);
+  /* ================= WIRES ================= */
 
-    // SWITCH
-    ctx.beginPath();
-    ctx.moveTo(160, 320);
-    ctx.lineTo(connected ? 190 : 180, connected ? 320 : 285);
-    ctx.stroke();
-    ctx.fillText(connected ? "Closed" : "Open", 155, 280);
+  // Bottom wire
+  wire(ctx, 200, 460, 900, 460);
 
-    // VOLTMETER (SERIES ON TOP)
-    analogMeter(ctx, 420, 180, "V", connected ? V : 0, 10, "V");
+  // Left vertical
+  wire(ctx, 200, 460, 200, 260);
 
-    // POTENTIOMETER
-    const potX = 360;
-    const potY = 300;
+  // Top wire (with resistors)
+  wire(ctx, 200, 260, 350, 260); // to R1
+  wire(ctx, 450, 260, 600, 260); // between R1 & R2
+  wire(ctx, 700, 260, 900, 260); // after R2
 
-    ctx.strokeRect(potX, potY, 140, 50);
-    ctx.beginPath();
-    ctx.moveTo(potX + 10, potY + 25);
-    ctx.lineTo(potX + 130, potY + 25);
-    ctx.stroke();
+  // Right vertical
+  wire(ctx, 900, 260, 900, 460);
 
-    const knobX = potX + 10 + (R / 50) * 120;
-    ctx.beginPath();
-    ctx.arc(knobX, potY + 25, 6, 0, Math.PI * 2);
-    ctx.fill();
+  /* ================= BATTERY ================= */
 
-    ctx.fillText(`R = ${R} Ω`, potX + 40, potY + 85);
+ wire(ctx, 300, 430, 300, 490); // long plate
+wire(ctx, 280, 445, 280, 475); // short plate
+ctx.fillText("10 V Battery", 230, 515);
 
-    // AMMETER (PARALLEL, ROTATED)
-    ctx.save();
-    ctx.translate(970, 320);
-    ctx.rotate(Math.PI / 2);
-    analogMeter(ctx, 0, 0, "A", connected ? I : 0, 2, "A");
-    ctx.restore();
 
-    // PARALLEL WIRES
-    wire(ctx, 860, 180, 930, 180);
-    wire(ctx, 930, 180, 930, 230);
-    wire(ctx, 860, 500, 930, 500);
-    wire(ctx, 930, 500, 930, 410);
-    
 
-    // CURRENT FLOW
-    if (connected) {
-      flow(ctx, 160, 320, 420, 320, 0);
-      flow(ctx, 420, 320, 420, 180, -Math.PI / 2);
-      flow(ctx, 420, 180, 860, 180, 0);
-      flow(ctx, 860, 180, 860, 500, Math.PI / 2);
-      flow(ctx, 860, 500, 420, 500, Math.PI);
-    }
+  /* ================= SWITCH ================= */
+
+  ctx.beginPath();
+  ctx.moveTo(200, 260);
+  ctx.lineTo(connected ? 230 : 220, connected ? 260 : 230);
+  ctx.stroke();
+  ctx.fillText(connected ? "Closed" : "Open", 190, 220);
+
+  /* ================= R1 ================= */
+
+ /* ================= R1 ================= */
+
+ctx.strokeRect(350, 235, 100, 50);
+ctx.fillText("R₁", 390, 230);
+
+// Slider track (R1)
+ctx.strokeStyle = "#dc2626";
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.moveTo(360, 260);
+ctx.lineTo(440, 260);
+ctx.stroke();
+
+// Slider knob (R1)
+const k1 = 360 + (R / 50) * 80;
+ctx.fillStyle = "#dc2626";
+ctx.beginPath();
+ctx.arc(k1, 260, 5, 0, Math.PI * 2);
+ctx.fill();
+
+// R1 value
+ctx.fillStyle = "#000";
+ctx.font = "13px sans-serif";
+ctx.fillText(`R₁ = ${R} Ω`, 360, 305);
+
+
+/* ================= R2 ================= */
+
+ctx.strokeRect(600, 235, 100, 50);
+ctx.fillText("R₂", 640, 230);
+
+// Slider track (R2)
+ctx.strokeStyle = "#dc2626";
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.moveTo(610, 260);
+ctx.lineTo(690, 260);
+ctx.stroke();
+
+// Slider knob (R2)
+const k2 = 610 + (R / 50) * 80;
+ctx.fillStyle = "#dc2626";
+ctx.beginPath();
+ctx.arc(k2, 260, 5, 0, Math.PI * 2);
+ctx.fill();
+
+// R2 value
+ctx.fillStyle = "#000";
+ctx.font = "13px sans-serif";
+ctx.fillText(`R₂ = ${R} Ω`, 610, 305);
+
+
+/* ================= NET RESISTANCE ================= */
+
+ctx.font = "14px sans-serif";
+ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
+
+  /* ================= VOLTMETER (ACROSS R1) ================= */
+
+  // parallel connections
+  wire(ctx, 350, 260, 350, 180);
+  wire(ctx, 450, 260, 450, 180);
+
+  analogMeter(ctx, 400, 150, "V", connected ? V : 0, 10, "V");
+
+  /* ================= AMMETER (SERIES RIGHT) ================= */
+
+  ctx.save();
+  ctx.translate(930, 360);
+  ctx.rotate(Math.PI / 2);
+  analogMeter(ctx, 0, 0, "A", connected ? I : 0, 2, "A");
+  ctx.restore();
+
+  wire(ctx, 900, 260, 930, 260);
+  wire(ctx, 900, 460, 930, 460);
+
+  /* ================= CURRENT FLOW ================= */
+
+  if (connected) {
+    flow(ctx, 200, 460, 200, 260, -Math.PI / 2);
+    flow(ctx, 200, 260, 350, 260, 0);
+    flow(ctx, 450, 260, 600, 260, 0);
+    flow(ctx, 700, 260, 900, 260, 0);
+    flow(ctx, 900, 260, 900, 460, Math.PI / 2);
   }
+}
+
 
   return (
     <div style={{ textAlign: "center" }}>

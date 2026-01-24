@@ -264,9 +264,9 @@ if (prevLevel !== null && level > prevLevel) {
 
       <div className="cinema-energy">
         <div className="label"   
-  style={{ color: "#ffffff" }}>INPUT ENERGY</div>
+  style={{ color: "#0f0606" }}>INPUT ENERGY</div>
         <div className="value"    
-  style={{ color: "#ffffff" }}>{energy.toFixed(2)}</div>
+  style={{ color: "#100707" }}>{energy.toFixed(2)}</div>
 
         <input
           type="range"
