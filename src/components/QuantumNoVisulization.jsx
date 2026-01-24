@@ -111,16 +111,7 @@ export default function QuantumAbstractLab() {
         overflow: "hidden",
       }}
     >
-      {/* ================= LEFT PANEL ================= */}
-      <div style={{ padding: "16px", borderRight: "1px solid #1e293b" }}>
-        <h3>Quantum Numbers</h3>
-        <p>n → shell size</p>
-        <p>ℓ → orbital shape</p>
-        <p>mℓ → orientation</p>
-        <p style={{ opacity: 0.7 }}>
-          Abstract, not probability density
-        </p>
-      </div>
+      
 
       {/* ================= CENTER PANEL ================= */}
       <div
