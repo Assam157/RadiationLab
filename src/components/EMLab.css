@@ -184,3 +184,21 @@ body {
   }
 }
 
+/* ======================================================
+   HARD FIX: MOBILE LANDSCAPE SCROLL UNLOCK
+   ====================================================== */
+@media (max-width: 900px) and (orientation: landscape) {
+  .lab-vertical-root {
+    height: auto;        /* 🔓 unlock scroll */
+    min-height: 100vh;
+  }
+
+  .lab-canvas-full {
+    overflow-y: scroll;
+    touch-action: pan-y;
+  }
+
+  .lab-canvas-full canvas {
+    min-height: 160vh;   /* must exceed viewport */
+  }
+}
