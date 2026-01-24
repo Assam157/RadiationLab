@@ -15,6 +15,7 @@ import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
 import QuantumSideLab from "./components/QuantumLab";
 import ChemLab from "./components/ChemistrySideLab";
 import "./App.css";
+import PNJunctionDiffusion from "./components/PNJunctionDIode";
 
 /* ==============================
    MAIN MENU
@@ -154,7 +155,7 @@ function DexterHome() {
         ☢ Radiation Physics Lab
       </button>
        <button className="lab-btn" onClick={() => navigate("/chemistry")}>
-        🧪 Chemistry Lab
+       🧪 Chemistry Lab
       </button>
 
       <button className="lab-btn" onClick={() => navigate("/optical")}>
@@ -200,6 +201,13 @@ export default function App() {
         <Route path="/digital" element={<DigitalGateLab />} />
         <Route path="/quantum" element={<QuantumSideLab/>} />
         <Route path="/chemistry" element={<ChemLab/>}/>
+ 
+              <Route
+          path="PN"
+          element={<PNJunctionDiffusion/>}
+        
+        />
+   
       </Routes>
     </Router>
   );
