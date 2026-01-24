@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./ChemLab.css"
 
 /* ===== Indicator color logic ===== */
 const indicators = {
