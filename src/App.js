@@ -154,7 +154,7 @@ function DexterHome() {
         ☢ Radiation Physics Lab
       </button>
        <button className="lab-btn" onClick={() => navigate("/chemistry")}>
-        Chemistry Lab
+        🧪 Chemistry Lab
       </button>
 
       <button className="lab-btn" onClick={() => navigate("/optical")}>
