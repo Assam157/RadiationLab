@@ -263,3 +263,41 @@
     overflow-y: auto;     /* scroll controls if long */
   }
 }
+/* ===============================
+   CANVAS — SCROLL + PINCH (CSS ONLY)
+   =============================== */
+
+/* Center view must allow scrolling */
+.ql-center {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make ALL canvases scrollable + zoomable */
+.ql-center canvas {
+  display: block;
+  margin: 0 auto;
+
+  /* Allow natural pinch zoom */
+  touch-action: pan-x pan-y pinch-zoom;
+
+  /* Prevent browser from locking gestures */
+  max-width: none;
+  max-height: none;
+}
+
+/* Mobile-specific behavior */
+@media (max-width: 768px) {
+  .ql-center {
+    overflow: auto;
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+
+  .ql-center canvas {
+    width: max-content;   /* allows horizontal scroll */
+    height: max-content;  /* allows vertical scroll */
+  }
+}
+html, body {
+  overscroll-behavior: contain;
+}
