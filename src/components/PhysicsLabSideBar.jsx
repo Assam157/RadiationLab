@@ -9,6 +9,7 @@ import HeatingCurveWithParticles from "./StateTemp";
 import PendulumEnergyLab from "./PendulamExperiment";
 import DampedPendulumEnergyLab from "./DampedPendulamExperiment";
 import HorizontalSpringWithFriction from "./SHMHorizental";
+import BuoyancyLab from "./WaterBuyoncy";
 import SHMLab from "./SHMexperiment";
 
 import "./SidebarPhysicsLab.css";
@@ -92,6 +93,12 @@ export default function SidebarPhysicsLab() {
         >
           Heating State Change
         </button>
+         <button
+          className={activeLab === "buyoncy" ? "active" : ""}
+          onClick={() => setActiveLab("buyoncy")}
+        >
+           Water Buyoncy Experiment
+        </button>
       </div>
 
       {/* ================= LAB VIEW ================= */}
@@ -114,6 +121,7 @@ export default function SidebarPhysicsLab() {
             {activeLab === "damp_pendulam" && <DampedPendulumEnergyLab/>}
             {activeLab === "shm" && <SHMLab/>}
             {activeLab === "horizentalshm" && <HorizontalSpringWithFriction/>}
+            {activeLab === "buyoncy" && <BuoyancyLab/>}
           </div>
         </div>
       </div>
