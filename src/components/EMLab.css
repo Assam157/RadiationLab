@@ -157,3 +157,16 @@ body {
     font-size: 12px;
   }
 }
+/* ======================================================
+   MOBILE SCROLL ENABLE (CANVAS AREA ONLY)
+   ====================================================== */
+@media (max-width: 768px) {
+  .lab-canvas-full {
+    overflow: auto;          /* allow scroll */
+    -webkit-overflow-scrolling: touch; /* smooth iOS scroll */
+  }
+
+  .lab-canvas-full canvas {
+    min-height: 120vh;       /* force scrollable height */
+  }
+}
