@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,BrowserRouter,Routes,Route } from "react-router-dom";
 import "./RadiationDexterLab.css";
+import PNJunctionDiffusion from "./PNJunctionDIode";
 
 const W = 700;
 const H = 420;
@@ -216,6 +217,14 @@ export default function SemiconductorDexterLab() {
             {m}
           </button>
         ))}
+        <button
+  className="experiment-card"
+  onClick={() => navigate("/PN")}
+>
+  <h3>🔌 Semiconductor Dexter Lab</h3>
+  <p>Photoelectric emission in semiconductors</p>
+</button>
+
 
         <button style={{ marginTop: 20 }} onClick={() => navigate("/")}>
           ⬅ BACK TO CONSOLE
@@ -254,6 +263,8 @@ export default function SemiconductorDexterLab() {
           onChange={(e) => setAmount(+e.target.value)}
         />
       </div>
+ 
+
     </div>
   );
 }

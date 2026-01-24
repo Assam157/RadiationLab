@@ -35,14 +35,7 @@ export default function ChemLab() {
             Acid–Base Indicator
           </button>
 
-          {/* Future experiments */}
-          <button className="panel-btn disabled">
-            Acid–Base Titration (soon)
-          </button>
-
-          <button className="panel-btn disabled">
-            pH Curve Analysis (soon)
-          </button>
+          
 
         </div>
       </div>
