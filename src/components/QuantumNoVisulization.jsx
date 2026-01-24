@@ -114,19 +114,22 @@ export default function QuantumAbstractLab() {
       
 
       {/* ================= CENTER PANEL ================= */}
-       <div
+ <div
   style={{
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
 
-    width: "500%",
-    height: "500%",
+    width: "100vw",
+    height: "100vh",
 
-    overflow: "auto",                // 🔑 ENABLE SCROLL
-    WebkitOverflowScrolling: "touch" // 📱 smooth mobile scroll
+    overflowX: "auto",                 // 🔑 horizontal
+    overflowY: "auto",                 // 🔑 vertical
+    WebkitOverflowScrolling: "touch",  // 📱 smooth scroll
+    touchAction: "pan-x pan-y",         // 📱 allow both directions
   }}
 >
+
 
         <canvas
           ref={canvasRef}
