@@ -15,6 +15,7 @@ import SidebarPhysicsLab from "./components/PhysicsLabSideBar";
 import QuantumSideLab from "./components/QuantumLab";
 import ChemLab from "./components/ChemistrySideLab";
 import "./App.css";
+import DiodeBiasLab from "./components/PN-JunctionDiodeShwoing";
 import PNJunctionDiffusion from "./components/PNJunctionDIode";
 
 /* ==============================
@@ -201,6 +202,7 @@ export default function App() {
         <Route path="/digital" element={<DigitalGateLab />} />
         <Route path="/quantum" element={<QuantumSideLab/>} />
         <Route path="/chemistry" element={<ChemLab/>}/>
+        <Route path="/PNJN" element={<DiodeBiasLab/>}/>
  
               <Route
           path="PN"
@@ -212,3 +214,4 @@ export default function App() {
     </Router>
   );
 }
+
