@@ -11,7 +11,7 @@ export default function VICircuit() {
   const [R, setR] = useState(10);
 
   const V = 10;
-  const I = connected ? V / R : 0;
+  const I = connected ? (V / R)/2 : 0;
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
@@ -276,7 +276,7 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
           {connected ? "Disconnect Battery" : "Connect Battery"}
         </button>
 
-        <button onClick={() => setR(r => Math.max(1, r - 1))} style={{ marginLeft: 10 }}>
+        <button onClick={() => setR(r => Math.max(5, r - 1))} style={{ marginLeft: 10 }}>
           − R
         </button>
 
@@ -288,4 +288,3 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
     </div>
   );
 }
-
