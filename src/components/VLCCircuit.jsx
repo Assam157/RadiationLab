@@ -237,7 +237,7 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
   wire(ctx, 350, 260, 350, 180);
   wire(ctx, 450, 260, 450, 180);
 
-  analogMeter(ctx, 400, 150, "V", connected ? V : 0, 10, "V");
+  analogMeter(ctx, 400, 150, "V", connected ? V : 0, 20, "V");
 
   /* ================= AMMETER (SERIES RIGHT) ================= */
 
@@ -288,3 +288,4 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
     </div>
   );
 }
+
