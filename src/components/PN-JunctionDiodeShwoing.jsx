@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* ===============================
    GLOBAL CANVAS DIMENSIONS
@@ -10,6 +11,7 @@ const DiodeBiasLab = () => {
   const canvasRef = useRef(null);
 
   const [bias, setBias] = useState("forward");
+  const navigate=useNavigate();
   const [orientation, setOrientation] = useState("normal"); // 👈 NEW
   const [voltage, setVoltage] = useState(0);
 
@@ -160,7 +162,18 @@ ctx.fillText("−", x0 + 60, by + 14);
 
 
   return (
+    
+ 
     <div style={styles.lab}>
+      <div style={{ background: "#020617", padding: "16px" }}>
+      {/* 🔙 Return */}
+      <button
+        style={{ marginBottom: 10 }}
+        onClick={() => navigate("/semiconductor")}
+      >
+        ⬅ Return to Semiconductor Lab
+      </button>
+      </div>
       <h2>🔬 Semiconductor Lab — PN Diode</h2>
 
       {/* Bias Toggle */}

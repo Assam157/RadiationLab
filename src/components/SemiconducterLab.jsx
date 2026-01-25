@@ -222,7 +222,7 @@ export default function SemiconductorDexterLab() {
   className="experiment-card"
   onClick={() => navigate("/PN")}
 >
-  <h3>🔌 Semiconductor Dexter Lab</h3>
+ 
   <p>Photoelectric emission in semiconductors</p>
 </button>
 <button
