@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate,BrowserRouter,Routes,Route } from "react-router-dom";
 import "./RadiationDexterLab.css";
+import DiodeBiasLab from "./PN-JunctionDiodeShwoing";
 import PNJunctionDiffusion from "./PNJunctionDIode";
 
 const W = 700;
@@ -223,6 +224,13 @@ export default function SemiconductorDexterLab() {
 >
   <h3>🔌 Semiconductor Dexter Lab</h3>
   <p>Photoelectric emission in semiconductors</p>
+</button>
+<button
+  className="experiment-card"
+  onClick={() => navigate("/PNJN")}
+>
+ 
+  <p>PN junction forwaard and reverse bia</p>
 </button>
 
 

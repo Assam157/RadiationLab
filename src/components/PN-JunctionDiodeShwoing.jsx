@@ -1,14 +1,25 @@
 import React, { useRef, useEffect, useState } from "react";
 
+/* ===============================
+   GLOBAL CANVAS DIMENSIONS
+   =============================== */
+const W = 1900;
+const H = 600;
+
 const DiodeBiasLab = () => {
   const canvasRef = useRef(null);
 
   const [bias, setBias] = useState("forward");
+  const [orientation, setOrientation] = useState("normal"); // 👈 NEW
   const [voltage, setVoltage] = useState(0);
 
-  // Diode parameters (educational model)
-  const Is = 0.000001; // saturation current
-  const Vt = 0.026; // thermal voltage
+  // Diode parameters
+  const Is = 0.000001;
+  const Vt = 0.026;
+
+  // Effective voltage based on orientation
+  const effectiveVoltage =
+    orientation === "normal" ? voltage : -voltage;
 
   // Compute current
   const getCurrent = (V) => {
@@ -19,13 +30,9 @@ const DiodeBiasLab = () => {
     }
   };
 
-  // Draw V-I graph
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
-    const W = canvas.width;
-    const H = canvas.height;
 
     ctx.clearRect(0, 0, W, H);
 
@@ -38,14 +45,17 @@ const DiodeBiasLab = () => {
     ctx.lineTo(40, H - 10);
     ctx.stroke();
 
-    // Plot curve
+    // Curve
     ctx.strokeStyle = "#22c55e";
     ctx.beginPath();
 
     for (let v = -1; v <= 1; v += 0.01) {
-      const i = getCurrent(v);
+      const i = getCurrent(
+        orientation === "normal" ? v : -v
+      );
       const x = 40 + ((v + 1) / 2) * (W - 60);
       const y = H / 2 - i * 2000;
+
       if (v === -1) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
@@ -53,7 +63,7 @@ const DiodeBiasLab = () => {
     ctx.stroke();
 
     // Operating point
-    const I = getCurrent(voltage);
+    const I = getCurrent(effectiveVoltage);
     const x = 40 + ((voltage + 1) / 2) * (W - 60);
     const y = H / 2 - I * 2000;
 
@@ -61,7 +71,93 @@ const DiodeBiasLab = () => {
     ctx.beginPath();
     ctx.arc(x, y, 5, 0, Math.PI * 2);
     ctx.fill();
-  }, [voltage, bias]);
+    // =======================================
+// FIXED: Diode + Battery Circuit (Top-Right)
+// =======================================
+
+// Anchor position
+const x0 = W - 190;
+const y0 = 35;
+const width = 130;
+const height = 70;
+
+ctx.strokeStyle = "#e5e7eb";
+ctx.lineWidth = 2;
+ctx.lineCap = "round";
+
+// ---------- Top wire (left)
+ctx.beginPath();
+ctx.moveTo(x0, y0);
+ctx.lineTo(x0 + 30, y0);
+ctx.stroke();
+
+// ---------- Diode (top branch)
+ctx.beginPath();
+if (orientation === "normal") {
+  // ▶|
+  ctx.moveTo(x0 + 30, y0 - 10);
+  ctx.lineTo(x0 + 30, y0 + 10); // cathode bar
+
+  ctx.moveTo(x0 + 30, y0 - 10);
+  ctx.lineTo(x0 + 55, y0);
+  ctx.lineTo(x0 + 30, y0 + 10);
+} else {
+  // |◀
+  ctx.moveTo(x0 + 55, y0 - 10);
+  ctx.lineTo(x0 + 55, y0 + 10); // cathode bar
+
+  ctx.moveTo(x0 + 55, y0 - 10);
+  ctx.lineTo(x0 + 30, y0);
+  ctx.lineTo(x0 + 55, y0 + 10);
+}
+ctx.stroke();
+
+// ---------- Top wire (right)
+ctx.beginPath();
+ctx.moveTo(x0 + 55, y0);
+ctx.lineTo(x0 + width, y0);
+ctx.stroke();
+
+// ---------- Right vertical wire
+ctx.beginPath();
+ctx.moveTo(x0 + width, y0);
+ctx.lineTo(x0 + width, y0 + height);
+ctx.stroke();
+
+// ---------- Battery (bottom branch)
+const by = y0 + height;
+ctx.beginPath();
+
+// Long plate (+)
+ctx.moveTo(x0 + 45, by - 28);
+ctx.lineTo(x0 + 45, by+12);
+
+// Short plate (−)
+ctx.moveTo(x0 + 58, by - 20);
+ctx.lineTo(x0 + 58, by+12);
+
+ctx.stroke();
+
+// ---------- Bottom wire
+ctx.beginPath();
+ctx.moveTo(x0 + width, by);
+ctx.lineTo(x0, by);
+ctx.stroke();
+
+// ---------- Left vertical wire
+ctx.beginPath();
+ctx.moveTo(x0, by);
+ctx.lineTo(x0, y0);
+ctx.stroke();
+
+// ---------- Labels
+ctx.fillStyle = "#94a3b8";
+ctx.font = "12px Arial";
+ctx.fillText("+", x0 + 38, by + 14);
+ctx.fillText("−", x0 + 60, by + 14);
+
+  }, [voltage, bias, orientation]);
+
 
   return (
     <div style={styles.lab}>
@@ -80,38 +176,49 @@ const DiodeBiasLab = () => {
         {bias === "forward" ? "Forward Bias" : "Reverse Bias"}
       </button>
 
+      {/* Orientation Toggle */}
+      <button
+        onClick={() =>
+          setOrientation(
+            orientation === "normal" ? "flipped" : "normal"
+          )
+        }
+        style={{
+          ...styles.toggle,
+          background: "#0ea5e9",
+        }}
+      >
+        Orientation: {orientation === "normal" ? "▶|" : "|◀"}
+      </button>
+
       {/* Voltage Slider */}
       <div style={styles.sliderBox}>
         <label>Voltage (V): {voltage.toFixed(2)}</label>
         <input
           type="range"
-          min={bias === "forward" ? 0 : -1}
-          max={bias === "forward" ? 1 : 0}
+          min={-1}
+          max={1}
           step="0.01"
           value={voltage}
           onChange={(e) => setVoltage(parseFloat(e.target.value))}
         />
       </div>
 
-      {/* Diode Indicator */}
+      {/* Diode Symbol */}
       <div style={styles.diode}>
-        <div
-          style={{
-            ...styles.terminal,
-            background: bias === "forward" ? "#22c55e" : "#64748b",
-          }}
-        />
-        <span style={{ fontSize: "24px" }}>▶|</span>
-        <div
-          style={{
-            ...styles.terminal,
-            background: bias === "reverse" ? "#ef4444" : "#64748b",
-          }}
-        />
+        <div style={styles.terminal} />
+        <span style={{ fontSize: "28px" }}>
+          {orientation === "normal" ? "▶|" : "|◀"}
+        </span>
+        <div style={styles.terminal} />
       </div>
 
-      {/* Graph */}
-      <canvas ref={canvasRef} width={600} height={300} style={styles.canvas} />
+      <canvas
+        ref={canvasRef}
+        width={W}
+        height={H}
+        style={styles.canvas}
+      />
     </div>
   );
 };
@@ -126,12 +233,13 @@ const styles = {
     fontFamily: "Arial",
   },
   toggle: {
-    padding: "10px 20px",
+    padding: "10px 16px",
     borderRadius: "8px",
     border: "none",
     color: "#fff",
     cursor: "pointer",
     marginBottom: "10px",
+    marginRight: "6px",
   },
   sliderBox: {
     margin: "10px 0",
@@ -139,13 +247,14 @@ const styles = {
   diode: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: "12px",
     marginBottom: "10px",
   },
   terminal: {
     width: "16px",
     height: "16px",
     borderRadius: "50%",
+    background: "#64748b",
   },
   canvas: {
     background: "#020617",
