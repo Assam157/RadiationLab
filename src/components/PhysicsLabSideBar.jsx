@@ -11,6 +11,9 @@ import DampedPendulumEnergyLab from "./DampedPendulamExperiment";
 import HorizontalSpringWithFriction from "./SHMHorizental";
 import BuoyancyLab from "./WaterBuyoncy";
 import SHMLab from "./SHMexperiment";
+import StaticElectricityLab from "./StaticElectricity";
+import MomentumConservationLab from "./LawOfCOnservationOfMomentum";
+import NewtonThirdLawLab from "./NewtonsThirdLaw";
 
 import "./SidebarPhysicsLab.css";
 
@@ -99,6 +102,27 @@ export default function SidebarPhysicsLab() {
         >
            Water Buyoncy Experiment
         </button>
+        <button
+  className={activeLab === "static" ? "active" : ""}
+  onClick={() => setActiveLab("static")}
+>
+  ⚡ Static Electricity
+</button>
+
+<button
+  className={activeLab === "momentum" ? "active" : ""}
+  onClick={() => setActiveLab("momentum")}
+>
+  🚀 Momentum Conservation
+</button>
+
+<button
+  className={activeLab === "thirdlaw" ? "active" : ""}
+  onClick={() => setActiveLab("thirdlaw")}
+>
+  🔄 Newton's Third Law
+</button>
+
       </div>
 
       {/* ================= LAB VIEW ================= */}
@@ -122,6 +146,9 @@ export default function SidebarPhysicsLab() {
             {activeLab === "shm" && <SHMLab/>}
             {activeLab === "horizentalshm" && <HorizontalSpringWithFriction/>}
             {activeLab === "buyoncy" && <BuoyancyLab/>}
+            {activeLab === "static" && <StaticElectricityLab />}
+            {activeLab === "momentum" && <MomentumConservationLab />}
+            {activeLab === "thirdlaw" && <NewtonThirdLawLab />}
           </div>
         </div>
       </div>
