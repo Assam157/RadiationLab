@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import "./QuantumLab.css"
+import "./QuantumLab.css";
+
 /* =========================================================
    Quantum Abstract Orbital Lab
    (Artistic / Conceptual Representation)
@@ -11,8 +12,28 @@ const subshells = ["s", "p", "d", "f", "g"];
 
 export default function QuantumAbstractLab() {
   const canvasRef = useRef(null);
+
   const [n, setN] = useState(3);
 
+  /* ===== ACTIVE CONTROL ===== */
+  const [activeControl, setActiveControl] = useState("n");
+  // future-proof: "n"
+
+  /* ================= KEYBOARD (A / D) ================= */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!["a", "A", "d", "D"].includes(e.key)) return;
+      if (activeControl !== "n") return;
+
+      const delta = e.key.toLowerCase() === "a" ? -1 : 1;
+      setN(v => Math.min(6, Math.max(1, v + delta)));
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeControl]);
+
+  /* ================= DRAW ================= */
   useEffect(() => {
     draw();
   }, [n]);
@@ -41,7 +62,6 @@ export default function QuantumAbstractLab() {
       const color = `hsl(${l * 75}, 85%, 60%)`;
 
       drawAbstractOrbital(ctx, cx, cy, radius, petals, color);
-
       drawMLSpokes(ctx, cx, cy, radius, l, color);
 
       ctx.fillStyle = color;
@@ -99,6 +119,7 @@ export default function QuantumAbstractLab() {
     ctx.globalAlpha = 1;
   }
 
+  /* ================= UI ================= */
   return (
     <div
       style={{
@@ -111,26 +132,20 @@ export default function QuantumAbstractLab() {
         overflow: "hidden",
       }}
     >
-      
-
       {/* ================= CENTER PANEL ================= */}
- <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-
-    width: "100vw",
-    height: "100vh",
-
-    overflowX: "auto",                 // 🔑 horizontal
-    overflowY: "auto",                 // 🔑 vertical
-    WebkitOverflowScrolling: "touch",  // 📱 smooth scroll
-    touchAction: "pan-x pan-y",         // 📱 allow both directions
-  }}
->
-
-
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100vw",
+          height: "100vh",
+          overflowX: "auto",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          touchAction: "pan-x pan-y",
+        }}
+      >
         <canvas
           ref={canvasRef}
           width={W}
@@ -141,8 +156,26 @@ export default function QuantumAbstractLab() {
           }}
         />
 
-        {/* Slider BELOW canvas */}
+        {/* ===== CONTROLS ===== */}
         <div style={{ width: "420px", marginTop: "14px" }}>
+          <button
+            onClick={() => setActiveControl("n")}
+            style={{
+              width: "100%",
+              marginBottom: "6px",
+              padding: "6px",
+              fontWeight: "bold",
+              borderRadius: 8,
+              border: "none",
+              cursor: "pointer",
+              background:
+                activeControl === "n" ? "#22c55e" : "#334155",
+              color: "#000",
+            }}
+          >
+            PRINCIPAL QUANTUM NUMBER (n)
+          </button>
+
           <input
             type="range"
             min="1"
@@ -151,14 +184,12 @@ export default function QuantumAbstractLab() {
             onChange={(e) => setN(Number(e.target.value))}
             style={{ width: "100%" }}
           />
+
           <div style={{ textAlign: "center", marginTop: "6px" }}>
-            Principal Quantum Number: n = {n}
+            n = {n} &nbsp; | &nbsp; Use <b>A / D</b> keys
           </div>
         </div>
       </div>
-
-     
- 
     </div>
   );
 }

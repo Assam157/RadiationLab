@@ -10,6 +10,10 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
   const [theta1, setTheta1] = useState(20);
   const [theta2, setTheta2] = useState(60);
 
+  // 0 = Crystal 1, 1 = Crystal 2
+  const [activeSlider, setActiveSlider] = useState(0);
+
+  /* ================= CANVAS ================= */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -20,19 +24,6 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
       ctx.fillRect(0, 0, W, H);
     }
 
-    /* ================= POINT SOURCE ================= */
-    function drawPointSource(x, y, I) {
-      ctx.fillStyle = `rgba(255,80,80,${I})`;
-      ctx.beginPath();
-      ctx.arc(x, y, 8, 0, Math.PI * 2);
-      ctx.fill();
-
-      for (let a = -0.4; a <= 0.4; a += 0.15) {
-        drawDoubleArrow(x + 10, y, x + 120, y + a * 80, I);
-      }
-    }
-
-    /* ================= DOUBLE ARROW ================= */
     function drawDoubleArrow(x1, y1, x2, y2, I) {
       ctx.strokeStyle = `rgba(255,80,80,${I})`;
       ctx.lineWidth = 2;
@@ -51,13 +42,29 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
       ctx.fillStyle = `rgba(255,80,80,${I})`;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.lineTo(x - s * Math.cos(angle - 0.4), y - s * Math.sin(angle - 0.4));
-      ctx.lineTo(x - s * Math.cos(angle + 0.4), y - s * Math.sin(angle + 0.4));
+      ctx.lineTo(
+        x - s * Math.cos(angle - 0.4),
+        y - s * Math.sin(angle - 0.4)
+      );
+      ctx.lineTo(
+        x - s * Math.cos(angle + 0.4),
+        y - s * Math.sin(angle + 0.4)
+      );
       ctx.closePath();
       ctx.fill();
     }
 
-    /* ================= FIELD VECTORS ================= */
+    function drawPointSource(x, y, I) {
+      ctx.fillStyle = `rgba(255,80,80,${I})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      for (let a = -0.4; a <= 0.4; a += 0.15) {
+        drawDoubleArrow(x + 10, y, x + 120, y + a * 80, I);
+      }
+    }
+
     function drawField(x1, x2, theta, I) {
       for (let x = x1; x < x2; x += 22) {
         ctx.save();
@@ -68,7 +75,6 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
       }
     }
 
-    /* ================= HEX CRYSTAL ================= */
     function drawHexCrystal(x, angle, label) {
       const r = 38;
       ctx.save();
@@ -106,10 +112,9 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
 
       ctx.fillStyle = "#cfefff";
       ctx.font = "14px monospace";
-      ctx.fillText(label, x - 28, H - 18);
+      ctx.fillText(label, x - 32, H - 18);
     }
 
-    /* ================= EYE ================= */
     function drawEye(x, y) {
       ctx.strokeStyle = "#ccc";
       ctx.lineWidth = 3;
@@ -133,7 +138,7 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
         drawPointSource(60, H / 2, 1);
 
         drawHexCrystal(260, t1, "Crystal 1");
-        const I1 = 1;
+        const I1 = Math.cos(t1) ** 2;
         drawField(300, 420, t1, I1);
 
         drawHexCrystal(480, t2, "Crystal 2");
@@ -150,6 +155,34 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [lightOn, theta1, theta2]);
 
+  /* ================= KEYBOARD CONTROLS ================= */
+  useEffect(() => {
+    function onKey(e) {
+      if (!lightOn) return;
+
+      // Switch active slider
+      if (e.key === "q" || e.key === "Q" || e.key === "e" || e.key === "E") {
+        setActiveSlider((s) => (s + 1) % 2);
+      }
+
+      // Adjust value
+      if (e.key === "a" || e.key === "A") adjust(-1);
+      if (e.key === "d" || e.key === "D") adjust(+1);
+    }
+
+    function adjust(dir) {
+      if (activeSlider === 0) {
+        setTheta1((v) => Math.min(90, Math.max(0, v + dir)));
+      } else {
+        setTheta2((v) => Math.min(90, Math.max(0, v + dir)));
+      }
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activeSlider, lightOn]);
+
+  /* ================= UI ================= */
   return (
     <div style={{ padding: 18 }}>
       <button
@@ -178,26 +211,74 @@ export default function PolarisationExperiment({ lightOn, setLightOn }) {
       />
 
       {lightOn && (
-        <div style={{ marginTop: 12, color: "#9ef" }}>
-          <div>Crystal 1 Angle: {theta1}°</div>
-          <input
-            type="range"
-            min="0"
-            max="90"
-            value={theta1}
-            onChange={(e) => setTheta1(+e.target.value)}
-            style={{ width: 260 }}
-          />
+        <div style={{ marginTop: 14, color: "#9ef" }}>
+          {/* ===== PRIMARY SELECTOR ===== */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+            <button
+              onClick={() => setActiveSlider(0)}
+              style={{
+                padding: "6px 12px",
+                background: activeSlider === 0 ? "#38bdf8" : "#1e293b",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              CRYSTAL 1
+            </button>
 
-          <div style={{ marginTop: 8 }}>Crystal 2 Angle: {theta2}°</div>
-          <input
-            type="range"
-            min="0"
-            max="90"
-            value={theta2}
-            onChange={(e) => setTheta2(+e.target.value)}
-            style={{ width: 260 }}
-          />
+            <button
+              onClick={() => setActiveSlider(1)}
+              style={{
+                padding: "6px 12px",
+                background: activeSlider === 1 ? "#38bdf8" : "#1e293b",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              CRYSTAL 2
+            </button>
+          </div>
+
+          {/* ===== SLIDERS ===== */}
+          <div style={{ display: "flex", gap: 24 }}>
+            <div>
+              <div>Crystal 1 Angle: {theta1}°</div>
+              <input
+                type="range"
+                min="0"
+                max="90"
+                value={theta1}
+                onChange={(e) => setTheta1(+e.target.value)}
+                style={{
+                  width: 220,
+                  outline:
+                    activeSlider === 0 ? "2px solid #38bdf8" : "none"
+                }}
+              />
+            </div>
+
+            <div>
+              <div>Crystal 2 Angle: {theta2}°</div>
+              <input
+                type="range"
+                min="0"
+                max="90"
+                value={theta2}
+                onChange={(e) => setTheta2(+e.target.value)}
+                style={{
+                  width: 220,
+                  outline:
+                    activeSlider === 1 ? "2px solid #38bdf8" : "none"
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>
+            Select crystal → use <b>A / D</b> | Switch: <b>Q / E</b>
+          </div>
         </div>
       )}
     </div>

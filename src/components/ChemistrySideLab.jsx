@@ -12,6 +12,7 @@ const GLOBAL_H = 920;
 export default function ChemLab() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("indicator");
+  
 
   return (
     <div className="lab-root">

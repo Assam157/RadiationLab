@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./ExperimentLayout.css"
 
 /* ===============================
    GLOBAL CANVAS DIMENSIONS
@@ -159,6 +160,33 @@ ctx.fillText("+", x0 + 38, by + 14);
 ctx.fillText("−", x0 + 60, by + 14);
 
   }, [voltage, bias, orientation]);
+  useEffect(() => {
+  const handleKeyDown = (e) => {
+    setVoltage((prev) => {
+      let next = prev;
+
+      if (e.key === "a" || e.key === "A") {
+        next = prev - 0.01;
+      }
+      if (e.key === "d" || e.key === "D") {
+        next = prev + 0.01;
+      }
+
+      // Clamp voltage
+      if (next > 1) next = 1;
+      if (next < -1) next = -1;
+
+      return parseFloat(next.toFixed(2));
+    });
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, []);
+
 
 
   return (

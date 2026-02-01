@@ -558,14 +558,15 @@ function drawStraightPoleLines() {
   const cy = state.magnet.y;
   const half = params.magnetHalfWidth;
 
-  const count = 12;
-  const length = 100;      // outward reach
+  const count = 10;
+  const length = 50;      // outward reach
   const fan = 75;          // vertical spread
-  const bend = 80;         // 🔥 outward curvature strength
-  const originPad = 0.4;   // extremely close to magnet face
+  const bend = -1;         // max curvature strength
+  const decay = 3;       // 🔥 exponential falloff strength
+  const originPad = 0.01;
 
   ctx.save();
-  ctx.strokeStyle = "rgba(140,140,140,0.6)"; // SAME as field lines
+  ctx.strokeStyle = "rgba(140,140,140,0.6)";
   ctx.fillStyle   = "rgba(140,140,140,0.9)";
   ctx.lineWidth = 2;
   ctx.lineCap = "round";
@@ -573,17 +574,20 @@ function drawStraightPoleLines() {
   for (let i = 0; i < count; i++) {
     const t = (i - (count - 1) / 2) / ((count - 1) / 2); // -1 → +1
 
-    /* ========= RIGHT POLE (N → outward) ========= */
+    // ✅ negative exponential decay (−e)
+    const k = Math.exp(-t  * decay);
+
+    /* ========= RIGHT POLE ========= */
 
     const r0 = {
       x: cx + half + originPad,
       y: cy
     };
 
-    // ✅ control point is AHEAD → forces outward bow
+    // inward-first bend with −e decay
     const r1 = {
-      x: cx + half + bend,
-      y: cy + t * bend
+      x: cx + half - bend * k,
+      y: cy + t * bend * k
     };
 
     const r2 = {
@@ -603,7 +607,7 @@ function drawStraightPoleLines() {
     drawArrowHead(0, 0, 6);
     ctx.restore();
 
-    /* ========= LEFT POLE (into S, mirrored outward bow) ========= */
+    /* ========= LEFT POLE ========= */
 
     const l0 = {
       x: cx - half - originPad,
@@ -611,8 +615,8 @@ function drawStraightPoleLines() {
     };
 
     const l1 = {
-      x: cx - half - bend,
-      y: cy + t * bend
+      x: cx - half + bend * k,
+      y: cy + t * bend * k
     };
 
     const l2 = {
@@ -635,6 +639,7 @@ function drawStraightPoleLines() {
 
   ctx.restore();
 }
+
 
 
 

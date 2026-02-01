@@ -1,11 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import "./QuantumLab.css"
-
-/* =====================================================
-   GLOBAL CANVAS SIZE
-   ===================================================== */
-const W = 1100;
-const H = 700;
 
 /* =====================================================
    Bell Experiment — Local Hidden Variable (EMBED SAFE)
@@ -13,40 +6,77 @@ const H = 700;
 
 export default function BellLocalHiddenVariableLab() {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
 
   /* ===== State ===== */
   const [lambda, setLambda] = useState(1);
   const [phi, setPhi] = useState(30);
   const [analyzerAngle, setAnalyzerAngle] = useState(60);
 
+  const [activeControl, setActiveControl] = useState("phi");
+  // "phi" | "lambda" | "theta"
+
   const measurement =
     Math.cos(((analyzerAngle - phi) * Math.PI) / 180) * lambda;
   const spinUp = measurement >= 0;
 
-  /* ===== INIT CANVAS (GLOBAL SIZE) ===== */
-  useEffect(() => {
+  /* ===== Resize ===== */
+  const resizeCanvas = () => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const container = containerRef.current;
+    if (!canvas || !container) return;
 
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = `${W}px`;
-    canvas.style.height = `${H}px`;
+    const rect = container.getBoundingClientRect();
 
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  useEffect(() => {
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
+
+  /* ===== Keyboard Control (A / D) ===== */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!["a", "A", "d", "D"].includes(e.key)) return;
+      const delta = e.key.toLowerCase() === "a" ? -1 : 1;
+
+      if (activeControl === "phi") {
+        setPhi(v => Math.min(180, Math.max(0, v + delta)));
+      }
+
+      if (activeControl === "theta") {
+        setAnalyzerAngle(v => Math.min(180, Math.max(0, v + delta)));
+      }
+
+      if (activeControl === "lambda") {
+        setLambda(v => (v === 1 ? -1 : 1));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeControl]);
 
   /* ===== DRAW ===== */
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const container = containerRef.current;
+    if (!canvas || !container) return;
 
-    /* ===== BACKGROUND ===== */
+    const ctx = canvas.getContext("2d");
+    const { width: W, height: H } = container.getBoundingClientRect();
+
     ctx.fillStyle = "#0b1320";
     ctx.fillRect(0, 0, W, H);
 
-    /* Layout */
     const leftX = W * 0.3;
     const rightX = W * 0.7;
     const centerY = H * 0.5;
@@ -56,28 +86,15 @@ export default function BellLocalHiddenVariableLab() {
 
     ctx.strokeStyle = "#4fd1c5";
     ctx.lineWidth = 2;
+    ctx.strokeRect(leftX - panelW / 2, centerY - panelH / 2, panelW, panelH);
+    ctx.strokeRect(rightX - panelW / 2, centerY - panelH / 2, panelW, panelH);
 
-    ctx.strokeRect(
-      leftX - panelW / 2,
-      centerY - panelH / 2,
-      panelW,
-      panelH
-    );
-
-    ctx.strokeRect(
-      rightX - panelW / 2,
-      centerY - panelH / 2,
-      panelW,
-      panelH
-    );
-
-    /* Titles */
     ctx.fillStyle = "#ffffff";
     ctx.font = "16px Arial";
     ctx.fillText("SOURCE (Hidden Variables)", leftX - 115, centerY - 140);
     ctx.fillText("ANALYZER (Measurement)", rightX - 115, centerY - 140);
 
-    /* ===== SOURCE ===== */
+    /* SOURCE */
     ctx.save();
     ctx.translate(leftX, centerY);
     ctx.rotate((-phi * Math.PI) / 180);
@@ -89,20 +106,18 @@ export default function BellLocalHiddenVariableLab() {
     ctx.stroke();
     ctx.restore();
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#fff";
     ctx.font = "14px Arial";
     ctx.fillText(`Hidden Axis φ = ${phi}°`, leftX - 80, centerY + 110);
-
     ctx.fillStyle = "#e879f9";
     ctx.fillText(`Hidden Variable λ = ${lambda}`, leftX - 80, centerY + 135);
 
-    /* ===== ANALYZER ===== */
+    /* ANALYZER */
     const cx = rightX;
     const cy = centerY;
     const R = 90;
 
     ctx.strokeStyle = "#34d399";
-    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.stroke();
@@ -122,7 +137,6 @@ export default function BellLocalHiddenVariableLab() {
     ctx.lineTo(50, 25);
     ctx.stroke();
 
-    /* Spin arrow */
     const dir = spinUp ? -1 : 1;
     ctx.strokeStyle = spinUp ? "#60a5fa" : "#f87171";
     ctx.fillStyle = ctx.strokeStyle;
@@ -141,12 +155,6 @@ export default function BellLocalHiddenVariableLab() {
 
     ctx.restore();
 
-    /* Labels */
-    ctx.fillStyle = "#22c55e";
-    ctx.font = "14px Arial";
-    ctx.fillText("+1", cx - 8, cy - R - 10);
-    ctx.fillText("−1", cx - 8, cy + R + 20);
-
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`Analyzer Angle θ = ${analyzerAngle}°`, cx - 85, cy + 110);
     ctx.fillText(
@@ -159,15 +167,10 @@ export default function BellLocalHiddenVariableLab() {
   /* ===== UI ===== */
   return (
     <div
-      style={{
-        position: "relative",
-        width: W,
-        height: H,
-        background: "#0b1320",
-        margin: "0 auto"
-      }}
+      ref={containerRef}
+      style={{ position: "relative", width: "100%", height: "100%" }}
     >
-      <canvas ref={canvasRef} />
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
 
       <div
         style={{
@@ -176,44 +179,74 @@ export default function BellLocalHiddenVariableLab() {
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
-          gap: 24,
+          gap: 20,
           background: "rgba(0,0,0,0.55)",
           padding: "12px 18px",
           borderRadius: 12,
           color: "white"
         }}
       >
+        {/* Φ */}
         <div>
-          <label>Hidden Axis φ</label><br />
-          <input
-            type="range"
-            min="0"
-            max="180"
-            value={phi}
-            onChange={(e) => setPhi(+e.target.value)}
-          />
+          <button
+            onClick={() => setActiveControl("phi")}
+            style={{
+              fontWeight: "bold",
+              marginBottom: 4,
+              background: activeControl === "phi" ? "#facc15" : "#334155",
+              color: "#000",
+              border: "none",
+              padding: "4px 8px",
+              borderRadius: 6
+            }}
+          >
+            φ
+          </button><br />
+          <input type="range" min="0" max="180" value={phi}
+            onChange={(e) => setPhi(+e.target.value)} />
         </div>
 
+        {/* λ */}
         <div>
-          <label>Hidden λ</label><br />
-          <select
-            value={lambda}
-            onChange={(e) => setLambda(+e.target.value)}
+          <button
+            onClick={() => setActiveControl("lambda")}
+            style={{
+              fontWeight: "bold",
+              marginBottom: 4,
+              background: activeControl === "lambda" ? "#e879f9" : "#334155",
+              color: "#000",
+              border: "none",
+              padding: "4px 8px",
+              borderRadius: 6
+            }}
           >
+            λ
+          </button><br />
+          <select value={lambda}
+            onChange={(e) => setLambda(+e.target.value)}>
             <option value={1}>+1</option>
             <option value={-1}>−1</option>
           </select>
         </div>
 
+        {/* θ */}
         <div>
-          <label>Analyzer θ</label><br />
-          <input
-            type="range"
-            min="0"
-            max="180"
-            value={analyzerAngle}
-            onChange={(e) => setAnalyzerAngle(+e.target.value)}
-          />
+          <button
+            onClick={() => setActiveControl("theta")}
+            style={{
+              fontWeight: "bold",
+              marginBottom: 4,
+              background: activeControl === "theta" ? "#34d399" : "#334155",
+              color: "#000",
+              border: "none",
+              padding: "4px 8px",
+              borderRadius: 6
+            }}
+          >
+            θ
+          </button><br />
+          <input type="range" min="0" max="180" value={analyzerAngle}
+            onChange={(e) => setAnalyzerAngle(+e.target.value)} />
         </div>
       </div>
     </div>

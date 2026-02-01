@@ -9,6 +9,7 @@ export default function AtomExperiment() {
 
   const [energy, setEnergy] = useState(0.2);
   const [paused, setPaused] = useState(false);
+  const [activeSlider,setActiveSlider]=useState(0);
 
   const excitation = useRef(0);       // 0 → 1 smooth excitation
   const photonState = useRef("idle"); // idle | incoming | outgoing
@@ -188,22 +189,54 @@ export default function AtomExperiment() {
     loop();
     return () => cancelAnimationFrame(raf);
   }, [energy, paused]);
+    useEffect(() => {
+    function onKey(e) {
+      // ================= SLIDER SWITCH =================
+      if (e.key === "q" || e.key === "Q") {
+        setActiveSlider(s => (s + 1) % 2);
+      }
+  
+      if (e.key === "e" || e.key === "E") {
+        setActiveSlider(s => (s + 1) % 2);
+      }
+  
+      // ================= ADJUST VALUE =================
+      if (e.key === "a" || e.key === "A") {
+        adjust(-0.1);
+      }
+  
+      if (e.key === "d" || e.key === "D") {
+        adjust(+0.1);
+      }
+    }
+  
+    function adjust(dir) {
+       
+   
+        setEnergy(v =>
+          Math.min(1, Math.max(0, v + dir * 0.2))
+        );
+ 
+    }
+  
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activeSlider]);
+  
 
   return (
     <div className="lab-canvas-wrap">
       <canvas ref={canvasRef} width={W} height={H} />
 
       <div className="cinema-energy">
-        <div   className="note"
-  style={{ color: "#0b0404" }}>EXCITATION ENERGY</div>
-        <div   className="note"
-  style={{ color: "#0c0606" }}>{energy.toFixed(2)}</div>
+        <div className="label">EXCITATION ENERGY</div>
+        <div className="value">{energy.toFixed(2)}</div>
 
         <input
           type="range"
           min="0"
           max="1"
-          step="0.01"
+          step="0.1"
           value={energy}
           onChange={(e) => setEnergy(+e.target.value)}
         />
@@ -215,8 +248,7 @@ export default function AtomExperiment() {
           {paused ? "▶ Resume Rotation" : "⏸ Stop Rotation"}
         </button>
 
-        <div className="panel-hint"   
-  style={{ color: "#070404" }}>
+        <div className="panel-hint">
           Rotation can be frozen to observe quantum transitions
         </div>
       </div>

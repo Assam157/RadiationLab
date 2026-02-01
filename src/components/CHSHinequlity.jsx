@@ -19,6 +19,10 @@ export default function CHSHInequalityLab() {
   const [B, setB] = useState(22.5);
   const [Bp, setBp] = useState(67.5);
 
+  /* ===== ACTIVE CONTROL ===== */
+  const [activeAngle, setActiveAngle] = useState("A");
+  // "A" | "Ap" | "B" | "Bp"
+
   /* ================= CONTROL ================= */
   const [running, setRunning] = useState(true);
   const [showLines, setShowLines] = useState(false);
@@ -34,7 +38,6 @@ export default function CHSHInequalityLab() {
   });
 
   /* ================= CORRELATION ================= */
-   
   const E = (arr) =>
     arr.length === 0 ? 0 : arr.reduce((s, v) => s + v, 0) / arr.length;
 
@@ -44,6 +47,24 @@ export default function CHSHInequalityLab() {
       E(trialsRef.current.ApB) +
       E(trialsRef.current.ApBp)
   );
+
+  /* ================= KEYBOARD (A / D) ================= */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!["a", "A", "d", "D"].includes(e.key)) return;
+      const delta = e.key.toLowerCase() === "a" ? -1 : 1;
+
+      const clamp = (v) => Math.min(180, Math.max(0, v + delta));
+
+      if (activeAngle === "A") setA(clamp);
+      if (activeAngle === "Ap") setAp(clamp);
+      if (activeAngle === "B") setB(clamp);
+      if (activeAngle === "Bp") setBp(clamp);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeAngle]);
 
   /* ================= TRIAL LOOP ================= */
   useEffect(() => {
@@ -94,11 +115,11 @@ export default function CHSHInequalityLab() {
 
     drawSource(ctx);
 
-    drawAnalyzer(ctx, 400, H / 2, A, "A", flash?.key?.includes("A"), flash?.A);
-    drawAnalyzer(ctx, 400, H / 2 + 200, Ap, "A′", flash?.key?.includes("Ap"), flash?.A);
+    drawAnalyzer(ctx, 400, H / 2, A, "A", activeAngle === "A", flash?.A);
+    drawAnalyzer(ctx, 400, H / 2 + 200, Ap, "A′", activeAngle === "Ap", flash?.A);
 
-    drawAnalyzer(ctx, 1000, H / 2, B, "B", flash?.key?.includes("B"), flash?.B);
-    drawAnalyzer(ctx, 1000, H / 2 + 200, Bp, "B′", flash?.key?.includes("Bp"), flash?.B);
+    drawAnalyzer(ctx, 1000, H / 2, B, "B", activeAngle === "B", flash?.B);
+    drawAnalyzer(ctx, 1000, H / 2 + 200, Bp, "B′", activeAngle === "Bp", flash?.B);
 
     if (showLines) drawCurvedConnections(ctx);
 
@@ -120,21 +141,19 @@ export default function CHSHInequalityLab() {
   const drawAnalyzer = (ctx, x, y, angle, label, active, value) => {
     const rad = (angle * Math.PI) / 180;
 
-    /* Analyzer ring */
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = active ? "#22c55e" : "#ffffff";
+    ctx.lineWidth = active ? 3 : 2;
+
     ctx.beginPath();
     ctx.arc(x, y, 35, 0, Math.PI * 2);
     ctx.stroke();
 
-    /* Axis */
     ctx.beginPath();
     ctx.moveTo(x - 35 * Math.cos(rad), y + 35 * Math.sin(rad));
     ctx.lineTo(x + 35 * Math.cos(rad), y - 35 * Math.sin(rad));
     ctx.stroke();
 
-    /* Particle outcome */
-    if (active && value !== null) {
+    if (value !== null) {
       const d = value === 1 ? -50 : 50;
       const px = x + d * Math.cos(rad);
       const py = y - d * Math.sin(rad);
@@ -148,7 +167,7 @@ export default function CHSHInequalityLab() {
     ctx.fillText(`${label} = ${angle}°`, x - 32, y + 55);
   };
 
-  /* ================= CURVED MULTICOLORED LINKS ================= */
+  /* ================= CURVED CONNECTIONS ================= */
   const drawCurvedConnections = (ctx) => {
     const sx = W / 2;
     const sy = H / 2 - 100;
@@ -179,74 +198,77 @@ export default function CHSHInequalityLab() {
         ty
       );
       ctx.stroke();
-
-      /* Hollow wave packet */
-      const t = (Math.sin(phase + i) + 1) / 2;
-      const px = sx + (tx - sx) * t;
-      const py = sy + (ty - sy) * t;
-
-      ctx.strokeStyle = `hsla(${hue + i * 30},100%,70%,0.8)`;
-      ctx.beginPath();
-      ctx.arc(px, py, 9, 0, Math.PI * 2);
-      ctx.stroke();
     });
   };
 
   /* ================= UI ================= */
   return (
     <div className="quantum-lab-container">
-         
       <canvas ref={canvasRef} width={W} height={H} className="quantum-canvas" />
 
       <div className="controls grid">
-        <AngleSlider label="A" value={A} set={setA} />
-        <AngleSlider label="A′" value={Ap} set={setAp} />
-        <AngleSlider label="B" value={B} set={setB} />
-        <AngleSlider label="B′" value={Bp} set={setBp} />
-            <div className="ql-info-box">
-        <div>Trials: {trialsRef.current.count}</div>
-        <strong
-          style={{
-            fontSize: "20px",
-            color: S > 2 ? "#ff4444" : "#44ff88",
-          }}
-        >
-          S = {S.toFixed(3)}
-        </strong>
-         <div className="controls">
-        <button onClick={() => setRunning(false)}>⏹ Stop Trials</button>
-        <button
-          onClick={() => {
-            trialsRef.current = { AB: [], ABp: [], ApB: [], ApBp: [], count: 0 };
-            setShowLines(false);
-            setRunning(true);
-          }}
-        >
-          🔄 Reset
-        </button>
-        
-      </div>
-       
-     
+        <AngleControl label="A" value={A} set={setA}
+          active={activeAngle === "A"}
+          onSelect={() => setActiveAngle("A")} />
+
+        <AngleControl label="A′" value={Ap} set={setAp}
+          active={activeAngle === "Ap"}
+          onSelect={() => setActiveAngle("Ap")} />
+
+        <AngleControl label="B" value={B} set={setB}
+          active={activeAngle === "B"}
+          onSelect={() => setActiveAngle("B")} />
+
+        <AngleControl label="B′" value={Bp} set={setBp}
+          active={activeAngle === "Bp"}
+          onSelect={() => setActiveAngle("Bp")} />
+
+        <div className="ql-info-box">
+          <div>Trials: {trialsRef.current.count}</div>
+          <strong
+            style={{
+              fontSize: "20px",
+              color: S > 2 ? "#ff4444" : "#44ff88",
+            }}
+          >
+            S = {S.toFixed(3)}
+          </strong>
+
+          <div className="controls">
+            <button onClick={() => setRunning(false)}>⏹ Stop Trials</button>
+            <button
+              onClick={() => {
+                trialsRef.current = {
+                  AB: [],
+                  ABp: [],
+                  ApB: [],
+                  ApBp: [],
+                  count: 0,
+                };
+                setShowLines(false);
+                setRunning(true);
+              }}
+            >
+              🔄 Reset
+            </button>
+          </div>
         </div>
-        
       </div>
-
-       
-
-      
-         
-
-       
     </div>
   );
 }
 
-/* ================= SLIDER ================= */
-function AngleSlider({ label, value, set }) {
+/* ================= ANGLE CONTROL ================= */
+function AngleControl({ label, value, set, active, onSelect }) {
   return (
     <div className="ql-control-group">
-      <label>{label} Angle</label>
+      <button
+        onClick={onSelect}
+        className={active ? "active" : ""}
+      >
+        {label}
+      </button>
+
       <input
         type="range"
         min="0"
@@ -254,6 +276,7 @@ function AngleSlider({ label, value, set }) {
         value={value}
         onChange={(e) => set(+e.target.value)}
       />
+
       <span>{value}°</span>
     </div>
   );

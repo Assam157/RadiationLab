@@ -15,9 +15,31 @@ export default function QuantumWaveNonLocality() {
   const animationRef = useRef(null);
 
   const [t, setT] = useState(0);
+  const [phase, setPhase] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [collapseRay, setCollapseRay] = useState(null);
-  const [phase, setPhase] = useState(0);
+
+  const [activeControl, setActiveControl] = useState("time");
+  // "time" | "phase"
+
+  /* ================= KEYBOARD (A / D) ================= */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!["a", "A", "d", "D"].includes(e.key)) return;
+      const delta = e.key.toLowerCase() === "a" ? -1 : 1;
+
+      if (activeControl === "time") {
+        setT(v => Math.min(1, Math.max(0, v + delta * 0.01)));
+      }
+
+      if (activeControl === "phase") {
+        setPhase(p => p + delta * 0.2);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeControl]);
 
   /* ================= ANIMATION ================= */
   useEffect(() => {
@@ -31,8 +53,8 @@ export default function QuantumWaveNonLocality() {
   }, [playing]);
 
   const step = () => {
-    setT((prev) => Math.min(prev + 0.002, 1));
-    setPhase((p) => p + 0.1);
+    setT(prev => Math.min(prev + 0.002, 1));
+    setPhase(p => p + 0.1);
     animationRef.current = requestAnimationFrame(step);
   };
 
@@ -108,7 +130,7 @@ export default function QuantumWaveNonLocality() {
       const x =
         SOURCE_X +
         (SLIT_X - SOURCE_X) * Math.min(t / 0.5, 1) +
-        Math.sin((y * 0.05) + phase) * 12;
+        Math.sin(y * 0.05 + phase) * 12;
 
       if (y === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -116,7 +138,7 @@ export default function QuantumWaveNonLocality() {
     ctx.stroke();
   };
 
-  /* ================= SPLIT + PARTICLES ================= */
+  /* ================= SPLIT ================= */
   const drawSplitRays = (ctx) => {
     const localT = (t - 0.5) / 0.5;
 
@@ -128,7 +150,6 @@ export default function QuantumWaveNonLocality() {
       const yEnd =
         y0 + Math.tan(angle) * (DETECTOR_X - SLIT_X) * localT;
 
-      /* Ray */
       ctx.strokeStyle = `hsla(${i * 20 + phase * 20},100%,60%,0.5)`;
       ctx.lineWidth = 1.4;
       ctx.beginPath();
@@ -138,30 +159,14 @@ export default function QuantumWaveNonLocality() {
         yEnd
       );
       ctx.stroke();
-
-      /* Particle packet */
-      ctx.fillStyle = `hsla(${i * 20},100%,70%,0.35)`;
-      ctx.shadowColor = ctx.fillStyle;
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      ctx.arc(
-        SLIT_X + (DETECTOR_X - SLIT_X) * localT,
-        yEnd,
-        8 + Math.sin(phase + i) * 2,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-      ctx.shadowBlur = 0;
     }
   };
 
   /* ================= MEASUREMENT ================= */
   const measure = () => {
-    const chosen =
-      H / 2 +
-      (Math.random() - 0.5) * 260;
-    setCollapseRay(chosen);
+    setCollapseRay(
+      H / 2 + (Math.random() - 0.5) * 260
+    );
   };
 
   /* ================= UI ================= */
@@ -175,8 +180,14 @@ export default function QuantumWaveNonLocality() {
       />
 
       <div className="controls">
-        <label>
-          Wave Evolution
+        {/* TIME */}
+        <div>
+          <button
+            onClick={() => setActiveControl("time")}
+            className={activeControl === "time" ? "active" : ""}
+          >
+            TIME
+          </button>
           <input
             type="range"
             min="0"
@@ -185,9 +196,26 @@ export default function QuantumWaveNonLocality() {
             value={t}
             onChange={(e) => setT(+e.target.value)}
           />
-        </label>
+        </div>
 
-        <button onClick={() => setPlaying((p) => !p)}>
+        {/* PHASE */}
+        <div>
+          <button
+            onClick={() => setActiveControl("phase")}
+            className={activeControl === "phase" ? "active" : ""}
+          >
+            PHASE
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="50"
+            value={phase}
+            onChange={(e) => setPhase(+e.target.value)}
+          />
+        </div>
+
+        <button onClick={() => setPlaying(p => !p)}>
           {playing ? "⏸ Pause" : "▶ Play"}
         </button>
 

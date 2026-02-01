@@ -31,7 +31,7 @@ export default function OpticalDexterLab() {
   const [medium, setMedium] = useState("water");
   const [experiment, setExperiment] = useState("refraction");
   const [lightOn, setLightOn] = useState(false);
-
+ const [activeSlider, setActiveSlider] = useState(0);
   // 🔹 NEW (Lens states)
   const [lensType, setLensType] = useState("convex");
   const [sourceY, setSourceY] = useState(-1);
@@ -305,10 +305,27 @@ ctx.fillText(`${medium.toUpperCase()} (n = ${REF_INDEX[medium]})`, 20, cy + 30);
   ctx.beginPath();
 
   if (lensType === "convex") {
-    ctx.moveTo(cx - lensHalfWidth, 60);
-    ctx.bezierCurveTo(cx - 60, cy, cx - 60, cy, cx - lensHalfWidth, H - 60);
-    ctx.lineTo(cx + lensHalfWidth, H - 60);
-    ctx.bezierCurveTo(cx + 60, cy, cx + 60, cy, cx + lensHalfWidth, 60);
+  ctx.beginPath();
+
+  // Top point
+  ctx.moveTo(cx, 60);
+
+  // Left side curve
+  ctx.bezierCurveTo(
+    cx - 60, cy,
+    cx - 60, cy,
+    cx, H - 60
+  );
+
+  // Right side curve
+  ctx.bezierCurveTo(
+    cx + 60, cy,
+    cx + 60, cy,
+    cx, 60
+  );
+
+  ctx.closePath();
+
   } else {
     ctx.moveTo(cx - 60, 60);
     ctx.bezierCurveTo(cx - lensHalfWidth, cy, cx - lensHalfWidth, cy, cx - 60, H - 60);
@@ -512,13 +529,49 @@ function changeIncidentMedium(newIncident) {
     setLightOn(false);
     setMedium(newMedium);
   }
+  useEffect(() => {
+  function onKey(e) {
+    // ========= POLARIZATION HANDLED INSIDE ITS OWN COMPONENT =========
+    if (experiment === "Polarization") return;
+
+    // ========= REFRACTION =========
+    if (experiment === "refraction") {
+      if (e.key === "a" || e.key === "A") {
+        setAngle(v => Math.round(Math.max(5, v - 0.1)*10)/10);
+      }
+      if (e.key === "d" || e.key === "D") {
+        setAngle(v => Math.round(Math.min(75, v + 0.1)*10)/10);
+      }
+      return;
+    }
+
+    // ========= LENS =========
+    if (experiment === "lens") {
+      if (e.key === "a" || e.key === "A") {
+        setSourceY(v => (v === 1 ? -1 : 1));
+      }
+      if (e.key === "d" || e.key === "D") {
+        setSourceY(v => (v === 1 ? -1 : 1));
+      }
+      return;
+    }
+
+    // ========= PRISM =========
+    // No sliders → ignore
+  }
+
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [experiment]);
+
+ 
+
    return (
   <div className="dexter-root">
-    {/* LEFT PANEL */}
+    {/* ================= LEFT PANEL ================= */}
     <div className="control-panel">
       <h2>🔍 OPTICAL LAB</h2>
 
-      {/* ===== EXPERIMENT SELECT ===== */}
       <button
         className={experiment === "refraction" ? "active" : ""}
         onClick={() => setExperiment("refraction")}
@@ -608,71 +661,94 @@ function changeIncidentMedium(newIncident) {
       </button>
     </div>
 
-    {/* ===== MAIN CANVAS (USED FOR REFRACTION / PRISM / LENS ONLY) ===== */}
-    <canvas
-      ref={canvasRef}
-      width={W}
-      height={H}
-      style={{
-        display: experiment === "Polarization" ? "none" : "block"
-      }}
-    />
+    {/* ================= RIGHT COLUMN ================= */}
+    <div className="canvas-column">
 
-    {/* ===== POLARIZATION (REACT EXPERIMENT – SEPARATE CANVAS) ===== */}
-    {experiment === "Polarization" && (
-  <PolarisationExperiment
-    key="polarization"
-    lightOn={lightOn}
-    setLightOn={setLightOn}
-  />
-)}
-
-
-    {/* ===== RIGHT PANEL ===== */}
-    <div className="energy-panel">
-      <button
-        onClick={() => setLightOn(!lightOn)}
+      {/* ===== MAIN CANVAS ===== */}
+      <canvas
+        ref={canvasRef}
+        width={W}
+        height={H}
         style={{
-          marginBottom: 12,
-          background: lightOn ? "#ff4444" : "#44ff88",
-          border: "none",
-          padding: "8px",
-          fontFamily: "monospace",
-          cursor: "pointer"
+          display: experiment === "Polarization" ? "none" : "block"
         }}
-      >
-        {lightOn ? "TURN LIGHT OFF" : "TURN LIGHT ON"}
-      </button>
+      />
 
-      {experiment === "refraction" && (
-        <>
-          <div className="energy-label">INCIDENT ANGLE</div>
-          <div className="energy-value">{angle}°</div>
-          <input
-            className="energy-slider"
-            type="range"
-            min="5"
-            max="75"
-            value={angle}
-            onChange={(e) => setAngle(+e.target.value)}
-          />
-        </>
+      {/* ===== POLARIZATION EXPERIMENT ===== */}
+      {experiment === "Polarization" && (
+        <PolarisationExperiment
+          key="polarization"
+          lightOn={lightOn}
+          setLightOn={setLightOn}
+        />
       )}
 
-      {experiment === "prism" && (
-        <div className="energy-label">
-          Dispersion of white light into VIBGYOR
-        </div>
-      )}
+      {/* ===== ENERGY PANEL (NOW BELOW CANVAS) ===== */}
+      <div className="energy-panel">
+        <button
+          onClick={() => setLightOn(!lightOn)}
+          style={{
+            marginBottom: 12,
+            background: lightOn ? "#ff4444" : "#44ff88",
+            border: "none",
+            padding: "8px",
+            fontFamily: "monospace",
+            cursor: "pointer"
+          }}
+        >
+          {lightOn ? "TURN LIGHT OFF" : "TURN LIGHT ON"}
+        </button>
 
-      {experiment === "lens" && (
-        <div className="energy-label">
-          Convex / Concave Lens Image Formation
-        </div>
-      )}
+        {experiment === "refraction" && (
+          <>
+            <div className="energy-label">INCIDENT ANGLE</div>
+            <div className="energy-value">{angle}°</div>
+
+            <div className="slider-wrap">
+              <div
+                className="slider-tooltip"
+                style={{
+                  left: `${(angle - 5) / (75 - 5) * 100}%`
+                }}
+              >
+                {angle}°
+              </div>
+
+              <input
+                className="energy-slider"
+                type="range"
+                min="5"
+                max="75"
+                step="0.1"
+                value={angle}
+                 onChange={(e) =>
+  setAngle(
+    Math.round(Math.abs(+e.target.value) * 10) / 10
+  )
+}
+
+              />
+            </div>
+          </>
+        )}
+
+        {experiment === "prism" && (
+          <div className="energy-label">
+            Dispersion of white light into VIBGYOR
+          </div>
+        )}
+
+        {experiment === "lens" && (
+          <div className="energy-label">
+            Convex / Concave Lens Image Formation
+          </div>
+        )}
+      </div>
     </div>
   </div>
 );
+ 
+
 
 
 }

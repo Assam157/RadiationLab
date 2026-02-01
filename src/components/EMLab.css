@@ -1,4 +1,4 @@
- /* ======================================================
+/* ======================================================
    GLOBAL LOCK
    ====================================================== */
 *,
@@ -14,9 +14,8 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden; /* 🔒 ABSOLUTE */
-  background: #020617;
+  background: #0b0b63;
   font-family: system-ui, monospace;
-  color: #e5e7eb;
 }
 
 /* ======================================================
@@ -27,7 +26,7 @@ body {
   flex-direction: column;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(180deg, #050816, #020617);
+  background: #1a614d;
 }
 
 /* ======================================================
@@ -35,8 +34,8 @@ body {
    ====================================================== */
 .lab-top-panel {
   display: flex;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 14px 18px;
 
   background: linear-gradient(#060b18, #02040a);
   border-bottom: 1px solid rgba(120, 200, 255, 0.15);
@@ -48,157 +47,69 @@ body {
    BUTTONS
    ====================================================== */
 .panel-btn {
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 12px 18px;
+  border-radius: 14px;
 
   background: #f4f6fa;
   border: 2px solid #cfcfcf;
   color: #000;
 
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 
-  transition: all 0.15s ease;
-}
-
-.panel-btn:hover {
-  filter: brightness(1.05);
+  transition: all 0.2s ease;
 }
 
 .panel-btn.active {
   background: #e6f0ff;
   border-color: #2a6cff;
-  box-shadow: 0 0 12px rgba(42, 108, 255, 0.45);
+  box-shadow: 0 0 16px rgba(42, 108, 255, 0.45);
 }
 
 /* ======================================================
-   FULL CANVAS AREA (NO WHITE SPACE)
+   FULL CANVAS AREA
    ====================================================== */
 .lab-canvas-full {
   flex: 1;
 
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  align-items: center;
+  justify-content: center;
 
-  background: #000;
+  background: #851f1f;
   overflow: hidden;
 }
 
 .lab-canvas-full canvas {
   width: 100%;
   height: 100%;
-  display: block;
+  max-width: 100%;
+  max-height: 100%;
 
-  background: radial-gradient(circle at center, #020617, #000);
+  background: #000;
 }
 
 /* ======================================================
    BOTTOM PANEL (SLIDERS ONLY)
    ====================================================== */
 .lab-bottom-panel {
-  height: 64px; /* ⬅ compact */
-  padding: 8px 14px;
+  height: 110px;
+  padding: 16px 22px;
 
   background: linear-gradient(#060b18, #02040a);
   border-top: 1px solid rgba(120, 200, 255, 0.15);
 
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 28px;
 
   flex-shrink: 0;
 }
 
 /* ======================================================
-   SLIDERS (DENSE LAB STYLE)
+   SLIDERS
    ====================================================== */
 .lab-bottom-panel input[type="range"] {
-  width: 180px;
-  height: 4px;
-
-  appearance: none;
-  background: linear-gradient(90deg, #22d3ee, #3b82f6);
-  border-radius: 6px;
-  outline: none;
-  cursor: pointer;
-}
-
-/* Webkit Thumb */
-.lab-bottom-panel input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #3b82f6;
-}
-
-/* Firefox Thumb */
-.lab-bottom-panel input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #3b82f6;
-}
-
-/* ======================================================
-   SMALL HEIGHT SCREENS SAFETY
-   ====================================================== */
-@media (max-height: 700px) {
-  .lab-bottom-panel {
-    height: 52px;
-  }
-
-  .panel-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-}
-/* ======================================================
-   MOBILE SCROLL ENABLE (CANVAS AREA ONLY)
-   ====================================================== */
-@media (max-width: 768px) {
-  .lab-canvas-full {
-    overflow: auto;          /* allow scroll */
-    -webkit-overflow-scrolling: touch; /* smooth iOS scroll */
-  }
-
-  .lab-canvas-full canvas {
-    min-height: 120vh;       /* force scrollable height */
-  }
-}
-/* ======================================================
-   MOBILE LANDSCAPE SCROLL FIX (CANVAS)
-   ====================================================== */
-@media (max-width: 900px) and (orientation: landscape) {
-  .lab-canvas-full {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .lab-canvas-full canvas {
-    min-height: 140vh; /* force vertical overflow */
-  }
-}
-
-/* ======================================================
-   HARD FIX: MOBILE LANDSCAPE SCROLL UNLOCK
-   ====================================================== */
-@media (max-width: 900px) and (orientation: landscape) {
-  .lab-vertical-root {
-    height: auto;        /* 🔓 unlock scroll */
-    min-height: 100vh;
-  }
-
-  .lab-canvas-full {
-    overflow-y: scroll;
-    touch-action: pan-y;
-  }
-
-  .lab-canvas-full canvas {
-    min-height: 160vh;   /* must exceed viewport */
-  }
+  width: 220px;
 }

@@ -1,4 +1,4 @@
-/* ===============================
+ /* ===============================
    Quantum Lab — ROOT
    =============================== */
 
@@ -120,23 +120,16 @@
 /* ===============================
    INFO BOX
    =============================== */
- .ql-info-box {
-  margin-top: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
+
+.ql-info-box {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: 1px solid #334155;
   background: #020617;
   color: #60a5fa;
-  font-size: 13px;
-
-  display: flex;              /* 🔑 */
-  align-items: center;        /* vertical centering */
-  gap: 12px;                  /* spacing between items */
-  white-space: nowrap;        /* keep single line */
-  
+  font-size: 14px;
 }
-
-
 /* ===============================
    BACK BUTTON
    =============================== */
@@ -159,145 +152,4 @@
   border-color: #38bdf8;
   color: #ffffff;
   background: rgba(56, 189, 248, 0.08);
-}
-
-/* ===============================
-   RESPONSIVE — MOBILE SAFE
-   =============================== */
-
-/* Tablets and below */
-@media (max-width: 1024px) {
-  .ql-root {
-    grid-template-columns: 220px 1fr;
-    grid-template-rows: auto 1fr;
-  }
-
-  .ql-controls {
-    grid-column: 1 / -1;
-    border-left: none;
-    border-top: 1px solid #1e293b;
-  }
-}
-
-/* Phones */
-@media (max-width: 768px) {
-  .ql-root {
-    display: flex;
-    flex-direction: column;
-    width: 100vw;
-    height: 100vh;
-  }
-
-  /* Sidebar becomes top panel */
-  .ql-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #1e293b;
-    padding: 12px;
-  }
-
-  .ql-title {
-    font-size: 16px;
-    text-align: center;
-  }
-
-  /* Buttons become touch-friendly */
-  .ql-exp-btn,
-  .ql-back-btn {
-    font-size: 14px;
-    padding: 14px 16px;
-    border-radius: 14px;
-  }
-
-  /* Center view expands */
-  .ql-center {
-    flex: 1;
-    min-height: 280px;
-  }
-
-  /* Controls go to bottom */
-  .ql-controls {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid #1e293b;
-    padding: 12px;
-  }
-
-  .ql-control-group label {
-    font-size: 13px;
-  }
-
-  .ql-control-group span {
-    font-size: 12px;
-  }
-
-  /* Overlay title safe for small screens */
-  .ql-overlay-title {
-    font-size: 12px;
-    padding: 4px 12px;
-  }
-}
-
-/* Extra small phones */
-@media (max-width: 420px) {
-  .ql-title {
-    font-size: 15px;
-  }
-
-  .ql-exp-btn {
-    padding: 12px 14px;
-  }
-
-  .ql-info-box {
-    font-size: 13px;
-  }
-}
-@media (max-width: 768px) {
-  .ql-root {
-    height: auto;          /* allow natural height */
-    min-height: 100vh;     /* still fill screen */
-    overflow-y: auto;      /* ENABLE SCROLL */
-  }
-
-  .ql-controls {
-    overflow-y: auto;     /* scroll controls if long */
-  }
-}
-/* ===============================
-   CANVAS — SCROLL + PINCH (CSS ONLY)
-   =============================== */
-
-/* Center view must allow scrolling */
-.ql-center {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Make ALL canvases scrollable + zoomable */
-.ql-center canvas {
-  display: block;
-  margin: 0 auto;
-
-  /* Allow natural pinch zoom */
-  touch-action: pan-x pan-y pinch-zoom;
-
-  /* Prevent browser from locking gestures */
-  max-width: none;
-  max-height: none;
-}
-
-/* Mobile-specific behavior */
-@media (max-width: 768px) {
-  .ql-center {
-    overflow: auto;
-    touch-action: pan-x pan-y pinch-zoom;
-  }
-
-  .ql-center canvas {
-    width: max-content;   /* allows horizontal scroll */
-    height: max-content;  /* allows vertical scroll */
-  }
-}
-html, body {
-  overscroll-behavior: contain;
 }

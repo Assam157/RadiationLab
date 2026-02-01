@@ -11,7 +11,7 @@ export default function VICircuit() {
   const [R, setR] = useState(10);
 
   const V = 10;
-  const I = connected ? (V / R)/2 : 0;
+  const I = connected ? V / R : 0;
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
@@ -237,7 +237,7 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
   wire(ctx, 350, 260, 350, 180);
   wire(ctx, 450, 260, 450, 180);
 
-  analogMeter(ctx, 400, 150, "V", connected ? V : 0, 20, "V");
+  analogMeter(ctx, 400, 150, "V", connected ? V : 0, 10, "V");
 
   /* ================= AMMETER (SERIES RIGHT) ================= */
 
@@ -276,7 +276,7 @@ ctx.fillText(`Net Resistance  R = ${2 * R} Ω`, 480, 330);
           {connected ? "Disconnect Battery" : "Connect Battery"}
         </button>
 
-        <button onClick={() => setR(r => Math.max(5, r - 1))} style={{ marginLeft: 10 }}>
+        <button onClick={() => setR(r => Math.max(1, r - 1))} style={{ marginLeft: 10 }}>
           − R
         </button>
 

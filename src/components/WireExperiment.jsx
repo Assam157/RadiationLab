@@ -9,6 +9,7 @@ export default function WireExperiment() {
 
   const [direction, setDirection] = useState("same");
   const [intensity, setIntensity] = useState(0.3);
+  const [activeSlider,setActiveSlider]=useState(0);
 
   const BASE_LEFT = 280;
   const BASE_RIGHT = 420;
@@ -114,6 +115,35 @@ export default function WireExperiment() {
     drawScene();
     return () => cancelAnimationFrame(raf);
   }, [direction, intensity]);
+  useEffect(() => {
+  function onKey(e) {
+
+
+    // ================= ADJUST VALUE =================
+    if (e.key === "a" || e.key === "A") {
+      adjust(-0.1);
+    }
+
+    if (e.key === "d" || e.key === "D") {
+      adjust(+0.1);
+    }
+  }
+
+  function adjust(dir) {
+    
+  
+  
+ 
+      setIntensity(v =>
+        Math.min(1, Math.max(0, v + dir * 0.2))
+      );
+ 
+  }
+
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [activeSlider]);
+
 
   /* ================= UI ================= */
   return (
@@ -122,12 +152,12 @@ export default function WireExperiment() {
       <canvas ref={canvasRef} width={W} height={H} />
 
       {/* CONTROL PANEL */}
-      <div className="cinema-energy" style={{ color: "#060202" }}>
-        <div className="label" style={{ color: "#080404" }}>
+      <div className="cinema-energy" style={{ color: "#000" }}>
+        <div className="label" style={{ color: "#000" }}>
           CURRENT INTENSITY
         </div>
 
-        <div className="value" style={{ color: "#000000", textShadow: "none" }}>
+        <div className="value" style={{ color: "#000", textShadow: "none" }}>
           {intensity.toFixed(2)}
         </div>
 
@@ -137,18 +167,16 @@ export default function WireExperiment() {
           max="1"
           step="0.01"
           value={intensity}
-          
           onChange={e => setIntensity(+e.target.value)}
         />
 
-        <div    className="note"
-  style={{ color: "#070303" }}>
+        <div className="panel-hint" style={{ color: "#000" }}>
           Use A / D keys
         </div>
 
         <div
           className="panel-section"
-          style={{ color: "#120707", opacity: 1 }}
+          style={{ color: "#000", opacity: 1 }}
         >
           CURRENT DIRECTION
         </div>

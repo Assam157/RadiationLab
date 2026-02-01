@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import BellLocalHiddenVariableLab from "./HiddenLocaalVariable";
-import QuantumWaveNonLocality from "./NonLocality";
-import CHSHInequalityLab from "./CHSHinequlity";
-import QuantumShellLab from "./QuantumNoVisulization"
+import QuantumWaveNonLocality from "./NonLocality.jsx";
+import CHSHInequalityLab from "./CHSHinequlity.jsx";
+import QuantumShellLab from "./QuantumNoVisulization.jsx"
 
 import "./QuantumLab.css";
 

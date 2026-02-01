@@ -5,16 +5,46 @@ export default function VerticalSpringSHM() {
   const graphRef = useRef(null);
   const rafRef = useRef(null);
 
-  // ===== Controls =====
-  const [A, setA] = useState(60);          // amplitude (px)
-  const [omega, setOmega] = useState(2);   // angular frequency
-  const [phase, setPhase] = useState(0);   // phase (rad)
-  const [gravity, setGravity] = useState(9.8); // gravity
+  /* ===== Controls ===== */
+  const [A, setA] = useState(60);
+  const [omega, setOmega] = useState(2);
+  const [phase, setPhase] = useState(0);
+  const [gravity, setGravity] = useState(9.8);
   const [running, setRunning] = useState(true);
+
+  const [active, setActive] = useState("A");
 
   const t0 = useRef(null);
   const data = useRef([]);
 
+  /* ================= KEYBOARD CONTROL ================= */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "a" && e.key !== "d") return;
+      const dir = e.key === "d" ? 1 : -1;
+
+      if (active === "A")
+        setA(v => Math.min(120, Math.max(20, v + dir * 5)));
+
+      if (active === "omega")
+        setOmega(v =>
+          +(Math.min(5, Math.max(0.5, v + dir * 0.1))).toFixed(1)
+        );
+
+      if (active === "g")
+        setGravity(v =>
+          +(Math.min(20, Math.max(0, v + dir * 0.2))).toFixed(1)
+        );
+
+      if (active === "phase")
+        setPhase(v => +(v + dir * 0.2).toFixed(2));
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active]);
+
+  /* ================= ANIMATION ================= */
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
     const gctx = graphRef.current.getContext("2d");
@@ -47,18 +77,16 @@ export default function VerticalSpringSHM() {
       if (!t0.current) t0.current = time;
       const t = (time - t0.current) / 1000;
 
-      // ===== PHYSICS =====
-      const yEq = gravity / (omega * omega); // equilibrium shift
+      const yEq = gravity / (omega * omega);
       const y = yEq + A * Math.cos(omega * t + phase);
 
-      // ===== DRAW SYSTEM =====
       ctx.clearRect(0, 0, W, H);
 
       const topY = 20;
       const eqY = H / 2;
       const massY = eqY + y;
 
-      // ceiling
+      /* ceiling */
       ctx.strokeStyle = "#666";
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -66,14 +94,14 @@ export default function VerticalSpringSHM() {
       ctx.lineTo(W / 2 + 50, topY);
       ctx.stroke();
 
-      // spring
+      /* spring */
       drawSpring(W / 2, topY, massY - 15);
 
-      // mass
+      /* mass */
       ctx.fillStyle = "#ff5555";
       ctx.fillRect(W / 2 - 20, massY - 15, 40, 30);
 
-      // equilibrium line
+      /* equilibrium */
       ctx.setLineDash([6, 6]);
       ctx.strokeStyle = "#444";
       ctx.beginPath();
@@ -82,12 +110,11 @@ export default function VerticalSpringSHM() {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // ===== GRAPH =====
+      /* graph */
       data.current.push(y);
       if (data.current.length > 260) data.current.shift();
 
       gctx.clearRect(0, 0, 320, 200);
-
       gctx.strokeStyle = "#888";
       gctx.beginPath();
       gctx.moveTo(40, 10);
@@ -111,80 +138,65 @@ export default function VerticalSpringSHM() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [A, omega, phase, gravity, running]);
 
+  const btn = (key, label) => (
+    <button
+      onClick={() => setActive(key)}
+      style={{
+        background: active === key ? "#00aaff" : "#222",
+        color: "#fff",
+        marginRight: 6
+      }}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div style={{ display: "flex", gap: 20, color: "#fff" }}>
-      {/* Vertical spring animation */}
-      <canvas
-        ref={canvasRef}
-        width={260}
-        height={360}
-        style={{ border: "1px solid #555" }}
-      />
+    <div style={{ display: "flex", gap: 20 }}>
+      <canvas ref={canvasRef} width={260} height={360} />
 
       <div>
-        {/* Graph */}
-        <canvas
-          ref={graphRef}
-          width={320}
-          height={200}
-          style={{ border: "1px solid #555" }}
+        <canvas ref={graphRef} width={320} height={200} />
+
+        <div style={{ margin: "10px 0" }}>
+          {btn("A", "Amplitude")}
+          {btn("omega", "ω")}
+          {btn("g", "Gravity")}
+          {btn("phase", "Phase")}
+        </div>
+
+        <p>Active control: <b>{active.toUpperCase()}</b> (A / D)</p>
+
+        <input
+          type="range"
+          min="20"
+          max="120"
+          value={A}
+          onChange={e => setA(+e.target.value)}
         />
 
-        <p style={{ color: "#00aaff" }}>
-          Displacement y(t) from equilibrium
-        </p>
+        <input
+          type="range"
+          min="0.5"
+          max="5"
+          step="0.1"
+          value={omega}
+          onChange={e => setOmega(+e.target.value)}
+        />
 
-        {/* Controls */}
-        <div>
-          <label style={{ color: "#000" }}>
-            Amplitude A: <b>{A}</b>
-          </label>
-          <input
-            type="range"
-            min="20"
-            max="120"
-            value={A}
-            onChange={e => setA(+e.target.value)}
-          />
-        </div>
+        <input
+          type="range"
+          min="0"
+          max="20"
+          step="0.2"
+          value={gravity}
+          onChange={e => setGravity(+e.target.value)}
+        />
 
-        <div>
-          <label style={{ color: "#000" }}>
-            Angular Frequency ω: <b>{omega}</b>
-          </label>
-          <input
-            type="range"
-            min="0.5"
-            max="5"
-            step="0.1"
-            value={omega}
-            onChange={e => setOmega(+e.target.value)}
-          />
-        </div>
-
-        
-      
-
-        <div>
-          <label style={{ color: "#000" }}>
-            Gravity g: <b>{gravity.toFixed(1)} m/s²</b>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="20"
-            step="0.2"
-            value={gravity}
-            onChange={e => setGravity(+e.target.value)}
-          />
-        </div>
-
-        <button
-          onClick={() => {
-            t0.current = null;
-            setRunning(r => !r);
-          }}
-        >
+        <button onClick={() => {
+          t0.current = null;
+          setRunning(r => !r);
+        }}>
           {running ? "Pause" : "Resume"}
         </button>
       </div>

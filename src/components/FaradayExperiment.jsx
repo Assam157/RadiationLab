@@ -114,7 +114,7 @@ export default function FaradayExperiment() {
 
       {/* CONTROL PANEL */}
       <div className="cinema-energy">
-        <div className="label"   style={{ color: "#040202" }}>MAGNET MOTION</div>
+        <div className="label">MAGNET MOTION</div>
 
         <div className="value">
           {control < -0.05 && "A (Left)"}
@@ -131,7 +131,7 @@ export default function FaradayExperiment() {
           onChange={onSlider}
         />
 
-        <div className="panel-hint"   style={{ color: "#050303" }}>
+        <div className="panel-hint">
           Use <b>A</b> / <b>D</b> keys or drag slider
         </div>
       </div>

@@ -6,15 +6,43 @@ export default function HorizontalSpringWithFriction() {
   const rafRef = useRef(null);
 
   /* ===== Controls ===== */
-  const [A, setA] = useState(80);          // amplitude (px)
-  const [omega0, setOmega0] = useState(3); // natural angular frequency
-  const [gamma, setGamma] = useState(0.2); // damping (friction)
-  const [phase, setPhase] = useState(0);   // phase
+  const [A, setA] = useState(80);
+  const [omega0, setOmega0] = useState(3);
+  const [gamma, setGamma] = useState(0.02);
+  const [phase, setPhase] = useState(0);
   const [running, setRunning] = useState(true);
+
+  const [active, setActive] = useState("A");
 
   const t0 = useRef(null);
   const data = useRef([]);
 
+  /* ================= KEYBOARD CONTROL ================= */
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key !== "a" && e.key !== "d") return;
+      const dir = e.key === "d" ? 1 : -1;
+
+      if (active === "A")
+        setA(v => Math.min(120, Math.max(20, v + dir * 5)));
+
+      if (active === "omega")
+        setOmega0(v => +(Math.min(6, Math.max(1, v + dir * 0.1))).toFixed(1));
+
+      if (active === "gamma")
+        setGamma(v =>
+          +(Math.min(0.05, Math.max(0, v + dir * 0.005))).toFixed(3)
+        );
+
+      if (active === "phase")
+        setPhase(v => +(v + dir * 0.2).toFixed(2));
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [active]);
+
+  /* ================= ANIMATION ================= */
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
     const gctx = graphRef.current.getContext("2d");
@@ -47,24 +75,21 @@ export default function HorizontalSpringWithFriction() {
       if (!t0.current) t0.current = time;
       const t = (time - t0.current) / 1000;
 
-      /* ===== PHYSICS ===== */
       const omega = Math.sqrt(
         Math.max(omega0 * omega0 - gamma * gamma, 0.01)
       );
 
-      const x =
-        A * Math.exp(-gamma * t) * Math.cos(omega * t + phase);
+      const x = A * Math.exp(-gamma * t) * Math.cos(omega * t + phase);
 
-      /* ===== DRAW SYSTEM ===== */
       ctx.clearRect(0, 0, W, H);
 
-      const floorY = H - 40;     // plane position
-      const blockSize = 40;
+      const floorY = H - 40;
+      const block = 40;
       const eqX = W / 2;
       const massX = eqX + x;
-      const massY = floorY - blockSize;
+      const massY = floorY - block;
 
-      /* ---- ground plane ---- */
+      /* ground */
       ctx.strokeStyle = "#666";
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -72,33 +97,18 @@ export default function HorizontalSpringWithFriction() {
       ctx.lineTo(W, floorY);
       ctx.stroke();
 
-      // texture lines on plane
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth = 1;
-      for (let i = 0; i < W; i += 20) {
-        ctx.beginPath();
-        ctx.moveTo(i, floorY);
-        ctx.lineTo(i + 10, floorY);
-        ctx.stroke();
-      }
-
-      /* ---- wall ---- */
+      /* wall */
       ctx.fillStyle = "#777";
       ctx.fillRect(20, massY - 20, 10, 80);
 
-      /* ---- spring ---- */
-      drawSpring(30, massX - blockSize / 2, massY + blockSize / 2);
+      /* spring */
+      drawSpring(30, massX - block / 2, massY + block / 2);
 
-      /* ---- mass ---- */
+      /* mass */
       ctx.fillStyle = "#ff5555";
-      ctx.fillRect(
-        massX - blockSize / 2,
-        massY,
-        blockSize,
-        blockSize
-      );
+      ctx.fillRect(massX - block / 2, massY, block, block);
 
-      /* ---- equilibrium marker ---- */
+      /* equilibrium */
       ctx.setLineDash([6, 6]);
       ctx.strokeStyle = "#444";
       ctx.beginPath();
@@ -107,12 +117,11 @@ export default function HorizontalSpringWithFriction() {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      /* ===== GRAPH ===== */
+      /* graph */
       data.current.push(x);
       if (data.current.length > 260) data.current.shift();
 
       gctx.clearRect(0, 0, 320, 200);
-
       gctx.strokeStyle = "#888";
       gctx.beginPath();
       gctx.moveTo(40, 10);
@@ -136,79 +145,51 @@ export default function HorizontalSpringWithFriction() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [A, omega0, gamma, phase, running]);
 
+  const btn = (key, label) => (
+    <button
+      onClick={() => setActive(key)}
+      style={{
+        background: active === key ? "#00aaff" : "#222",
+        color: "#fff",
+        marginRight: 6
+      }}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div style={{ display: "flex", gap: 20, color: "#fff" }}>
-      {/* Animation */}
-      <canvas
-        ref={canvasRef}
-        width={420}
-        height={240}
-        style={{ border: "1px solid #555" }}
-      />
+    <div style={{ display: "flex", gap: 20 }}>
+      <canvas ref={canvasRef} width={420} height={240} />
 
       <div>
-        {/* Graph */}
-        <canvas
-          ref={graphRef}
-          width={320}
-          height={200}
-          style={{ border: "1px solid #555" }}
-        />
+        <canvas ref={graphRef} width={320} height={200} />
 
-        <p style={{ color: "#00aaff" }}>
-          Displacement x(t) — friction on plane
-        </p>
-
-        {/* Controls */}
-        <div>
-          <label style={{ color: "#000" }}>
-            Amplitude A: <b>{A}</b>
-          </label>
-          <input
-            type="range"
-            min="20"
-            max="120"
-            value={A}
-            onChange={e => setA(+e.target.value)}
-          />
+        <div style={{ margin: "10px 0" }}>
+          {btn("A", "Amplitude")}
+          {btn("omega", "ω₀")}
+          {btn("gamma", "γ (Friction)")}
+          {btn("phase", "Phase")}
         </div>
 
-        <div>
-          <label style={{ color: "#000" }}>
-            Natural Frequency ω₀: <b>{omega0}</b>
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="6"
-            step="0.1"
-            value={omega0}
-            onChange={e => setOmega0(+e.target.value)}
-          />
-        </div>
+        <p>Active control: <b>{active.toUpperCase()}</b> (A / D)</p>
 
-        <div>
-          <label style={{ color: "#000" }}>
-            Friction (γ): <b>{gamma.toFixed(2)}</b>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="0.05"
-            step="0.01"
-            value={gamma}
-            onChange={e => setGamma(+e.target.value)}
-          />
-        </div>
+        <input type="range" min="20" max="120" value={A}
+          onChange={e => setA(+e.target.value)} />
 
-        
+        <input type="range" min="1" max="6" step="0.1" value={omega0}
+          onChange={e => setOmega0(+e.target.value)} />
 
-        <button
-          onClick={() => {
-            t0.current = null;
-            setRunning(r => !r);
-          }}
-        >
+        <input type="range" min="0" max="0.05" step="0.005" value={gamma}
+          onChange={e => setGamma(+e.target.value)} />
+
+        <input type="range" min="-6.28" max="6.28" step="0.1" value={phase}
+          onChange={e => setPhase(+e.target.value)} />
+
+        <button onClick={() => {
+          t0.current = null;
+          setRunning(r => !r);
+        }}>
           {running ? "Pause" : "Resume"}
         </button>
       </div>
